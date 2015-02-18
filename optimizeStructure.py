@@ -43,7 +43,9 @@ def makeMutation(pose, positions, mutations):
 # Input: (1) Pose to optimize, (2) List of positions that were mutated, (3) number of optimization iterations (default 60)
 # Output: Optimized structure (also changes input structure) or None if there is an error
 # Note: Attempts to optimize all the positions at once
-def optimizeStructure(pose, positions, iter = 60):
+# TODO: Create option for attaching to PyMOL
+def optimizeStructure(pose, positions, iters = 60):
+
 	#Perform error checking on parameters
 	if (pose is None):
 		print "**ERROAR (optimizeStructure): Pose is null"
@@ -60,113 +62,84 @@ def optimizeStructure(pose, positions, iter = 60):
 
 	scorefxn = get_fa_scorefxn()
 	kT = 1 #TODO: Put this into a constants file?
-	maxIters = 60
+	neighborhood = 5
+	numMoves = 3
+	backboneAngleMax = 7
+	# --------------------------------
+	# CREATE THE MOVERS FOR THIS
+	#---------------------------------
+
+	# mmMin = MoveMap()
+	# for position in positions:
+	# 	#Allow perturbations for each mutation site and its 'neighborhood'
+	# 	minRange = max(position - neighborhood, 1)
+	# 	maxRange = min(position + neighborhood, pose.total_residue())
+	# 	mmMin.set_bb_true_range(minRange, maxRange)
+
+	# mmSmallShear = MoveMap()
+	# for position in positions:
+	# 	#Create a MoveMap that only allows changes at the mutation site
+	# 	mmSmallShear.set_bb_true_range(position, position)
+
+	mm = MoveMap()
+	mm.set_bb(True)
+
+	smallMover = SmallMover(mm, kT, numMoves)
+	smallMover.angle_max(backboneAngleMax)
+
+	shearMover = ShearMover(mm, kT, numMoves)
+	shearMover.angle_max(backboneAngleMax)
+
+	minMover = MinMover()
+	minMover.movemap(mm)
+	minMover.score_function(scorefxn)
+
+	packerTask = standard_packer_task(pose)
+	packerTask.restrict_to_repacking()
+	packerTask.or_include_current(True)
+	packMover = PackRotamersMover(scorefxn, packerTask)
+
+	combined_mover = SequenceMover()
+	combined_mover.add_mover(smallMover)
+	combined_mover.add_mover(shearMover)
+	combined_mover.add_mover(minMover)
+	combined_mover.add_mover(packMover)
 
 	#Use a MonteCarlo format over 60 iterations
 	mc = MonteCarlo(testPose, scorefxn, kT)
 
-	for i in range(0, maxIters):
-		#Perform small backbone torsion adjustments to each mutation location
-		smallBackbonePerturb(testPose, positions)
-		
-		#Pack side chains
-		repack(testPose)
+	#Attach the movers to the MC object
+	trial = TrialMover(combined_mover, mc)
 
-		#Gradient based minimization over all locations within 5 aminio acids of a mutation site
-		localMinimzation(testPose, positions)
+	# Perform refinement over N number of cycles
+	refinement = RepeatMover(trial, iters)
 
-		#Accept or reject the modified pose according to a Metropolis acceptance criterion
-		mc.boltzmann()
+	#Performs the actual refinement process
+	refinement.apply(testPose)
 
-	pose.assign(testPose)		
-	return pose
+	mc.recover_low(testPose)
+	finalScore = scorefxn(testPose)
+	print finalScore
+	testPose.dump_pdb('./test.pdb')
 
-# Function: localMinimzation
-# Performs N iterations of gradient based local Minimization the energy function
-# Optimizations are performed on the X (default 5) amino acids on either side of each mutation site
-# Input: (1) pose to minimize, (2) positions of mutations, (3) scorefxn to minimize (default is Rosetta default)
-def localMinimization(pose, positions, iters = 3, scorefxn = get_fa_scorefxn()):
-	if (pose is None):
-		print "**ERROAR (localMinimization): Pose is null"
-		return None 
+	return testPose
 
-	#TODO: Move to some constants area
-	neighborhood = 5
+# Calling ROSAIC will perform N iterations of mutation + optimization
+# INPUT: PDB file
+#		 Outfile
+#		 Mutation function that takes in a sequence and returns a list of positinos and a list of corresponding amino acids
+#
+# OUTPUT: (dumps final PDB structure)
+#         returns pdb sequence
+def ROSAIC(pdbFile, outfile, mutationGenerator, iter):
 
-	#Create MinMover - performs a gradies-based minimization to the pose
-	minMover = MinMover()
+	pose = pose_from_pdb(pdbFile)
 
-	#Allow perturbations for each mutation site and its 'neighborhood'
-	mm = MoveMap()
-	for position in positions:
-		minRange = max(position - neighborhood, 0)
-		maxRange = min(position + neighborhood, pose.total_residue())
-		mm.set_bb_true_range(minRange, maxRange)
+	for i in range(0, iter) 
+		(positions, mutations) = mutationGenerator(pose.sequence());
 
-	minMover.movemap(mm)
-	minMover.score_function(scorefxn)
+		makeMutation(pose, positions, mutations);
+		optimizeStructure(pose, positions)
 
-	#TODO: Apply a MonteCarlo here? Does it need one? 
-	for i in range(0, iters):
-		minMover.appy(pose)
-
-	return pose
-
-# Function: repack
-# Optimizes side chains from a Rotamer Library
-# Input: (1) pose to repack, (2) Optional - scorefxn being used (default will be used otherwise)
-def repack(pose, scorefxn = None):
-	if (pose is None):
-		print "**ERROAR (repack): Pose is null"
-		return None 
-
-	scorefxn = get_fa_scorefxn()
-	packer_task = standard_packer_task(pose)
-	packer_task.restrict_to_repacking()
-	pack_mover = PackRotamersMover(scorefxn, packer_task)
-	pack_mover.apply(pose)
-
-	return pose
-
-# Function: smallBackbonePerturb
-# Performs a small or shear (80/20 chance?) backbone angle change to each of the mutation sites
-# TODO: Maybe instead this should be like 5 adjustments randomly chose from the mutation sites?
-def smallBackbonePerturb(pose, positions):
-	if (pose is None):
-		print "**ERROAR (smallBackbonePerturb): Pose is null"
-		return None 
-
-	#TODO: Standardize these somewhere in an easy to find/edit place
-	kT = 1
-	numMoves = 1
-	maxAngle = 5
-
-	#Create a temporary pose
-	testPose = Pose()
-	testPose.assign(pose)
-
-	moveType = random.random()
-
-	for position in positions:
-		#Create a MoveMap that only allows changes at the mutation site
-		mm = MoveMap()
-		mm.set_bb_true_range(position)
-
-		if (moveType > 0.8):
-			#Small Mover -updates a phi or psi torsion angle by a random small angle
-			small_mover = SmallMover(mm, kT, numMoves)
-			small_mover.angle_max("H", maxAngle) #Not sure which of these we need
-			small_mover.angle_max("E", maxAngle)
-			small_mover.angle_max("L", maxAngle)
-			small_mover.apply(testPose)
-		else:
-			#Shear Mover -updates a phi angle by a random small amount 
-			# and a psi angle by the same random angle in the opposite direction
-			shear_mover = ShearMover(mm, kT, numMoves)
-			shear_mover.angle_max("H", maxAngle) #Not sure which of these we need
-			shear_mover.angle_max("E", maxAngle)
-			shear_mover.angle_max("L", maxAngle)
-			shear_mover.apply(testPose)
-
-	pose.assign(testPose)
-	return pose
+	pose.dump_pdb(outfile)
+	return pose.sequence()

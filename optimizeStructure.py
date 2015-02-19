@@ -5,12 +5,17 @@
 # This file performs PyRosetta related mutations and optimizations for a protein structure 
 from rosetta import *
 import random 
+import imp
+from utils import *
 
-# Function: makeMutation()
-# Input: (1) Pose to mutate, (2) List of positions to mutate, (3) List of amino acids to mutate to
-# Output: Pose of mutated structure (provided pose is also changed) or None if there is an error
-# Notes: Input pose is changed if successful
+
+possibleMutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
+
 def makeMutation(pose, positions, mutations):
+	"""# Function: makeMutation()
+	# Input: (1) Pose to mutate, (2) List of positions to mutate, (3) List of amino acids to mutate to
+	# Output: Pose of mutated structure (provided pose is also changed) or None if there is an error
+	# Notes: Input pose is changed if successful"""
 
 	#Error check the parameters 
 	if (not len(positions) == len(mutations)):
@@ -39,13 +44,14 @@ def makeMutation(pose, positions, mutations):
 	return pose;
 
 
-# Function: optimizeStructure()
-# Input: (1) Pose to optimize, (2) List of positions that were mutated, (3) number of optimization iterations (default 60)
-# Output: Optimized structure (also changes input structure) or None if there is an error
-# Note: Attempts to optimize all the positions at once
-# TODO: Create option for attaching to PyMOL
 def optimizeStructure(pose, positions, iters = 60):
 
+	"""Function: optimizeStructure()
+	# Input: (1) Pose to optimize, (2) List of positions that were mutated, (3) number of optimization iterations (default 60)
+	# Output: Optimized structure (also changes input structure) or None if there is an error
+	# Note: Attempts to optimize all the positions at once
+	# TODO: Create option for attaching to PyMOL 
+	"""
 	#Perform error checking on parameters
 	if (pose is None):
 		print "**ERROAR (optimizeStructure): Pose is null"
@@ -65,21 +71,9 @@ def optimizeStructure(pose, positions, iters = 60):
 	neighborhood = 5
 	numMoves = 3
 	backboneAngleMax = 7
-	# --------------------------------
+	#---------------------------------
 	# CREATE THE MOVERS FOR THIS
 	#---------------------------------
-
-	# mmMin = MoveMap()
-	# for position in positions:
-	# 	#Allow perturbations for each mutation site and its 'neighborhood'
-	# 	minRange = max(position - neighborhood, 1)
-	# 	maxRange = min(position + neighborhood, pose.total_residue())
-	# 	mmMin.set_bb_true_range(minRange, maxRange)
-
-	# mmSmallShear = MoveMap()
-	# for position in positions:
-	# 	#Create a MoveMap that only allows changes at the mutation site
-	# 	mmSmallShear.set_bb_true_range(position, position)
 
 	mm = MoveMap()
 	mm.set_bb(True)
@@ -124,18 +118,19 @@ def optimizeStructure(pose, positions, iters = 60):
 
 	return testPose
 
-# Calling ROSAIC will perform N iterations of mutation + optimization
-# INPUT: PDB file
-#		 Outfile
-#		 Mutation function that takes in a sequence and returns a list of positinos and a list of corresponding amino acids
-#
-# OUTPUT: (dumps final PDB structure)
-#         returns pdb sequence
+
 def ROSAIC(pdbFile, outfile, mutationGenerator, iter):
+	"""# Calling ROSAIC will perform N iterations of mutation + optimization
+	# INPUT: PDB file
+	#		 Outfile
+	#		 Mutation function that takes in a sequence and returns a list of positinos and a list of corresponding amino acids
+	#
+	# OUTPUT: (dumps final PDB structure)
+	#         returns pdb sequence """
 
 	pose = pose_from_pdb(pdbFile)
 
-	for i in range(0, iter) 
+	for i in range(0, iter):
 		(positions, mutations) = mutationGenerator(pose.sequence());
 
 		makeMutation(pose, positions, mutations);
@@ -143,3 +138,22 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter):
 
 	pose.dump_pdb(outfile)
 	return pose.sequence()
+
+def mutationSelecterRandom(sequence):
+	position = 0
+	aminoAcid = 0
+
+	all_seqs = get_all_sequences()
+	cover = coverage(sequence, all_seqs)
+	tmpCover = 0
+	print cover
+
+	while (tmpCover < cover):
+		position = int(random.random() * len(sequence))
+		aminoAcid = mutations[int(random.random() * 20)]
+
+		tmpSequence = sequence[:position] + aminoAcid + sequence[(position + 1):]
+		tmpCover =  coverage(tmpSequence, all_seqs)
+		print tmpCover
+
+	return (position, aminoAcid)

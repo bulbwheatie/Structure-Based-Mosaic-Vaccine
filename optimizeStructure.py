@@ -128,7 +128,10 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter):
 	# OUTPUT: (dumps final PDB structure)
 	#         returns pdb sequence """
 
-	pose = pose_from_pdb(pdbFile)
+	rosetta.init()
+	pose = Pose()
+	pose_from_pdb(pose, pdbFile)
+	print "Running ROSAIC"
 
 	for i in range(0, iter):
 		(positions, mutations) = mutationGenerator(pose.sequence());
@@ -143,17 +146,21 @@ def mutationSelecterRandom(sequence):
 	position = 0
 	aminoAcid = 0
 
-	all_seqs = get_all_sequences()
+	all_seqs = get_all_sequences(False)
 	cover = coverage(sequence, all_seqs)
 	tmpCover = 0
 	print cover
 
-	while (tmpCover < cover):
+	while (tmpCover <= cover):
 		position = int(random.random() * len(sequence))
-		aminoAcid = mutations[int(random.random() * 20)]
+		aminoAcid = possibleMutations[int(random.random() * 20)]
 
 		tmpSequence = sequence[:position] + aminoAcid + sequence[(position + 1):]
 		tmpCover =  coverage(tmpSequence, all_seqs)
 		print tmpCover
 
 	return (position, aminoAcid)
+
+if __name__ == "__main__":
+    # Coverage test, should output 0.67
+    print ROSAIC('4M0I.pdb', 'test.pdb', mutationSelecterRandom, 1)

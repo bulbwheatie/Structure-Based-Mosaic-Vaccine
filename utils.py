@@ -1,7 +1,7 @@
 from pprint import pprint
 
-fasta_filenames = ["data/HIV-1_gag.fasta",
-                   "data/HIV-1_nef.fasta"]
+fasta_filenames = ["data/SHORT_HIV-1_gag.fasta",
+                   "data/SHORT_HIV-1_nef.fasta"]
 
 epitope_coverage = {} # epitope : coverage
 epitope_length = 9
@@ -70,4 +70,4 @@ def get_all_sequences(aligned = True):
 
 if __name__ == "__main__":
     # Coverage test, should output 0.67
-    print coverage('ABCDEFGHIJKL', ['ABCDEFGHIJKLMN'])
+    print coverage('ABCDEFGHIJKL', ['ABCDEFGHIJKLMN', 'ABCDEFGHIJKLMN'])

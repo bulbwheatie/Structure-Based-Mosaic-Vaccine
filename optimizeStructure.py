@@ -159,8 +159,9 @@ def mutationSelecterRandom(sequence):
 		tmpCover =  coverage(tmpSequence, all_seqs)
 		print tmpCover
 
+	print str(position) + ", " + str(aminoAcid)
 	return (position, aminoAcid)
 
 if __name__ == "__main__":
     # Coverage test, should output 0.67
-    print ROSAIC('4M0I.pdb', 'test.pdb', mutationSelecterRandom, 1)
+    print ROSAIC('nef.pdb', 'test.pdb', mutationSelecterRandom, 1)

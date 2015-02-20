@@ -124,25 +124,38 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 	scorefxn = create_score_function('standard')
 	print "Initial energy: " + str(scorefxn(pose))
 
-	log = fopen(logFile, 'w')
+	log = open(logFile, 'w')
 	log.write("Initial energy: " + str(scorefxn(pose)) + "\n")
 
 	mc = MonteCarlo(pose, scorefxn, 1)
 
 	for i in range(0, iter):
+		#Choose a mutation
 		(position, mutation) = mutationGenerator(pose.sequence());
+		if (position == -1):
+			log.write("Mutations issues\n")
+			pose.dump_pdb(outfile)
+			close(log)
+			return pose.sequence()
 
+		#Make a mutation
 		makeMutation(pose, positions, mutations)
+
+		#Optimize the structure
 		energy = optimizeStructure(pose)
-		log.write("Mutation at " + str(position) +  " to " + mutation \
-			+ "; Energy = " + str(energy) + "\n")
+
+		#Log info from this iteration
 		print "Mutation at " + str(position) +  " to " + mutation \
 			+ "; Energy = " + str(energy) + "\n"
 		accepted = mc.botlzmann(pose)
 		if (not accepted): 
-			log.write("Mutation rejected \n")
+			log.write(str(position) +  ", " + mutation \
+				+ "," + str(count) + "," + str(energy) + ",0\n")
 			print "Mutation rejected \n"
-			
+		else:
+			log.write(str(position) +  ", " + mutation \
+				+ "," + str(count) + "," + str(energy) + ",1\n")
+
 	pose.dump_pdb(outfile)
 	close(log)
 	return pose.sequence()
@@ -161,16 +174,19 @@ def mutationSelecterRandom(sequence):
 	tmpCover = 0
 	print cover
 
+	count = 0
 	while (tmpCover <= cover):
-		position = int(random.random() * len(sequence))
-		aminoAcid = possibleMutations[int(random.random() * 20)]
+		(position, aminoAcid) = choose_mutation(sequence)
 
 		tmpSequence = sequence[:position] + aminoAcid + sequence[(position + 1):]
 		tmpCover =  coverage(tmpSequence, all_seqs)
 		print tmpCover
+		count +=1
+		if (count > 200):
+			return (-1, aminoAcid, 200)
 
 	print str(position) + ", " + str(aminoAcid)
-	return (position, aminoAcid)
+	return (position, aminoAcid, count)
 
 def RunROSAIC():
 
@@ -180,7 +196,7 @@ def RunROSAIC():
 	iters = 1
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "outFile=", "iters=", "logFile"])
+		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "outFile=", "iters=", "logFile="])
 	except getopt.error, msg:
 		print msg
 		print "for help use --help"

@@ -30,6 +30,7 @@ def makeMutation(pose, positions, mutations):
 	testPose = Pose()
 	testPose.assign(pose)
 
+	i = 0
 	for position in positions:
 		if (position > pose.total_residue()):
 			print "**ERROAR (makeMutation): Position does not exist in provided structure"
@@ -37,8 +38,8 @@ def makeMutation(pose, positions, mutations):
 
 		#TODO: Check if mutations[i] is valid (i.e. correct format and a natural aminio acid)
 
-		mutate_residue(testPose, positions[i], mutations[i])
-
+		mutate_residue(testPose, position, mutations[i])
+		i +=1
 	# Update the provided pose and return the mutated pose
 	pose.assign(testPose)
 	return pose;
@@ -66,7 +67,7 @@ def optimizeStructure(pose, positions, iters = 60):
 	testPose = Pose()
 	testPose.assign(pose)
 
-	scorefxn = get_fa_scorefxn()
+	scorefxn = create_score_function('standard')
 	kT = 1 #TODO: Put this into a constants file?
 	neighborhood = 5
 	numMoves = 3
@@ -79,10 +80,14 @@ def optimizeStructure(pose, positions, iters = 60):
 	mm.set_bb(True)
 
 	smallMover = SmallMover(mm, kT, numMoves)
-	smallMover.angle_max(backboneAngleMax)
+	smallMover.angle_max('H', backboneAngleMax)
+	smallMover.angle_max('E', backboneAngleMax)
+	smallMover.angle_max('L', backboneAngleMax)
 
 	shearMover = ShearMover(mm, kT, numMoves)
-	shearMover.angle_max(backboneAngleMax)
+	shearMover.angle_max('H', backboneAngleMax)
+	shearMover.angle_max('E', backboneAngleMax)
+	shearMover.angle_max('L', backboneAngleMax)
 
 	minMover = MinMover()
 	minMover.movemap(mm)
@@ -114,8 +119,6 @@ def optimizeStructure(pose, positions, iters = 60):
 	mc.recover_low(testPose)
 	finalScore = scorefxn(testPose)
 	print finalScore
-	testPose.dump_pdb('./test.pdb')
-
 	return testPose
 
 
@@ -138,13 +141,22 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter):
 
 		makeMutation(pose, positions, mutations);
 		optimizeStructure(pose, positions)
+		#TODO: Dump intermediate structures?
 
 	pose.dump_pdb(outfile)
 	return pose.sequence()
 
+def mutationTest(sequence):
+	position = [0]
+	aminoAcid = [0]
+
+	position[0] = 18
+	aminoAcid[0] = possibleMutations[5]
+	return (position, aminoAcid)
+
 def mutationSelecterRandom(sequence):
-	position = 0
-	aminoAcid = 0
+	position = [0]
+	aminoAcid = [0]
 
 	all_seqs = get_all_sequences(False)
 	cover = coverage(sequence, all_seqs)
@@ -152,14 +164,14 @@ def mutationSelecterRandom(sequence):
 	print cover
 
 	while (tmpCover <= cover):
-		position = int(random.random() * len(sequence))
-		aminoAcid = possibleMutations[int(random.random() * 20)]
+		position[0] = int(random.random() * len(sequence))
+		aminoAcid[0] = possibleMutations[int(random.random() * 20)]
 
-		tmpSequence = sequence[:position] + aminoAcid + sequence[(position + 1):]
+		tmpSequence = sequence[:position[0]] + aminoAcid[0] + sequence[(position[0] + 1):]
 		tmpCover =  coverage(tmpSequence, all_seqs)
 		print tmpCover
 
-	print str(position) + ", " + str(aminoAcid)
+	print str(position[0]) + ", " + str(aminoAcid[0])
 	return (position, aminoAcid)
 
 if __name__ == "__main__":

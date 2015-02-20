@@ -1,4 +1,5 @@
 from pprint import pprint
+import random
 
 fasta_filenames = ["data/HIV-1_gag.fasta",
                    "data/HIV-1_nef.fasta"]
@@ -6,6 +7,39 @@ fasta_filenames = ["data/HIV-1_gag.fasta",
 soft_epitope_coverage = {} # epitope : coverage
 hard_epitope_coverage = {} # epitope : coverage
 epitope_length = 9
+
+possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
+
+def choose_mutation(mosaic_seq):
+    """ Scores amino acid by the mean of the coverage of nearby epitopes
+
+    At first, this will choose to point mutate amino acids with no epitopes around it.
+    Once most amino acids have epitopes nearby, it will start to mutate problem amino acids
+    in viable epitopes.
+
+    Problem: if we can't viably mutate amino acids in one section, then we'll be stuck.
+    Solution: either make the choice of mutation location probabilistic OR
+    keep counts and factor that count score in as well """
+    
+    amino_acid_importance_scores = [0.0] * len(mosaic_seq)
+    for i in xrange(len(mosaic_seq)):
+        sum_sliding_window_epitope_coverage_scores = 0.0
+        first_epitope_start_i = max(i - epitope_length + 1, 0)
+        last_epitope_start_i = min(i, len(mosaic_seq) - epitope_length)
+        for epitope_start_i in xrange(first_epitope_start_i, last_epitope_start_i + 1):
+            epitope_end_i = epitope_start_i + epitope_length
+            epitope_seq = mosaic_seq[epitope_start_i:epitope_end_i]
+            sum_sliding_window_epitope_coverage_scores += soft_epitope_coverage[epitope_seq]
+        num_epitopes = last_epitope_start_i - first_epitope_start_i + 1
+        amino_acid_importance_scores[i] = sum_sliding_window_epitope_coverage_scores / num_epitopes
+
+    # Choose random point mutation
+    amino_acid = possible_mutations[int(random.random() * 20)]  
+    location = amino_acid_importance_scores.index(min(amino_acid_importance_scores))
+
+    return location, amino_acid
+
+    
 
 def coverage(mosaic_seq, population_seqs, t="soft"):
     """ Returns metric for coverage of a mosaic sequence based on the
@@ -106,4 +140,6 @@ if __name__ == "__main__":
     # Coverage test, should output 0.67 (hard)
     print coverage('ABCDEFGHIJKL', ['ABCDEFGHIJKLMN', 'ABCDEFGHIJKLMN'], 'hard')
     # Coverage test, should be 0.1111 (soft)
-    print coverage('ABCDEFGHI', ['ATRYSEFSG'], 'soft')
+    print coverage('ABCDEFGHIJKLMNOP', ['ATRYSEFSG'], 'soft')
+
+    print choose_mutation('ABCDEFGHIJKLMNOP')

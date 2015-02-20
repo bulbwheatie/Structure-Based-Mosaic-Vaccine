@@ -1,4 +1,5 @@
 from pprint import pprint
+import random
 
 fasta_filenames = ["data/HIV-1_gag.fasta",
                    "data/HIV-1_nef.fasta"]
@@ -7,6 +8,8 @@ soft_epitope_coverage = {} # epitope : coverage
 hard_epitope_coverage = {} # epitope : coverage
 epitope_length = 9
 
+possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
+
 def choose_mutation(mosaic_seq):
     """ Scores amino acid by the mean of the coverage of nearby epitopes
 
@@ -14,10 +17,10 @@ def choose_mutation(mosaic_seq):
     Once most amino acids have epitopes nearby, it will start to mutate problem amino acids
     in viable epitopes.
 
-	Problem: if we can't viably mutate amino acids in one section, then we'll be stuck.
-	Solution: either make the choice of mutation location probabilistic OR
-	keep counts and factor that count score in as well """
-	
+    Problem: if we can't viably mutate amino acids in one section, then we'll be stuck.
+    Solution: either make the choice of mutation location probabilistic OR
+    keep counts and factor that count score in as well """
+    
     amino_acid_importance_scores = [0.0] * len(mosaic_seq)
     for i in xrange(len(mosaic_seq)):
         sum_sliding_window_epitope_coverage_scores = 0.0
@@ -29,7 +32,12 @@ def choose_mutation(mosaic_seq):
             sum_sliding_window_epitope_coverage_scores += soft_epitope_coverage[epitope_seq]
         num_epitopes = last_epitope_start_i - first_epitope_start_i + 1
         amino_acid_importance_scores[i] = sum_sliding_window_epitope_coverage_scores / num_epitopes
-    return amino_acid_importance_scores.index(min(amino_acid_importance_scores))
+
+    # Choose random point mutation
+    amino_acid = possible_mutations[int(random.random() * 20)]  
+    location = amino_acid_importance_scores.index(min(amino_acid_importance_scores))
+
+    return location, amino_acid
 
     
 

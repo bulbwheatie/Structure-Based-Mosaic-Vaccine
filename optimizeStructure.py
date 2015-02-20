@@ -7,20 +7,16 @@ from rosetta import *
 import random 
 import imp
 from utils import *
-
+import getopt
+import sys
 
 possibleMutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 
-def makeMutation(pose, positions, mutations):
+def makeMutation(pose, position, mutation):
 	"""# Function: makeMutation()
 	# Input: (1) Pose to mutate, (2) List of positions to mutate, (3) List of amino acids to mutate to
 	# Output: Pose of mutated structure (provided pose is also changed) or None if there is an error
 	# Notes: Input pose is changed if successful"""
-
-	#Error check the parameters 
-	if (not len(positions) == len(mutations)):
-		print "**ERROAR (makeMutation): provide lists of equal length"
-		return None
 
 	if (pose is None):
 		print "**ERROAR (makeMutation): Pose is null"
@@ -30,22 +26,18 @@ def makeMutation(pose, positions, mutations):
 	testPose = Pose()
 	testPose.assign(pose)
 
-	i = 0
-	for position in positions:
-		if (position > pose.total_residue()):
-			print "**ERROAR (makeMutation): Position does not exist in provided structure"
-			return None
+	if (position > pose.total_residue()):
+		print "**ERROAR (makeMutation): Position does not exist in provided structure"
+		return None
 
-		#TODO: Check if mutations[i] is valid (i.e. correct format and a natural aminio acid)
+	mutate_residue(testPose, position, mutation)
 
-		mutate_residue(testPose, position, mutations[i])
-		i +=1
 	# Update the provided pose and return the mutated pose
 	pose.assign(testPose)
 	return pose;
 
 
-def optimizeStructure(pose, positions, iters = 60):
+def optimizeStructure(pose, iters = 60):
 
 	"""Function: optimizeStructure()
 	# Input: (1) Pose to optimize, (2) List of positions that were mutated, (3) number of optimization iterations (default 60)
@@ -57,11 +49,6 @@ def optimizeStructure(pose, positions, iters = 60):
 	if (pose is None):
 		print "**ERROAR (optimizeStructure): Pose is null"
 		return None 
-
-	for position in positions:
-		if (position > pose.total_residue()):
-			print "**ERROAR (optimizeStructure): Position does not exist in provided structure"
-			return None
 
 	#Create a temporary pose
 	testPose = Pose()
@@ -118,11 +105,10 @@ def optimizeStructure(pose, positions, iters = 60):
 
 	mc.recover_low(testPose)
 	finalScore = scorefxn(testPose)
-	print finalScore
-	return testPose
+	return finalScore
 
 
-def ROSAIC(pdbFile, outfile, mutationGenerator, iter):
+def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 	"""# Calling ROSAIC will perform N iterations of mutation + optimization
 	# INPUT: PDB file
 	#		 Outfile
@@ -131,49 +117,101 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter):
 	# OUTPUT: (dumps final PDB structure)
 	#         returns pdb sequence """
 
+	print "Running ROSAIC"
 	rosetta.init()
 	pose = Pose()
 	pose_from_pdb(pose, pdbFile)
-	print "Running ROSAIC"
+	scorefxn = create_score_function('standard')
+	print "Initial energy: " + str(scorefxn(pose))
+
+	log = open(logFile, 'w')
+	log.write("Initial energy: " + str(scorefxn(pose)) + "\n")
+
+	mc = MonteCarlo(pose, scorefxn, 1)
 
 	for i in range(0, iter):
-		(positions, mutations) = mutationGenerator(pose.sequence());
+		#Choose a mutation
+		(position, mutation) = mutationGenerator(pose.sequence());
+		if (position == -1):
+			log.write("Mutations issues\n")
+			pose.dump_pdb(outfile)
+			close(log)
+			return pose.sequence()
 
-		makeMutation(pose, positions, mutations);
-		optimizeStructure(pose, positions)
-		#TODO: Dump intermediate structures?
+		#Make a mutation
+		makeMutation(pose, positions, mutations)
+
+		#Optimize the structure
+		energy = optimizeStructure(pose)
+
+		#Log info from this iteration
+		print "Mutation at " + str(position) +  " to " + mutation \
+			+ "; Energy = " + str(energy) + "\n"
+		accepted = mc.botlzmann(pose)
+		if (not accepted): 
+			log.write(str(position) +  ", " + mutation \
+				+ "," + str(count) + "," + str(energy) + ",0\n")
+			print "Mutation rejected \n"
+		else:
+			log.write(str(position) +  ", " + mutation \
+				+ "," + str(count) + "," + str(energy) + ",1\n")
 
 	pose.dump_pdb(outfile)
+	close(log)
 	return pose.sequence()
 
 def mutationTest(sequence):
-	position = [0]
-	aminoAcid = [0]
-
-	position[0] = 18
-	aminoAcid[0] = possibleMutations[5]
+	position = 18
+	aminoAcid = possibleMutations[5]
 	return (position, aminoAcid)
 
 def mutationSelecterRandom(sequence):
-	position = [0]
-	aminoAcid = [0]
+	position = 0
+	aminoAcid = 0
 
 	all_seqs = get_all_sequences(False)
 	cover = coverage(sequence, all_seqs)
 	tmpCover = 0
 	print cover
 
+	count = 0
 	while (tmpCover <= cover):
-		position[0] = int(random.random() * len(sequence))
-		aminoAcid[0] = possibleMutations[int(random.random() * 20)]
+		(position, aminoAcid) = choose_mutation(sequence)
 
-		tmpSequence = sequence[:position[0]] + aminoAcid[0] + sequence[(position[0] + 1):]
+		tmpSequence = sequence[:position] + aminoAcid + sequence[(position + 1):]
 		tmpCover =  coverage(tmpSequence, all_seqs)
 		print tmpCover
+		count +=1
+		if (count > 200):
+			return (-1, aminoAcid, 200)
 
-	print str(position[0]) + ", " + str(aminoAcid[0])
-	return (position, aminoAcid)
+	print str(position) + ", " + str(aminoAcid)
+	return (position, aminoAcid, count)
+
+def RunROSAIC():
+
+	pdbFile = None
+	outfile = None
+	logFile = None
+	iters = 1
+
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "outFile=", "iters=", "logFile="])
+	except getopt.error, msg:
+		print msg
+		print "for help use --help"
+		sys.exit(2)
+
+	for o, a in opts:
+		if o in ("--pdbFile"):
+			pdbFile = a
+		elif o in ("--outFile"):
+			outfile = a
+		elif o in ("--logFile"):
+			logFile = a
+		elif o in ("--iters"):
+			iters = int(a);
+	ROSAIC(pdbFile, outfile, mutationSelecterRandom, iters, logFile)
 
 if __name__ == "__main__":
-    # Coverage test, should output 0.67
-    print ROSAIC('nef.pdb', 'test.pdb', mutationSelecterRandom, 1)
+    print RunROSAIC()

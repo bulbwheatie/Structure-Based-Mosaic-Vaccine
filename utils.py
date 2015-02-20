@@ -1,7 +1,7 @@
 from pprint import pprint
 
-fasta_filenames = ["data/SHORT_HIV-1_gag.fasta",
-                   "data/SHORT_HIV-1_nef.fasta"]
+fasta_filenames = ["data/HIV-1_gag.fasta",
+                   "data/HIV-1_nef.fasta"]
 
 soft_epitope_coverage = {} # epitope : coverage
 hard_epitope_coverage = {} # epitope : coverage

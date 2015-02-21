@@ -20,7 +20,7 @@ def makeMutation(pose, position, mutation):
 
 	if (pose is None):
 		print "**ERROAR (makeMutation): Pose is null"
-		return None
+		return 
 
 	#Create a temporary pose
 	testPose = Pose()
@@ -28,7 +28,7 @@ def makeMutation(pose, position, mutation):
 
 	if (position > pose.total_residue()):
 		print "**ERROAR (makeMutation): Position does not exist in provided structure"
-		return None
+		return 
 
 	mutate_residue(testPose, position, mutation)
 
@@ -48,7 +48,7 @@ def optimizeStructure(pose, iters = 60):
 	#Perform error checking on parameters
 	if (pose is None):
 		print "**ERROAR (optimizeStructure): Pose is null"
-		return None 
+		return  
 
 	#Create a temporary pose
 	testPose = Pose()
@@ -127,37 +127,37 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 	log = open(logFile, 'w')
 	log.write("Initial energy: " + str(scorefxn(pose)) + "\n")
 
-	mc = MonteCarlo(pose, scorefxn, 1)
+	mc = MonteCarlo(pose, scorefxn, 0.1)
 
 	for i in range(0, iter):
 		#Choose a mutation
-		(position, mutation) = mutationGenerator(pose.sequence());
+		(position, mutation, count, cover) = mutationGenerator(pose.sequence());
 		if (position == -1):
 			log.write("Mutations issues\n")
 			pose.dump_pdb(outfile)
-			close(log)
+			log.close()
 			return pose.sequence()
 
 		#Make a mutation
-		makeMutation(pose, positions, mutations)
+		makeMutation(pose, position, mutation)
 
 		#Optimize the structure
 		energy = optimizeStructure(pose)
 
 		#Log info from this iteration
-		print "Mutation at " + str(position) +  " to " + mutation \
+		print "Coverage " + str(cover) + " from " + str(position) +  " to " + mutation \
 			+ "; Energy = " + str(energy) + "\n"
-		accepted = mc.botlzmann(pose)
+		accepted = mc.boltzmann(pose)
 		if (not accepted): 
 			log.write(str(position) +  ", " + mutation \
-				+ "," + str(count) + "," + str(energy) + ",0\n")
+				+ "," + str(count) + "," + str(cover) + "," + str(energy) + ",0\n")
 			print "Mutation rejected \n"
 		else:
 			log.write(str(position) +  ", " + mutation \
-				+ "," + str(count) + "," + str(energy) + ",1\n")
+				+ "," + str(count) + "," + str(cover) + "," + str(energy) + ",1\n")
 
 	pose.dump_pdb(outfile)
-	close(log)
+	log.close()
 	return pose.sequence()
 
 def mutationTest(sequence):
@@ -183,10 +183,10 @@ def mutationSelecterRandom(sequence):
 		print tmpCover
 		count +=1
 		if (count > 200):
-			return (-1, aminoAcid, 200)
+			return (-1, aminoAcid, 200, tmpCover)
 
 	print str(position) + ", " + str(aminoAcid)
-	return (position, aminoAcid, count)
+	return (position, aminoAcid, count, tmpCover)
 
 def RunROSAIC():
 

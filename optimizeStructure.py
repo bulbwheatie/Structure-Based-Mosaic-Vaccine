@@ -26,7 +26,8 @@ def makeMutation(pose, position, mutation):
 	testPose = Pose()
 	testPose.assign(pose)
 
-	if (position > pose.total_residue()):
+	#Pose object is one-indexed (not zero indexed)
+	if ((position + 1) > pose.total_residue()):
 		print "**ERROAR (makeMutation): Position does not exist in provided structure"
 		return 
 
@@ -103,8 +104,12 @@ def optimizeStructure(pose, iters = 60):
 	#Performs the actual refinement process
 	refinement.apply(testPose)
 
+	#Recover the lowest energy structure from the minimization process
 	mc.recover_low(testPose)
 	finalScore = scorefxn(testPose)
+
+	#Modify the input pose with the minimized structure
+	pose.assign(testPose)
 	return finalScore
 
 
@@ -127,7 +132,7 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 	log = open(logFile, 'w')
 	log.write("Initial energy: " + str(scorefxn(pose)) + "\n")
 
-	mc = MonteCarlo(pose, scorefxn, 0.1)
+	mc = MonteCarlo(pose, scorefxn, 100)
 
 	for i in range(0, iter):
 		#Choose a mutation

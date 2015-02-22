@@ -11,6 +11,96 @@ epitope_length = 9
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 
 def choose_mutation(mosaic_seq):
+aa_ngrams = {} # prior & after : middle : count
+aa_top_ngrams = {} # prior & after : middle
+
+
+def write_coverage_to_file(filename, cov_type = 'soft'):
+    with open(filename, 'w') as f:
+        dict_to_write = None
+        if cov_type == 'soft':
+            dict_to_write = soft_epitope_coverage
+        else:
+            dict_to_write = hard_epitope_coverage
+        for epitope in dict_to_write:
+            f.write(epitope + ',' + str(dict_to_write[epitope]) + '\n')
+    
+def read_coverage_from_file(filename, cov_type = 'soft'):
+    lines = open(filename, 'r').readlines()
+    for l in lines:
+        epitope, coverage = l.split(',')
+        if cov_type == 'soft':
+            soft_epitope_coverage[epitope] = float(coverage)
+        else:
+            hard_epitope_coverage[epitope] = float(coverage)
+        
+def choose_mutation(mosaic_seq, init_coverage, population):
+    # Handle beginning and end
+    # here. soon.
+
+    # Rest of the amino acids
+    top_choices = [] # (position, letter, coverage)
+    for i in xrange(1, len(mosaic_seq) - 1):
+        # Look up neighbors.  If not there, use default probability of 0.0001
+        neighbors = (mosaic_seq[i-1], mosaic_seq[i+1])
+        if neighbors in aa_top_ngrams:
+            mutation_choice = aa_top_ngrams[neighbors][-1][0]
+        else:
+            mutation_choice = possible_mutations[int(random.random() * 20)]
+
+        if mutation_choice != mosaic_seq[i]:
+            mutated_sequence = mosaic_seq[:i] + mutation_choice + mosaic_seq[i+1:]
+            curr_coverage = coverage(mutated_sequence, population)
+            if curr_coverage > init_coverage:
+                top_choices.append((i, mutation_choice, curr_coverage))
+
+    if len(top_choices) == 0:
+        return -1
+    else:
+        top_choices = sorted(top_choices[:5], key=lambda x: x[2])
+        num_considered = min(len(top_choices), 5)
+        return top_choices[int(random.random() * num_considered)]
+
+def calc_aa_ngrams(pop_seqs):
+    for seq in pop_seqs:
+        for i in xrange(len(seq) - 2):
+            curr_chunk = seq[i:i+3]
+            neighbors = (curr_chunk[0], curr_chunk[2])
+            if neighbors not in aa_ngrams:
+                aa_ngrams[neighbors] = {}
+            if curr_chunk[1] not in aa_ngrams[neighbors]:
+                aa_ngrams[neighbors][curr_chunk[1]] = 0.0
+            aa_ngrams[neighbors][curr_chunk[1]] += 1.0
+            
+        beg_neighbor = ("_", seq[1])
+        if beg_neighbor not in aa_ngrams:
+            aa_ngrams[beg_neighbor] = {}
+        if seq[0] not in aa_ngrams[beg_neighbor]:
+            aa_ngrams[beg_neighbor][seq[0]] = 0.0
+        aa_ngrams[beg_neighbor][seq[0]] += 1.0
+
+        end_neighbor = (seq[-2], "_")
+        if end_neighbor not in aa_ngrams:
+            aa_ngrams[end_neighbor] = {}
+        if seq[-1] not in aa_ngrams[end_neighbor]:
+            aa_ngrams[end_neighbor][seq[-1]] = 0.0
+        aa_ngrams[end_neighbor][seq[-1]] += 1.0
+
+    for neighbor in aa_ngrams:
+        curr_sum = 0.0
+        for middle in aa_ngrams[neighbor]:
+            curr_sum += aa_ngrams[neighbor][middle]
+
+        for middle in aa_ngrams[neighbor]:
+            aa_ngrams[neighbor][middle] /= curr_sum
+
+    for neighbor in aa_ngrams:
+        middle_probabilities = [(middle, aa_ngrams[neighbor][middle]) for middle in aa_ngrams[neighbor]]
+        aa_top_ngrams[neighbor] = sorted(middle_probabilities, key=lambda x: x[1])[-5:]
+
+
+""" DEPRECATED FUNCTION, stored for backup and/or comparison purposes """
+def get_location_probabilities(mosaic_seq):
     """ Scores amino acid by the mean of the coverage of nearby epitopes
 
     At first, this will choose to point mutate amino acids with no epitopes around it.
@@ -141,5 +231,15 @@ if __name__ == "__main__":
     print coverage('ABCDEFGHIJKL', ['ABCDEFGHIJKLMN', 'ABCDEFGHIJKLMN'], 'hard')
     # Coverage test, should be 0.1111 (soft)
     print coverage('ABCDEFGHIJKLMNOP', ['ATRYSEFSG'], 'soft')
+    #print coverage('ABCDEFGHIJKL', ['ABCDEFGHIJKLMN', 'ABCDEFGHIJKLMN'], 'hard')
+    #print coverage('ABCDEFGHIJKLMNOP', ['ATRYSEFSG'], 'soft')
 
-    print choose_mutation('ABCDEFGHIJKLMNOP')
+    #print choose_mutation('ABCDEFGHIJKLMNOP')
+    #calc_aa_ngrams(['ABC', 'ADC'])
+    pop = get_all_sequences(aligned=False)
+    read_coverage_from_file("test_coverage_file.txt")
+    init_coverage = coverage('TYKGAFDLSHFLKEKGGLDGLVWSPKRQEILDLWVYHTQGYFPDWQNYTP', pop)
+    print "Calculated coverage once, time starting now"
+    calc_aa_ngrams(pop)
+    print choose_mutation('TYKGAFDLSHFLKEKGGLDGLVWSPKRQEILDLWVYHTQGYFPDWQNYTP', init_coverage, pop)
+

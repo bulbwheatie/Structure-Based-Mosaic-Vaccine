@@ -130,7 +130,8 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 	print "Initial energy: " + str(scorefxn(pose))
 
 	log = open(logFile, 'w')
-	log.write("Initial energy: " + str(scorefxn(pose)) + "\n")
+	log.write("-,-,-," \
+		+ str(coverage(pose.sequence())) + "," + str(scorefxn(pose)) + ",-\n")
 
 	mc = MonteCarlo(pose, scorefxn, 100)
 

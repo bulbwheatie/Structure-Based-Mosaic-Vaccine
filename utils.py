@@ -10,10 +10,6 @@ epitope_length = 9
 
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 
-#def choose_mutation:
-    
-
-""" DEPRECATED FUNCTION, stored for backup and/or comparison purposes """
 def choose_mutation(mosaic_seq):
     """ Scores amino acid by the mean of the coverage of nearby epitopes
 
@@ -89,17 +85,13 @@ def coverage(mosaic_seq, population_seqs, t="soft"):
                     if t == 'hard':
                         if seq[seq_start_i:seq_start_i + epitope_length] == curr_epitope:
                             epitope_match = 1.0
-                            break
                     else: # type == 'soft'
                         aa_position_match_count = 0.0
                         for aa_position in xrange(epitope_length):
                             if curr_epitope[aa_position] == seq[seq_start_i + aa_position]:
                                 aa_position_match_count += 1.0
-                        perfect_match_weight = 2.0
-                        if aa_position_match_count == epitope_length:
-                            epitope_match += perfect_match_weight # To weight perfect epitope matches highery
-                        else:
-                            epitope_match += aa_position_match_count / epitope_length
+                        if aa_position_match_count / epitope_length > epitope_match:
+                            epitope_match = aa_position_match_count / epitope_length
                         
                     curr_natural_seq_epitopes.add(seq[seq_start_i:seq_start_i + epitope_length])
                 if t == 'soft':
@@ -145,7 +137,9 @@ def get_all_sequences(aligned = True):
     return all_seqs     
 
 if __name__ == "__main__":
-    #print coverage('ABCDEFGHIJKL', ['ABCDEFGHIJKLMN', 'ABCDEFGHIJKLMN'], 'hard')
+    # Coverage test, should output 0.67 (hard)
+    print coverage('ABCDEFGHIJKL', ['ABCDEFGHIJKLMN', 'ABCDEFGHIJKLMN'], 'hard')
+    # Coverage test, should be 0.1111 (soft)
     print coverage('ABCDEFGHIJKLMNOP', ['ATRYSEFSG'], 'soft')
 
     print choose_mutation('ABCDEFGHIJKLMNOP')

@@ -31,7 +31,7 @@ def makeMutation(pose, position, mutation):
 		print "**ERROAR (makeMutation): Position does not exist in provided structure"
 		return 
 
-	mutate_residue(testPose, position, mutation)
+	mutate_residue(testPose, position + 1, mutation)
 
 	# Update the provided pose and return the mutated pose
 	pose.assign(testPose)
@@ -144,15 +144,20 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 			return pose.sequence()
 
 		#Make a mutation
+		init_seq = pose.sequence()
 		makeMutation(pose, position, mutation)
+
+		#TODO: Check for unsuccessful mutation
+		if (pose.sequence() == init_seq):
+			print "Unsuccessful mutation\n"
 
 		#Optimize the structure
 		energy = optimizeStructure(pose)
-
 		#Log info from this iteration
 		print "Coverage " + str(cover) + " from " + str(position) +  " to " + mutation \
 			+ "; Energy = " + str(energy) + "\n"
 		accepted = mc.boltzmann(pose)
+		print "DEBUG:: energy = " + str(scorefxn(pose)) + "\n"
 		if (not accepted): 
 			log.write(str(position) +  ", " + mutation \
 				+ "," + str(count) + "," + str(cover) + "," + str(energy) + ",0\n")
@@ -176,17 +181,26 @@ def mutationSelecterRandom(sequence):
 
 	all_seqs = get_all_sequences(False)
 	cover = coverage(sequence, all_seqs)
-	tmpCover = 0
+	tmpCover = cover
 	print cover
 
 	count = 0
 	while (tmpCover <= cover):
-		(position, aminoAcid) = choose_mutation(sequence)
+		(position, aminoAcid, tmpCover) = choose_mutation(sequence, tmpCover)
 
+		# No improving mutations can be found; Exit for now
+		if (position < 0):
+			return (-1, aminoAcid, 200, tmpCover)
+
+		#Create the new sequence
 		tmpSequence = sequence[:position] + aminoAcid + sequence[(position + 1):]
-		tmpCover =  coverage(tmpSequence, all_seqs)
-		print tmpCover
-		count +=1
+
+		#If the mutation generator doesn't compute coverage, compute it here
+		if(tmpCover < 0):
+			tmpCover =  coverage(tmpSequence, all_seqs)
+
+		print "Cover = " + str(cover) + "; TmpCover=" + str(tmpCover)
+		count +=1 
 		if (count > 200):
 			return (-1, aminoAcid, 200, tmpCover)
 

@@ -9,8 +9,6 @@ hard_epitope_coverage = {} # epitope : coverage
 epitope_length = 9
 
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
-
-def choose_mutation(mosaic_seq):
 aa_ngrams = {} # prior & after : middle : count
 aa_top_ngrams = {} # prior & after : middle
 
@@ -55,7 +53,7 @@ def choose_mutation(mosaic_seq, init_coverage, population):
                 top_choices.append((i, mutation_choice, curr_coverage))
 
     if len(top_choices) == 0:
-        return -1
+        return (-1, None, init_coverage)
     else:
         top_choices = sorted(top_choices[:5], key=lambda x: x[2])
         num_considered = min(len(top_choices), 5)

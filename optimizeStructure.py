@@ -130,8 +130,9 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 	print "Initial energy: " + str(scorefxn(pose))
 
 	log = open(logFile, 'w')
+	all_seqs = get_all_sequences(False)
 	log.write("-,-,-," \
-		+ str(coverage(pose.sequence())) + "," + str(scorefxn(pose)) + ",-\n")
+		+ str(coverage(pose.sequence(), all_seqs)) + "," + str(scorefxn(pose)) + ",-\n")
 
 	mc = MonteCarlo(pose, scorefxn, 100)
 
@@ -187,7 +188,7 @@ def mutationSelecterRandom(sequence):
 
 	count = 0
 	while (tmpCover <= cover):
-		(position, aminoAcid, tmpCover) = choose_mutation(sequence, tmpCover)
+		(position, aminoAcid, tmpCover) = choose_mutation(sequence, tmpCover, all_seqs)
 
 		# No improving mutations can be found; Exit for now
 		if (position < 0):

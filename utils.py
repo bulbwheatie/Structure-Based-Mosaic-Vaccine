@@ -1,6 +1,13 @@
 from pprint import pprint
 import random
 
+"""
+Things to be called once at the very beginning of the program:
+--calc_aa_ngrams()
+--calc_pop_epitope_freq()
+"""
+
+
 fasta_filenames = ["data/HIV-1_gag.fasta",
                    "data/HIV-1_nef.fasta"]
 
@@ -13,6 +20,8 @@ possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N"
 aa_ngrams = {} # prior & after : middle : count
 aa_top_ngrams = {} # prior & after : middle
 
+population_epitope_freq = {} # epitope string : frequency in population
+population_num_epitopes = 0.0
 
 def write_coverage_to_file(filename, cov_type = 'soft'):
     with open(filename, 'w') as f:
@@ -45,8 +54,8 @@ def choose_mutation(mosaic_seq, init_coverage, population):
         max_mutations = 5
         mutation_choices = None
         if neighbors in aa_top_ngrams:
-			num_mutations = max(max_mutations, len(aa_top_ngrams[neighbors]))
-			mutation_choices = [aa_top_ngrams[neighbors][m][0] for m in xrange(num_mutations)]
+            num_mutations = max(max_mutations, len(aa_top_ngrams[neighbors]))
+            mutation_choices = [aa_top_ngrams[neighbors][m][0] for m in xrange(num_mutations)]
         else:
             mutation_choices = [possible_mutations[int(random.random() * 20)] for m in xrange(max_mutations)]
 
@@ -139,9 +148,41 @@ def get_location_probabilities(mosaic_seq):
 
     return location, amino_acid
 
+
+def calc_pop_epitope_freq(pop_seqs):
+    """ NOTE: This is unit tested """
+    global population_num_epitopes
+    for seq in pop_seqs:
+        for start_i in xrange(len(seq) - epitope_length + 1):
+            curr_epitope = seq[start_i:start_i + epitope_length]
+            if curr_epitope not in population_epitope_freq:
+                population_epitope_freq[curr_epitope] = 0.0
+            population_epitope_freq[curr_epitope] += 1.0
+            
+    # Sum frequencies of all epitopes
+    for key in population_epitope_freq:
+        population_num_epitopes += population_epitope_freq[key]
+
+def coverage(mosaic_seq):
+    """ Iterate through mosaic epitopes.  For each key in the global population epitopes dictionary,
+    add fractional coverage of that epitope * frequency.  Then at the end, divide by total number of epitopes.
+    Range: 0 to 1. """
+    global population_num_epitopes
+    total_coverage_score = 0.0
+    for mosaic_start_i in xrange(len(mosaic_seq) - epitope_length + 1):
+        for key in population_epitope_freq:
+            epitope_coverage_score = 0.0
+            for aa_i in xrange(epitope_length):
+                if mosaic_seq[mosaic_start_i + aa_i] == key[aa_i]:
+                    epitope_coverage_score += 1.0
+            epitope_coverage_score /= epitope_length
+            total_coverage_score += epitope_coverage_score * population_epitope_freq[key]
+    total_coverage_score /= population_num_epitopes
+    return total_coverage_score
+
     
 
-def coverage(mosaic_seq, population_seqs, t="soft"):
+def old_coverage(mosaic_seq, population_seqs, t="soft"):
     """ Returns metric for coverage of a mosaic sequence based on the
         population.
 
@@ -179,9 +220,9 @@ def coverage(mosaic_seq, population_seqs, t="soft"):
                 
             for seq in population_seqs:
                 curr_natural_seq_epitopes = set()
-                epitope_match = 0.0
-                curr_coverage = 0.0
+                sequence_match_overall = 0.0
                 for seq_start_i in xrange(len(seq) - epitope_length + 1):
+                    epitope_match = 0.0
                     if t == 'hard':
                         if seq[seq_start_i:seq_start_i + epitope_length] == curr_epitope:
                             epitope_match = 1.0
@@ -191,18 +232,21 @@ def coverage(mosaic_seq, population_seqs, t="soft"):
                         for aa_position in xrange(epitope_length):
                             if curr_epitope[aa_position] == seq[seq_start_i + aa_position]:
                                 aa_position_match_count += 1.0
-                        perfect_match_weight = 2.0
+                        perfect_match_weight = 1.0
                         if aa_position_match_count == epitope_length:
                             epitope_match += perfect_match_weight # To weight perfect epitope matches highery
                         else:
                             epitope_match += aa_position_match_count / epitope_length
-                        
+
+                    sequence_match_overall += epitope_match
                     curr_natural_seq_epitopes.add(seq[seq_start_i:seq_start_i + epitope_length])
                 if t == 'soft':
-                    soft_epitope_coverage[curr_epitope] += epitope_match / len(curr_natural_seq_epitopes)
+                    soft_epitope_coverage[curr_epitope] += sequence_match_overall / len(seq)
                 else:
-                    hard_epitope_coverage[curr_epitope] += epitope_match / len(curr_natural_seq_epitopes)
+                    hard_epitope_coverage[curr_epitope] += sequence_match_overall / len(curr_natural_seq_epitopes)
+                print sequence_match_overall, len(curr_natural_seq_epitopes), len(seq)
 
+            print "coverage, then soft_epitope_coverage[]", coverage, soft_epitope_coverage[curr_epitope]
             if t == 'soft':
                 soft_epitope_coverage[curr_epitope] /= len(population_seqs)
                 coverage += soft_epitope_coverage[curr_epitope]
@@ -243,14 +287,15 @@ def get_all_sequences(aligned = True):
 if __name__ == "__main__":
     #print coverage('ABCDEFGHIJKL', ['ABCDEFGHIJKLMN', 'ABCDEFGHIJKLMN'], 'hard')
     #print coverage('ABCDEFGHIJKLMNOP', ['ATRYSEFSG'], 'soft')
+    """
+    pop = get_all_sequences(aligned=False)
+    v1v2_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
+    init_coverage = coverage(v1v2_seq, pop)
+    print init_coverage
+    print "Calculated coverage once, time starting now"
+    calc_aa_ngrams(pop)
+    print choose_mutation(v1v2_seq, init_coverage, pop)
+    """
 
-    #print choose_mutation('ABCDEFGHIJKLMNOP')
-    #calc_aa_ngrams(['ABC', 'ADC'])
-    # pop = get_all_sequences(aligned=False)
-    # read_coverage_from_file("test_coverage_file.txt")
-    # init_coverage = coverage('TYKGAFDLSHFLKEKGGLDGLVWSPKRQEILDLWVYHTQGYFPDWQNYTP', pop)
-    # print "Calculated coverage once, time starting now"
-    # calc_aa_ngrams(pop)
-    # print choose_mutation('TYKGAFDLSHFLKEKGGLDGLVWSPKRQEILDLWVYHTQGYFPDWQNYTP', init_coverage, pop)
-    write_coverage_to_file("test_coverage_file.txt")
-
+    calc_pop_epitope_freq(get_all_sequences(aligned=False))
+    print coverage("SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ")

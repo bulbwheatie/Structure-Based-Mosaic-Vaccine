@@ -9,6 +9,7 @@ hard_epitope_coverage = {} # epitope : coverage
 epitope_length = 9
 
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
+
 aa_ngrams = {} # prior & after : middle : count
 aa_top_ngrams = {} # prior & after : middle
 
@@ -41,22 +42,28 @@ def choose_mutation(mosaic_seq, init_coverage, population):
     for i in xrange(1, len(mosaic_seq) - 1):
         # Look up neighbors.  If not there, use default probability of 0.0001
         neighbors = (mosaic_seq[i-1], mosaic_seq[i+1])
+        max_mutations = 5
+        mutation_choices = None
         if neighbors in aa_top_ngrams:
-            mutation_choice = aa_top_ngrams[neighbors][-1][0]
+			num_mutations = max(max_mutations, len(aa_top_ngrams[neighbors]))
+			mutation_choices = [aa_top_ngrams[neighbors][m][0] for m in xrange(num_mutations)]
         else:
-            mutation_choice = possible_mutations[int(random.random() * 20)]
+            mutation_choices = [possible_mutations[int(random.random() * 20)] for m in xrange(max_mutations)]
 
-        if mutation_choice != mosaic_seq[i]:
-            mutated_sequence = mosaic_seq[:i] + mutation_choice + mosaic_seq[i+1:]
-            curr_coverage = coverage(mutated_sequence, population)
-            if curr_coverage > init_coverage:
-                top_choices.append((i, mutation_choice, curr_coverage))
+        print mutation_choices
+        for mutation_choice in mutation_choices:
+            if mutation_choice != mosaic_seq[i]:
+                mutated_sequence = mosaic_seq[:i] + mutation_choice + mosaic_seq[i+1:]
+                curr_coverage = coverage(mutated_sequence, population)
+                if curr_coverage > init_coverage:
+                    top_choices.append((i, mutation_choice, curr_coverage))
 
     if len(top_choices) == 0:
         return (-1, None, init_coverage)
     else:
-        top_choices = sorted(top_choices[:5], key=lambda x: x[2])
-        num_considered = min(len(top_choices), 5)
+        num_top_choices_considered = 3
+        top_choices = sorted(top_choices, key=lambda x: x[2], reverse=True)
+        num_considered = min(len(top_choices), num_top_choices_considered)
         return top_choices[int(random.random() * num_considered)]
 
 def calc_aa_ngrams(pop_seqs):
@@ -94,8 +101,13 @@ def calc_aa_ngrams(pop_seqs):
 
     for neighbor in aa_ngrams:
         middle_probabilities = [(middle, aa_ngrams[neighbor][middle]) for middle in aa_ngrams[neighbor]]
-        aa_top_ngrams[neighbor] = sorted(middle_probabilities, key=lambda x: x[1])[-5:]
+        aa_top_ngrams[neighbor] = sorted(middle_probabilities, key=lambda x: x[1], reverse=True)[:5]
 
+def random_mutation(sequence):
+    position =  int(random.random() * sequence)
+    amino_acid = possible_mutations[int(random.random() * 20)]
+
+    return (position, amino_acid)
 
 """ DEPRECATED FUNCTION, stored for backup and/or comparison purposes """
 def get_location_probabilities(mosaic_seq):
@@ -173,13 +185,17 @@ def coverage(mosaic_seq, population_seqs, t="soft"):
                     if t == 'hard':
                         if seq[seq_start_i:seq_start_i + epitope_length] == curr_epitope:
                             epitope_match = 1.0
+                            break
                     else: # type == 'soft'
                         aa_position_match_count = 0.0
                         for aa_position in xrange(epitope_length):
                             if curr_epitope[aa_position] == seq[seq_start_i + aa_position]:
                                 aa_position_match_count += 1.0
-                        if aa_position_match_count / epitope_length > epitope_match:
-                            epitope_match = aa_position_match_count / epitope_length
+                        perfect_match_weight = 2.0
+                        if aa_position_match_count == epitope_length:
+                            epitope_match += perfect_match_weight # To weight perfect epitope matches highery
+                        else:
+                            epitope_match += aa_position_match_count / epitope_length
                         
                     curr_natural_seq_epitopes.add(seq[seq_start_i:seq_start_i + epitope_length])
                 if t == 'soft':
@@ -225,19 +241,16 @@ def get_all_sequences(aligned = True):
     return all_seqs     
 
 if __name__ == "__main__":
-    # Coverage test, should output 0.67 (hard)
-    print coverage('ABCDEFGHIJKL', ['ABCDEFGHIJKLMN', 'ABCDEFGHIJKLMN'], 'hard')
-    # Coverage test, should be 0.1111 (soft)
-    print coverage('ABCDEFGHIJKLMNOP', ['ATRYSEFSG'], 'soft')
     #print coverage('ABCDEFGHIJKL', ['ABCDEFGHIJKLMN', 'ABCDEFGHIJKLMN'], 'hard')
     #print coverage('ABCDEFGHIJKLMNOP', ['ATRYSEFSG'], 'soft')
 
     #print choose_mutation('ABCDEFGHIJKLMNOP')
     #calc_aa_ngrams(['ABC', 'ADC'])
-    pop = get_all_sequences(aligned=False)
-    read_coverage_from_file("test_coverage_file.txt")
-    init_coverage = coverage('TYKGAFDLSHFLKEKGGLDGLVWSPKRQEILDLWVYHTQGYFPDWQNYTP', pop)
-    print "Calculated coverage once, time starting now"
-    calc_aa_ngrams(pop)
-    print choose_mutation('TYKGAFDLSHFLKEKGGLDGLVWSPKRQEILDLWVYHTQGYFPDWQNYTP', init_coverage, pop)
+    # pop = get_all_sequences(aligned=False)
+    # read_coverage_from_file("test_coverage_file.txt")
+    # init_coverage = coverage('TYKGAFDLSHFLKEKGGLDGLVWSPKRQEILDLWVYHTQGYFPDWQNYTP', pop)
+    # print "Calculated coverage once, time starting now"
+    # calc_aa_ngrams(pop)
+    # print choose_mutation('TYKGAFDLSHFLKEKGGLDGLVWSPKRQEILDLWVYHTQGYFPDWQNYTP', init_coverage, pop)
+    write_coverage_to_file("test_coverage_file.txt")
 

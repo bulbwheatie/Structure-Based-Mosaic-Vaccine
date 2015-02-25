@@ -123,14 +123,18 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 	#         returns pdb sequence """
 
 	print "Running ROSAIC"
+	# INITIALIZE EVERYTHING
 	rosetta.init()
+	all_seqs = get_all_sequences(False)
+	calc_aa_ngrams(all_seqs)
+	calc_pop_epitope_freq(all_seqs)
+
 	pose = Pose()
 	pose_from_pdb(pose, pdbFile)
 	scorefxn = create_score_function('standard')
 	print "Initial energy: " + str(scorefxn(pose))
 
 	log = open(logFile, 'w')
-	all_seqs = get_all_sequences(False)
 	log.write("-,-,-," \
 		+ str(coverage(pose.sequence(), all_seqs)) + "," + str(scorefxn(pose)) + ",-\n")
 
@@ -146,12 +150,16 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 			return pose.sequence()
 
 		#Make a mutation
-		init_seq = pose.sequence()
+		init_pose = Pose()
+		init_pose.assign(pose)
 		makeMutation(pose, position, mutation)
 
 		#TODO: Check for unsuccessful mutation
-		if (pose.sequence() == init_seq):
+		while (pose.sequence() == init_pose.sequence()):
 			print "Unsuccessful mutation\n"
+			pose.assign(init_pose)
+			(position, aminioAcid) = random_mutation(sequence)
+			makeMutation(pose, position, mutation)
 
 		#Optimize the structure
 		energy = optimizeStructure(pose)
@@ -177,22 +185,25 @@ def mutationTest(sequence):
 	aminoAcid = possibleMutations[5]
 	return (position, aminoAcid)
 
-def mutationSelecterRandom(sequence):
+def mutationSelecter(sequence):
 	position = 0
 	aminoAcid = 0
 
 	all_seqs = get_all_sequences(False)
 	cover = coverage(sequence, all_seqs)
 	tmpCover = cover
-	print cover
+	print "Initial cover = " + str(cover)
 
 	count = 0
 	while (tmpCover <= cover):
 		(position, aminoAcid, tmpCover) = choose_mutation(sequence, tmpCover, all_seqs)
 
-		# No improving mutations can be found; Exit for now
+		# No improving mutations can be found; Perform a random mutation
 		if (position < 0):
-			return (-1, aminoAcid, 200, tmpCover)
+			(position, aminioAcid) = random_mutation(sequence)
+			tmpSequence = sequence[:position] + aminoAcid + sequence[(position + 1):]
+			tmpCover = coverage(tmpSequence, all_seqs)
+			return (position, aminoAcid, -1, tmpCover) #-1 count indicates a random mutation
 
 		#Create the new sequence
 		tmpSequence = sequence[:position] + aminoAcid + sequence[(position + 1):]
@@ -232,7 +243,7 @@ def RunROSAIC():
 			logFile = a
 		elif o in ("--iters"):
 			iters = int(a);
-	ROSAIC(pdbFile, outfile, mutationSelecterRandom, iters, logFile)
+	ROSAIC(pdbFile, outfile, mutationSelecter, iters, logFile)
 
 if __name__ == "__main__":
     print RunROSAIC()

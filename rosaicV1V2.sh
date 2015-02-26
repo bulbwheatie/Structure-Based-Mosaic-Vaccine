@@ -20,6 +20,6 @@ module load python/2.7
 echo loaded python...
 source /home/grigoryanlab/library/PyRosetta-Release1.1-r34968.linux.64Bit/SetPyRosettaEnvironment.sh
 
-time python optimizeStructure.py  --pdbFile="V1V2.pdb" --outFile="output/v1v2_3_1.0.pdb" --iters=50 --logFile="output/v1v2_3_1.0.log.txt"
+time python optimizeStructure.py  --pdbFile="V1V2.pdb" --nameBase="output/v1v2_3_1.2" --iters=200 
 
 exit 0

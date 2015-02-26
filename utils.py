@@ -124,7 +124,7 @@ def calc_pop_epitope_freq(pop_seqs):
     for key in population_epitope_freq:
         population_num_epitopes += population_epitope_freq[key]
 
-def coverage(mosaic_seq):
+def coverage(mosaic_seq, threshold = 0.0):
     """ Iterate through mosaic epitopes.  For each key in the global population epitopes dictionary,
     add fractional coverage of that epitope * frequency.  Then at the end, divide by total number of epitopes.
     Range: 0 to 1 (for a specific epitope).  The coverage is the sum of sliding windows of epitopes in the mosaic,
@@ -134,22 +134,25 @@ def coverage(mosaic_seq):
     total_coverage_score = 0.0
     for mosaic_start_i in xrange(len(mosaic_seq) - epitope_length + 1):
         for key in population_epitope_freq:
-            epitope_coverage_score = 0.0
-            for aa_i in xrange(epitope_length):
-                if mosaic_seq[mosaic_start_i + aa_i] == key[aa_i]:
-                    epitope_coverage_score += 1.0
-            epitope_coverage_score /= epitope_length
-            total_coverage_score += epitope_coverage_score * population_epitope_freq[key]
+            if population_epitope_freq[key] >= threshold:
+                epitope_coverage_score = 0.0
+                for aa_i in xrange(epitope_length):
+                    if mosaic_seq[mosaic_start_i + aa_i] == key[aa_i]:
+                        epitope_coverage_score += 1.0
+                epitope_coverage_score /= epitope_length
+                total_coverage_score += epitope_coverage_score * population_epitope_freq[key]
     total_coverage_score /= population_num_epitopes
     return total_coverage_score
 
-def fisher_coverage(mosaic_seq, population_seqs):
+def fisher_coverage(mosaic_seq, population_seqs, threshold = 50):
     """ Returns coverage score for a mosaic sequence based on the population using Fisher's metric. """
     coverage = 0
     already_seen = set() # Avoids double counting coverage (within a mosaic protein)
     for start_i in xrange(len(mosaic_seq) - epitope_length + 1):
         curr_epitope = mosaic_seq[start_i:start_i + epitope_length]
-        if curr_epitope in already_seen:
+        if curr_epitope in already_seen or curr_epitope not in population_epitope_freq:
+            continue
+        elif population_epitope_freq[curr_epitope] < threshold:
             continue
         else:
             already_seen.add(curr_epitope)
@@ -160,7 +163,7 @@ def fisher_coverage(mosaic_seq, population_seqs):
             # Need to calculate coverage by iterating through all sequences.
             # In each iteration, calculate number of distinct epitopes.
             # If epitope in natural sequence, coverage = 1.0 / number of epitopes in sequence
-            hard_epitope_coverage[curr_epitope] = 0.0    
+            hard_epitope_coverage[curr_epitope] = 0.0
             for seq in population_seqs:
                 curr_natural_seq_epitopes = set()
                 epitope_match = 0.0

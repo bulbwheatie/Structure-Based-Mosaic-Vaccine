@@ -125,9 +125,9 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 	print "Running ROSAIC"
 	# INITIALIZE EVERYTHING
 	rosetta.init()
-	all_seqs = get_all_sequences(False)
-	calc_aa_ngrams(all_seqs)
-	calc_pop_epitope_freq(all_seqs)
+	all_seqs = get_all_sequences(False) 
+	calc_aa_ngrams(all_seqs) #Initialize ngrams for mutation chooser
+	calc_pop_epitope_freq(all_seqs) #Initialize epitope freq dictionary for coverage metric
 
 	pose = Pose()
 	pose_from_pdb(pose, pdbFile)
@@ -136,7 +136,7 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 
 	log = open(logFile, 'w')
 	log.write("-,-,-," \
-		+ str(coverage(pose.sequence(), all_seqs)) + "," + str(scorefxn(pose)) + ",-\n")
+		+ str(coverage(pose.sequence())) + "," + str(scorefxn(pose)) + ",-\n")
 
 	mc = MonteCarlo(pose, scorefxn, 100)
 
@@ -186,11 +186,16 @@ def mutationTest(sequence):
 	return (position, aminoAcid)
 
 def mutationSelecter(sequence):
+	"""
+	Calls the choose_mutation method in utils to find a point mutation that will improve coverage
+	Takes the mosaic sequence as input and outputs the position to mutate, what to mutate it to,
+	number of calls to the choose mutation function to get improved coverage and what the improved coverage is
+	"""
 	position = 0
 	aminoAcid = 0
 
 	all_seqs = get_all_sequences(False)
-	cover = coverage(sequence, all_seqs)
+	cover = coverage(sequence)
 	tmpCover = cover
 	print "Initial cover = " + str(cover)
 
@@ -210,7 +215,7 @@ def mutationSelecter(sequence):
 
 		#If the mutation generator doesn't compute coverage, compute it here
 		if(tmpCover < 0):
-			tmpCover =  coverage(tmpSequence, all_seqs)
+			tmpCover =  coverage(tmpSequence)
 
 		print "Cover = " + str(cover) + "; TmpCover=" + str(tmpCover)
 		count +=1 
@@ -221,6 +226,13 @@ def mutationSelecter(sequence):
 	return (position, aminoAcid, count, tmpCover)
 
 def RunROSAIC():
+	"""
+	Wrapper function to read in arguments and run ROSAIC with the current choose_mutation function from utils
+	Use --pdbFile to specify the starting structure
+	    --outFile to specify the name of the dumped pdb structure
+	    --iters for the number of rounds of point mutations to perform
+	    --logFile for the name of the log file to output data
+	"""
 
 	pdbFile = None
 	outfile = None

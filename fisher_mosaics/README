@@ -1,0 +1,46 @@
+The sequence files in this directory are fasta-formatted alignments
+of "mosaic" sequences designed as candidate vaccine antigens by the
+genetic algorithm described in the following manuscript
+[ In press at Nature Medicine as of (05-Dec-2006) ]:
+
+    Polyvalent vaccines for optimal coverage of potential T-cell 
+    epitopes in global HIV-1 variants
+
+    William Fischer(1*), Simon Perkins(1*), James Theiler(1), Tanmoy
+    Bhattacharya(1,2), Karina Yusim(1), Robert Funkhouser(1), Carla
+    Kuiken(1), Barton Haynes(3), Norman L. Letvin(4), Bruce D.
+    Walker(5),  Beatrice H. Hahn(6), Bette T. Korber(1,2)
+
+
+    1) Los Alamos National Laboratory, Los Alamos, NM 87545 USA
+    2) Santa Fe Institute, Santa Fe, NM 87544 USA
+    3) Duke University School of Medicine, Durham, NC 27710 USA
+    4) Department of Medicine, Beth Israel Deaconess Medical Center,
+       Harvard Medical School, Boston, MA 02215 USA
+    5) Infectious Disease Division, Massachusetts General Hospital,
+       Harvard Medical School, Boston, MA 02129, USA
+    6) Department of Medicine, University of Alabama at Birmingham,
+       Birmingham, AL 35294, USA
+    * These two authors contributed equally to this study
+
+
+
+Each file contains several sets of sequences; each set is designed
+for maximal 9-mer coverage of HIV-1 sequences in a particular
+phylogenetic subset of HIV-1 (B-clade, C-clade, or M group).
+Nomenclature is as follows:
+
+GENE-clade-syn#.#
+
+e.g., POL-B.syn4.2 is the second sequence of a 4-sequence mosaic
+covering B-clade Pol sequences.  The sets of mosaics are separated
+from each other by a single blank line. 
+
+EACH SET IS TO BE USED TOGETHER -- e.g. the 6 sequences "nef_coreC.syn6.1"
+through "nef_coreC.syn6.6" should neither be split apart from each
+other nor used with other sequences.
+
+Contact information:
+Bette Korber:  btk@lanl.gov
+Will Fischer:  wfischer@lanl.gov
+Simon Perkins: s.perkins@lanl.gov

@@ -65,10 +65,37 @@ def choose_mutation(mosaic_seq, init_coverage, population):
         return top_choices[int(random.random() * num_considered)]
 
 def random_mutation(sequence):
-    position = int(random.random() * len(sequence))
-    amino_acid = possible_mutations[int(random.random() * 20)]
+	position = int(random.random() * len(sequence))
+	amino_acid = possible_mutations[int(random.random() * 20)]
+	return (position, amino_acid)
 
-    return (position, amino_acid)
+def num_epitopes_in_mosaic(mosaic, pop, eq_tolerance = 1, min_epitope_freq = 1):
+	""" Returns the number of distinct population epitopes (with min_epitope_freq) that occur in the mosaic (with
+	    equality tolerance parameter) """
+	epitopes_providing_coverage = set()
+	for mosaic_epitope_start_i in xrange(len(mosaic) - epitope_length + 1):
+		curr_mos_epi = mosaic[mosaic_epitope_start_i:mosaic_epitope_start_i + epitope_length]
+		for key in population_epitope_freq:
+			# Figure out if this particular population epitope is a near-match
+			num_missed = 0
+			for aa_i in xrange(epitope_length):
+				if curr_mos_epi[aa_i] != key[aa_i]:
+					num_missed += 1
+			if num_missed <= eq_tolerance and population_epitope_freq[key] >= min_epitope_freq:
+				epitopes_providing_coverage.add(curr_mos_epi)
+	return len(epitopes_providing_coverage)
+
+def num_pop_seq_covered(mosaic, pop, coverage_thresh = 1):
+	""" Returns the fraction of natural population sequences that have at least
+	    'coverage_thresh' epitopes covered by mosaic """
+	mosaic_epitope_set = set()
+	for mos_epi_start_i in xrange(len(mosaic) - epitope_length + 1):
+		mosaic_epitope_set.add()
+	num_pop_seq_covered = 0.0
+	for pop_seq in pop:
+		for pop_epi_start_i in xrange(len(pop_seq) - epitope_length + 1):
+			curr_pop_epi = pop_seq[]
+	
 
 def calc_aa_ngrams(pop_seqs):
     """ Calculate the conditional probability for each amino acid given it's left and right neighbors.

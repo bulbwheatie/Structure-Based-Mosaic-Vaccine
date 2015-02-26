@@ -224,7 +224,7 @@ def mutationSelecter(sequence, midpointFile):
 
 		# No improving mutations can be found; Tell driver to make a random mutation
 		if (position < 0):
-			return (position, aminoAcid, -1, tmpCover) #-1 count indicates a random mutation
+			return (0, aminoAcid, -1, tmpCover) #-1 count indicates a random mutation
 
 		#Create the new sequence
 		tmpSequence = sequence[:position] + aminoAcid + sequence[(position + 1):]

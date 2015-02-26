@@ -50,7 +50,7 @@ def choose_mutation(mosaic_seq, init_coverage, population):
                         top_choices.append((i, mutation_choice, curr_coverage))
 
     if len(top_choices) == 0:
-        return -1 # Flag that no mutations were found.
+        return (-1, "-", init_coverage) # Flag that no mutations were found.
     else:
         # Introduce a degree of randomness here by choosing from the top 3 coverage-increasing mutations uniformly
         num_top_choices_considered = 3
@@ -58,6 +58,11 @@ def choose_mutation(mosaic_seq, init_coverage, population):
         num_considered = min(len(top_choices), num_top_choices_considered)
         return top_choices[int(random.random() * num_considered)]
 
+def random_mutation(sequence):
+    position = int(random.random() * len(sequence))
+    amino_acid = possible_mutations[int(random.random() * 20)]
+
+    return (position, amino_acid)
 
 def calc_aa_ngrams(pop_seqs):
     """ Calculate the conditional probability for each amino acid given it's left and right neighbors.

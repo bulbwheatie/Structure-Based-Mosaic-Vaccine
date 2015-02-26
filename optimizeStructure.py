@@ -113,16 +113,24 @@ def optimizeStructure(pose, iters = 60):
 	return finalScore
 
 
-def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
+def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	"""# Calling ROSAIC will perform N iterations of mutation + optimization
 	# INPUT: PDB file
 	#		 Outfile
 	#		 Mutation function that takes in a sequence and returns a list of positinos and a list of corresponding amino acids
 	#
 	# OUTPUT: (dumps final PDB structure)
-	#         returns pdb sequence """
+	#         returns pdb sequence
+	#         dumps a intermediate PDB file whenever a random mutation is made (decrease in coverage) 
+	 """
+
 
 	print "Running ROSAIC"
+	outfile = nameBase + ".pdb"
+	logFile = nameBase + ".log"
+	midpointCounter = 0
+	midpointFile = nameBase + "." + str(midpointCounter) + " .pdb"
+
 	# INITIALIZE EVERYTHING
 	rosetta.init()
 	all_seqs = get_all_sequences(False) 
@@ -142,21 +150,32 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 
 	for i in range(0, iter):
 		#Choose a mutation
-		(position, mutation, count, cover) = mutationGenerator(pose.sequence());
+		(position, mutation, count, cover) = mutationGenerator(pose.sequence(), midpointFile);
 		if (position == -1):
 			log.write("Mutations issues\n")
 			pose.dump_pdb(outfile)
 			log.close()
 			return pose.sequence()
 
+		#If the mutationGenerator returns count as -1, choose a random mutation
+		if (count == -1):
+			pose.dump_pdb(midpointFile)
+			midpointCounter += 1
+			midpointFile = nameBase + "." + midpointCounter + " .pdb"
+			(position, aminioAcid) = random_mutation(sequence)
+
 		#Make a mutation
-		init_pose = Pose()
+		init_pose = Pose() #Use as a reset for unsuccessful mutations
 		init_pose.assign(pose)
 		makeMutation(pose, position, mutation)
 
-		#TODO: Check for unsuccessful mutation
+		#Check for unsuccessful mutation
 		while (pose.sequence() == init_pose.sequence()):
+			#If the mutation is unsuccessful, dump the structure before making the random mutation
 			print "Unsuccessful mutation\n"
+			pose.dump_pdb(midpointFile)
+			midpointCounter += 1
+			midpointFile = nameBase + "." + midpointCounter + " .pdb"
 			pose.assign(init_pose)
 			(position, aminioAcid) = random_mutation(sequence)
 			makeMutation(pose, position, mutation)
@@ -166,8 +185,9 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 		#Log info from this iteration
 		print "Coverage " + str(cover) + " from " + str(position) +  " to " + mutation \
 			+ "; Energy = " + str(energy) + "\n"
+
+		#Accept or reject the mutated structure, if rejected, revert the structure
 		accepted = mc.boltzmann(pose)
-		print "DEBUG:: energy = " + str(scorefxn(pose)) + "\n"
 		if (not accepted): 
 			log.write(str(position) +  ", " + mutation \
 				+ "," + str(count) + "," + str(cover) + "," + str(energy) + ",0\n")
@@ -176,19 +196,18 @@ def ROSAIC(pdbFile, outfile, mutationGenerator, iter, logFile):
 			log.write(str(position) +  ", " + mutation \
 				+ "," + str(count) + "," + str(cover) + "," + str(energy) + ",1\n")
 
+	#Dump the final structure and return the sequence
 	pose.dump_pdb(outfile)
 	log.close()
 	return pose.sequence()
 
-def mutationTest(sequence):
-	position = 18
-	aminoAcid = possibleMutations[5]
-	return (position, aminoAcid)
-
-def mutationSelecter(sequence):
+def mutationSelecter(sequence, midpointFile):
 	"""
 	Calls the choose_mutation method in utils to find a point mutation that will improve coverage
-	Takes the mosaic sequence as input and outputs the position to mutate, what to mutate it to,
+	Takes the mosaic sequence and name of the intermediate structure file as input. If the
+	method makes a random mutation, it will first dump the structure
+
+	Outputs the position to mutate, what to mutate it to,
 	number of calls to the choose mutation function to get improved coverage and what the improved coverage is
 	"""
 	position = 0
@@ -203,11 +222,8 @@ def mutationSelecter(sequence):
 	while (tmpCover <= cover):
 		(position, aminoAcid, tmpCover) = choose_mutation(sequence, tmpCover, all_seqs)
 
-		# No improving mutations can be found; Perform a random mutation
+		# No improving mutations can be found; Tell driver to make a random mutation
 		if (position < 0):
-			(position, aminioAcid) = random_mutation(sequence)
-			tmpSequence = sequence[:position] + aminoAcid + sequence[(position + 1):]
-			tmpCover = coverage(tmpSequence, all_seqs)
 			return (position, aminoAcid, -1, tmpCover) #-1 count indicates a random mutation
 
 		#Create the new sequence
@@ -237,10 +253,11 @@ def RunROSAIC():
 	pdbFile = None
 	outfile = None
 	logFile = None
+	nameBase = None
 	iters = 1
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "outFile=", "iters=", "logFile="])
+		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "nameBase=", "iters="])
 	except getopt.error, msg:
 		print msg
 		print "for help use --help"
@@ -249,13 +266,11 @@ def RunROSAIC():
 	for o, a in opts:
 		if o in ("--pdbFile"):
 			pdbFile = a
-		elif o in ("--outFile"):
-			outfile = a
-		elif o in ("--logFile"):
-			logFile = a
+		elif o in ("--nameBase"):
+			nameBase = a
 		elif o in ("--iters"):
 			iters = int(a);
-	ROSAIC(pdbFile, outfile, mutationSelecter, iters, logFile)
+	ROSAIC(pdbFile, nameBase, mutationSelecter, iters)
 
 if __name__ == "__main__":
     print RunROSAIC()

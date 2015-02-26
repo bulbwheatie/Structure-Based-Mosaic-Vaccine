@@ -1,13 +1,7 @@
 from pprint import pprint
 import random
 
-"""
-TODO:
-(1) Create epitope highlighter for soft/hard epitope matches
-(2) Compare these results with results when we restrict coverage scores to epitopes that show up more than once """
-
-"""
-Important notes:
+""" Important notes:
 
 Functions to be called once at the very beginning of the program:
 --calc_aa_ngrams()
@@ -65,37 +59,51 @@ def choose_mutation(mosaic_seq, init_coverage, population):
         return top_choices[int(random.random() * num_considered)]
 
 def random_mutation(sequence):
-	position = int(random.random() * len(sequence))
-	amino_acid = possible_mutations[int(random.random() * 20)]
-	return (position, amino_acid)
+    position = int(random.random() * len(sequence))
+    amino_acid = possible_mutations[int(random.random() * 20)]
+    return (position, amino_acid)
 
 def num_epitopes_in_mosaic(mosaic, pop, eq_tolerance = 1, min_epitope_freq = 1):
-	""" Returns the number of distinct population epitopes (with min_epitope_freq) that occur in the mosaic (with
-	    equality tolerance parameter) """
-	epitopes_providing_coverage = set()
-	for mosaic_epitope_start_i in xrange(len(mosaic) - epitope_length + 1):
-		curr_mos_epi = mosaic[mosaic_epitope_start_i:mosaic_epitope_start_i + epitope_length]
-		for key in population_epitope_freq:
-			# Figure out if this particular population epitope is a near-match
-			num_missed = 0
-			for aa_i in xrange(epitope_length):
-				if curr_mos_epi[aa_i] != key[aa_i]:
-					num_missed += 1
-			if num_missed <= eq_tolerance and population_epitope_freq[key] >= min_epitope_freq:
-				epitopes_providing_coverage.add(curr_mos_epi)
-	return len(epitopes_providing_coverage)
+    """ Returns the number of distinct population epitopes (with min_epitope_freq) that occur in the mosaic (with
+        equality tolerance parameter) """
+    epitopes_providing_coverage = set()
+    for mosaic_epitope_start_i in xrange(len(mosaic) - epitope_length + 1):
+        curr_mos_epi = mosaic[mosaic_epitope_start_i:mosaic_epitope_start_i + epitope_length]
+        for key in population_epitope_freq:
+            # Figure out if this particular population epitope is a near-match
+            num_missed = 0
+            for aa_i in xrange(epitope_length):
+                if curr_mos_epi[aa_i] != key[aa_i]:
+                    num_missed += 1
+            if num_missed <= eq_tolerance and population_epitope_freq[key] >= min_epitope_freq:
+                epitopes_providing_coverage.add(curr_mos_epi)
+    return len(epitopes_providing_coverage)
 
-def num_pop_seq_covered(mosaic, pop, coverage_thresh = 1):
-	""" Returns the fraction of natural population sequences that have at least
-	    'coverage_thresh' epitopes covered by mosaic """
-	mosaic_epitope_set = set()
-	for mos_epi_start_i in xrange(len(mosaic) - epitope_length + 1):
-		mosaic_epitope_set.add()
-	num_pop_seq_covered = 0.0
-	for pop_seq in pop:
-		for pop_epi_start_i in xrange(len(pop_seq) - epitope_length + 1):
-			curr_pop_epi = pop_seq[]
-	
+def frac_pop_seq_covered(mosaic, pop, tolerance = False, coverage_thresh = 1):
+    """ Returns the fraction of natural population sequences that have at least
+        'coverage_thresh' epitopes covered by mosaic """
+    # Construct set of mosaic epitopes to reduce runtime
+    mosaic_epitopes = set()
+    for mos_epi_start_i in xrange(len(mosaic) - epitope_length + 1):
+        curr_epi = mosaic[mos_epi_start_i:mos_epi_start_i + epitope_length]
+        mosaic_epitopes.add(curr_epi)
+        if tolerance:
+            # Deal with adding 9 * 19 more epitopes here
+            pass
+
+    # Look though each population sequence in turn
+    num_pop_seq_covered = 0.0
+    for pop_seq in pop:
+        curr_match_count = 0
+        for pop_epi_start_i in xrange(len(pop_seq) - epitope_length + 1):
+            curr_pop_epi = pop_seq[pop_epi_start_i:pop_epi_start_i + epitope_length]
+            if curr_pop_epi in mosaic_epitopes:
+                curr_match_count += 1
+                if curr_match_count >= coverage_thresh:
+                    break
+        if curr_match_count >= coverage_thresh:
+            num_pop_seq_covered += 1.0
+    return num_pop_seq_covered / len(pop)
 
 def calc_aa_ngrams(pop_seqs):
     """ Calculate the conditional probability for each amino acid given it's left and right neighbors.
@@ -255,8 +263,13 @@ if __name__ == "__main__":
     init_coverage = coverage(v1v2_seq)
     print init_coverage
     #print choose_mutation(v1v2_seq, init_coverage, pop)
-    print fisher_coverage(v1v2_seq, pop)
-    
+    #print fisher_coverage(v1v2_seq, pop)
+    print "num epitopes in mosaic: ", num_epitopes_in_mosaic(v1v2_seq, pop, eq_tolerance = 1, min_epitope_freq = 1)
+    print "frac pop covered: ", frac_pop_seq_covered(v1v2_seq, pop, tolerance = False, coverage_thresh = 20)
+
+    output_seq = 'SILKEGPGPAEPLRQILGLGLEEEEEEEAEEEEEEEELEALLVKGAPGLSKTLLKALGEGATLEEALGGHQ'
+    print "output mosaic num epitopes: ", num_epitopes_in_mosaic(output_seq, pop, eq_tolerance = 1, min_epitope_freq = 1)
+    print "frac pop covered: ", frac_pop_seq_covered(output_seq, pop, tolerance = False, coverage_thresh = 20)
 
 ################################## DEPRECATED FUNCTIONS ####################################
 
@@ -279,7 +292,6 @@ def read_coverage_from_file(filename, cov_type = 'soft'):
         else:
             hard_epitope_coverage[epitope] = float(coverage)
 
-""" DEPRECATED FUNCTION, stored for backup and/or comparison purposes """
 def get_location_probabilities(mosaic_seq):
     """ Scores amino acid by the mean of the coverage of nearby epitopes
 

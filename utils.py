@@ -2,7 +2,12 @@ from pprint import pprint
 import random
 
 """
-Important notes are amalgamated here:
+TODO:
+(1) Create epitope highlighter for soft/hard epitope matches
+(2) Compare these results with results when we restrict coverage scores to epitopes that show up more than once """
+
+"""
+Important notes:
 
 Functions to be called once at the very beginning of the program:
 --calc_aa_ngrams()
@@ -13,6 +18,7 @@ possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N"
 aa_top_ngrams = {} # prior & after : middle
 population_epitope_freq = {} # epitope string : frequency in population
 population_num_epitopes = 0.0 # Total number of epitopes (non-distinct) in all the population sequences
+hard_epitope_coverage = {} # epitope : coverage (according to Fisher)
 fasta_filenames = ["data/HIV-1_gag.fasta",
                    "data/HIV-1_nef.fasta"]
         
@@ -123,7 +129,7 @@ def calc_pop_epitope_freq(pop_seqs):
     for key in population_epitope_freq:
         population_num_epitopes += population_epitope_freq[key]
 
-def coverage(mosaic_seq):
+def coverage(mosaic_seq, threshold = 0.0):
     """ Iterate through mosaic epitopes.  For each key in the global population epitopes dictionary,
     add fractional coverage of that epitope * frequency.  Then at the end, divide by total number of epitopes.
     Range: 0 to 1 (for a specific epitope).  The coverage is the sum of sliding windows of epitopes in the mosaic,
@@ -133,14 +139,48 @@ def coverage(mosaic_seq):
     total_coverage_score = 0.0
     for mosaic_start_i in xrange(len(mosaic_seq) - epitope_length + 1):
         for key in population_epitope_freq:
-            epitope_coverage_score = 0.0
-            for aa_i in xrange(epitope_length):
-                if mosaic_seq[mosaic_start_i + aa_i] == key[aa_i]:
-                    epitope_coverage_score += 1.0
-            epitope_coverage_score /= epitope_length
-            total_coverage_score += epitope_coverage_score * population_epitope_freq[key]
+            if population_epitope_freq[key] >= threshold:
+                epitope_coverage_score = 0.0
+                for aa_i in xrange(epitope_length):
+                    if mosaic_seq[mosaic_start_i + aa_i] == key[aa_i]:
+                        epitope_coverage_score += 1.0
+                epitope_coverage_score /= epitope_length
+                total_coverage_score += epitope_coverage_score * population_epitope_freq[key]
     total_coverage_score /= population_num_epitopes
     return total_coverage_score
+
+def fisher_coverage(mosaic_seq, population_seqs, threshold = 50):
+    """ Returns coverage score for a mosaic sequence based on the population using Fisher's metric. """
+    coverage = 0
+    already_seen = set() # Avoids double counting coverage (within a mosaic protein)
+    for start_i in xrange(len(mosaic_seq) - epitope_length + 1):
+        curr_epitope = mosaic_seq[start_i:start_i + epitope_length]
+        if curr_epitope in already_seen or curr_epitope not in population_epitope_freq:
+            continue
+        elif population_epitope_freq[curr_epitope] < threshold:
+            continue
+        else:
+            already_seen.add(curr_epitope)
+
+        if curr_epitope in hard_epitope_coverage:
+            coverage += hard_epitope_coverage[curr_epitope]
+        else:
+            # Need to calculate coverage by iterating through all sequences.
+            # In each iteration, calculate number of distinct epitopes.
+            # If epitope in natural sequence, coverage = 1.0 / number of epitopes in sequence
+            hard_epitope_coverage[curr_epitope] = 0.0
+            for seq in population_seqs:
+                curr_natural_seq_epitopes = set()
+                epitope_match = 0.0
+                for seq_start_i in xrange(len(seq) - epitope_length + 1):
+                    if seq[seq_start_i:seq_start_i + epitope_length] == curr_epitope:
+                        epitope_match = 1.0
+                    curr_natural_seq_epitopes.add(seq[seq_start_i:seq_start_i + epitope_length])
+                hard_epitope_coverage[curr_epitope] += epitope_match / len(curr_natural_seq_epitopes)
+
+            hard_epitope_coverage[curr_epitope] /= len(population_seqs)
+            coverage += hard_epitope_coverage[curr_epitope]
+    return coverage
 
 def read_fasta_file(fasta_file, aligned = True):
     sequences = []
@@ -187,12 +227,11 @@ if __name__ == "__main__":
     v1v2_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
     init_coverage = coverage(v1v2_seq)
     print init_coverage
-    print choose_mutation(v1v2_seq, init_coverage, pop)
+    #print choose_mutation(v1v2_seq, init_coverage, pop)
+    print fisher_coverage(v1v2_seq, pop)
     
 
 ################################## DEPRECATED FUNCTIONS ####################################
-soft_epitope_coverage = {} # epitope : coverage
-hard_epitope_coverage = {} # epitope : coverage
 
 def write_coverage_to_file(filename, cov_type = 'soft'):
     with open(filename, 'w') as f:

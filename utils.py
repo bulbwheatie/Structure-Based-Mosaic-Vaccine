@@ -4,19 +4,15 @@ import random
 """ Important notes:
 
 Functions to be called once at the very beginning of the program:
---calc_aa_ngrams()
---calc_pop_epitope_freq() 
---calc_single_freq()"""
+--calc_pop_epitope_freq()
+--calc_single_freq() """
 
 epitope_length = 9
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
-aa_top_ngrams = {} # prior & after : middle
 population_epitope_freq = {} # epitope string : frequency in population
 population_num_epitopes = 0.0 # Total number of epitopes (non-distinct) in all the population sequences
-population_top_single_freq= {} #Frequency for each amino acid at each position
+population_top_single_freq = {}
 hard_epitope_coverage = {} # epitope : coverage (according to Fisher)
-fasta_filenames = ["data/HIV-1_gag.fasta",
-                   "data/HIV-1_nef.fasta"]
         
 def choose_mutation(mosaic_seq, init_coverage, population):
     """ Chooses a mutation by iterating though each position in the mosaic sequence and choosing, from the
@@ -33,23 +29,20 @@ def choose_mutation(mosaic_seq, init_coverage, population):
     top_choices = [] # (position, letter, coverage)
     rand_start = int(random.random() * epitope_length)
     for i in xrange(1, len(mosaic_seq) - 1):
-        if i % epitope_length == rand_start:
-            # Look up neighbors.  If no neighbors, don't do anything (we have random sampling as a backup)
-            neighbors = (mosaic_seq[i-1], mosaic_seq[i+1])
-            max_mutations = 2
-            mutation_choices = None
-            if neighbors in aa_top_ngrams:
-                num_mutations = min(max_mutations, len(aa_top_ngrams[neighbors]))
-                mutation_choices = [aa_top_ngrams[neighbors][m][0] for m in xrange(num_mutations)]
+        # Look up neighbors.  If no neighbors, don't do anything (we have random sampling as a backup)
+        neighbors = (mosaic_seq[i-1], mosaic_seq[i+1])
+        max_mutations = 2
+        num_mutations = min(max_mutations, len(population_top_single_freq[i]))
+        mutation_choices = [population_top_single_freq[i][m][0] for m in xrange(num_mutations)]
 
-            print mutation_choices
-            for mutation_choice in mutation_choices:
-                if mutation_choice != mosaic_seq[i]: # Only test if mutation is different than original sequence
-                    mutated_sequence = mosaic_seq[:i] + mutation_choice + mosaic_seq[i+1:]
-                    curr_coverage = coverage(mutated_sequence)
-                    print curr_coverage
-                    if curr_coverage > init_coverage:
-                        top_choices.append((i, mutation_choice, curr_coverage))
+        print mutation_choices
+        for mutation_choice in mutation_choices:
+            if mutation_choice != mosaic_seq[i]: # Only test if mutation is different than original sequence
+                mutated_sequence = mosaic_seq[:i] + mutation_choice + mosaic_seq[i+1:]
+                curr_coverage = coverage(mutated_sequence)
+                print curr_coverage
+                if curr_coverage > init_coverage:
+                    top_choices.append((i, mutation_choice, curr_coverage))
 
     if len(top_choices) == 0:
         return (-1, "-", init_coverage) # Flag that no mutations were found.
@@ -107,50 +100,22 @@ def frac_pop_seq_covered(mosaic, pop, tolerance = False, coverage_thresh = 1):
             num_pop_seq_covered += 1.0
     return num_pop_seq_covered / len(pop)
 
-def calc_aa_ngrams(pop_seqs):
-    """ Calculate the conditional probability for each amino acid given it's left and right neighbors.
-    This is an effort to narrow the search space for mutations to more common sequence, and hopefully
-    more common epitopes.  """
-    
-    aa_ngrams = {} # prior & after : middle : count
+def calc_single_freq(pop_seqs):
+    """ Iterates through all aligned population sequences and calculates the amino acid frequence for each position"""
+    global population_top_single_freq
+    population_single_freq = {}
     for seq in pop_seqs:
-        for i in xrange(len(seq) - 2):
-            curr_chunk = seq[i:i+3]
-            neighbors = (curr_chunk[0], curr_chunk[2])
-            if neighbors not in aa_ngrams:
-                aa_ngrams[neighbors] = {}
-            if curr_chunk[1] not in aa_ngrams[neighbors]:
-                aa_ngrams[neighbors][curr_chunk[1]] = 0.0
-            aa_ngrams[neighbors][curr_chunk[1]] += 1.0
-            
-        beg_neighbor = ("_", seq[1])
-        if beg_neighbor not in aa_ngrams:
-            aa_ngrams[beg_neighbor] = {}
-        if seq[0] not in aa_ngrams[beg_neighbor]:
-            aa_ngrams[beg_neighbor][seq[0]] = 0.0
-        aa_ngrams[beg_neighbor][seq[0]] += 1.0
+        for i in xrange(len(seq)):
+            amino_acid = seq[i]
+            if i not in population_single_freq:
+                population_single_freq[i] = {}
+            if amino_acid not in population_single_freq[i]:
+                population_single_freq[i][amino_acid] = 0.0
+            population_single_freq[i][amino_acid] += 1.0
 
-        end_neighbor = (seq[-2], "_")
-        if end_neighbor not in aa_ngrams:
-            aa_ngrams[end_neighbor] = {}
-        if seq[-1] not in aa_ngrams[end_neighbor]:
-            aa_ngrams[end_neighbor][seq[-1]] = 0.0
-        aa_ngrams[end_neighbor][seq[-1]] += 1.0
-
-    # Divide frequencies by counts to get conditional probabilities
-    for neighbor in aa_ngrams:
-        curr_sum = 0.0
-        for middle in aa_ngrams[neighbor]:
-            curr_sum += aa_ngrams[neighbor][middle]
-
-        for middle in aa_ngrams[neighbor]:
-            aa_ngrams[neighbor][middle] /= curr_sum
-
-    # Sort the ngrams based on probability for future use
-    for neighbor in aa_ngrams:
-        middle_probabilities = [(middle, aa_ngrams[neighbor][middle]) for middle in aa_ngrams[neighbor]]
-        aa_top_ngrams[neighbor] = sorted(middle_probabilities, key=lambda x: x[1], reverse=True)[:5]
-
+    for position in population_single_freq:
+        position_probs = [(amino_acid, population_single_freq[position][amino_acid]) for amino_acid in population_single_freq[position]]
+        population_top_single_freq[position] = sorted(position_probs, key=lambda x:x[1], reverse = True)
 
 def calc_pop_epitope_freq(pop_seqs):
     """ Iterates through all population sequences and generates a dictionary of epitopes and frequency counts """
@@ -165,23 +130,6 @@ def calc_pop_epitope_freq(pop_seqs):
     # Sum frequencies of all epitopes
     for key in population_epitope_freq:
         population_num_epitopes += population_epitope_freq[key]
-
-def calc_single_freq(pop_seqs, start_i, end_i):
-    """ Iterates through all aligned population sequences and calculates the amino acid frequence for each position"""
-    global population_top_single_freq
-    population_single_freq = {}
-    for seq in pop_seqs:
-        for i in xrange(start_i, end_i + 1):
-            amino_acid = seq[i]
-            if i not in population_single_freq:
-                population_single_freq[i] = {}
-            if amino_acid not in population_single_freq[i]:
-                population_single_freq[i][amino_acid] = 0.0
-            population_single_freq[i][amino_acid] += 1.0
-
-    for position in population_single_freq:
-        position_probs = [(amino_acid, population_single_freq[position][amino_acid]) for amino_acid in population_single_freq[position]]
-        population_top_single_freq[position] = sorted(position_probs, key=lambda x:x[1], reverse = True)
 
 def coverage(mosaic_seq, threshold = 0.0):
     """ Iterate through mosaic epitopes.  For each key in the global population epitopes dictionary,
@@ -236,13 +184,13 @@ def fisher_coverage(mosaic_seq, population_seqs, threshold = 50):
             coverage += hard_epitope_coverage[curr_epitope]
     return coverage
 
-def read_fasta_file(fasta_file, aligned = True):
+def read_fasta_file(fasta_file, start_i, end_i, aligned = True):
     sequences = []
     curr_seq = ""
     for line in open(fasta_file, 'r').readlines():
         if '>' in line:
             if len(curr_seq) != 0:
-                sequences.append(curr_seq)
+                sequences.append(curr_seq[start_i:end_i])
                 curr_seq = ''
         else:
             curr_seq += line.replace('\n', '').strip()
@@ -253,39 +201,21 @@ def read_fasta_file(fasta_file, aligned = True):
 
     return sequences
 
-def get_all_sequences(aligned = True):
-    """ This function returns a list of all fasta sequences for HIV from
-        the global list, fasta_filenames.
-
-        Remove '-' placeholders that code for empty spaces in the FASTA files """
-    
-    all_seqs = []
-    for file in fasta_filenames:
-        all_seqs.extend(read_fasta_file(file, aligned))
-    return all_seqs     
-
-
 # Tester function
 if __name__ == "__main__":
-    #print coverage('ABCDEFGHIJKL', ['ABCDEFGHIJKLMN', 'ABCDEFGHIJKLMN'], 'hard')
-    #print coverage('ABCDEFGHIJKLMNOP', ['ATRYSEFSG'], 'soft')
-
-    #print choose_mutation('ABCDEFGHIJKLMNOP')
-    #calc_aa_ngrams(['ABC', 'ADC'])
-
     # Initialize data
-    #calc_single_freq(['ABCDEFGHIJKLMN', 'ABCDEBBBIJKLMN'], 0, 13)
-    #print population_top_single_freq
-
-    pop = get_all_sequences(aligned=False)
+    pop = read_fasta_file('./data/HIV-1_gag.fasta', 343, 414, aligned=False)
     calc_pop_epitope_freq(pop)
-    calc_aa_ngrams(pop)
+    calc_single_freq(pop)
+    print population_top_single_freq
     
     v1v2_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
+    v1v2_start_i = 343
+    v1v2_end_i = 414
     init_coverage = coverage(v1v2_seq)
     print init_coverage
-    #print choose_mutation(v1v2_seq, init_coverage, pop)
-    #print fisher_coverage(v1v2_seq, pop)
+    print choose_mutation(v1v2_seq, init_coverage, pop)
+    print fisher_coverage(v1v2_seq, pop)
     print "num epitopes in mosaic: ", num_epitopes_in_mosaic(v1v2_seq, pop, eq_tolerance = 1, min_epitope_freq = 1)
     print "frac pop covered: ", frac_pop_seq_covered(v1v2_seq, pop, tolerance = False, coverage_thresh = 20)
 
@@ -295,7 +225,7 @@ if __name__ == "__main__":
 
 ################################## DEPRECATED FUNCTIONS ####################################
 
-def write_coverage_to_file(filename, cov_type = 'soft'):
+def d_write_coverage_to_file(filename, cov_type = 'soft'):
     with open(filename, 'w') as f:
         dict_to_write = None
         if cov_type == 'soft':
@@ -305,7 +235,7 @@ def write_coverage_to_file(filename, cov_type = 'soft'):
         for epitope in dict_to_write:
             f.write(epitope + ',' + str(dict_to_write[epitope]) + '\n')
     
-def read_coverage_from_file(filename, cov_type = 'soft'):
+def d_read_coverage_from_file(filename, cov_type = 'soft'):
     lines = open(filename, 'r').readlines()
     for l in lines:
         epitope, coverage = l.split(',')
@@ -314,7 +244,7 @@ def read_coverage_from_file(filename, cov_type = 'soft'):
         else:
             hard_epitope_coverage[epitope] = float(coverage)
 
-def get_location_probabilities(mosaic_seq):
+def d_get_location_probabilities(mosaic_seq):
     """ Scores amino acid by the mean of the coverage of nearby epitopes
 
     At first, this will choose to point mutate amino acids with no epitopes around it.
@@ -343,7 +273,7 @@ def get_location_probabilities(mosaic_seq):
 
     return location, amino_acid
 
-def old_coverage(mosaic_seq, population_seqs, t="soft"):
+def d_coverage(mosaic_seq, population_seqs, t="soft"):
     """ Returns metric for coverage of a mosaic sequence based on the
         population.
 
@@ -416,3 +346,58 @@ def old_coverage(mosaic_seq, population_seqs, t="soft"):
                 coverage += hard_epitope_coverage[curr_epitope] 
             
     return coverage
+
+def d_get_all_sequences(aligned = True):
+    """ This function returns a list of all fasta sequences for HIV from
+        the global list, fasta_filenames.
+
+        Remove '-' placeholders that code for empty spaces in the FASTA files """
+    
+    all_seqs = []
+    for file in fasta_filenames:
+        all_seqs.extend(read_fasta_file(file, aligned))
+    return all_seqs
+
+def d_calc_aa_ngrams(pop_seqs):
+    """ Calculate the conditional probability for each amino acid given it's left and right neighbors.
+    This is an effort to narrow the search space for mutations to more common sequence, and hopefully
+    more common epitopes.  """
+    
+    aa_ngrams = {} # prior & after : middle : count
+    for seq in pop_seqs:
+        for i in xrange(len(seq) - 2):
+            curr_chunk = seq[i:i+3]
+            neighbors = (curr_chunk[0], curr_chunk[2])
+            if neighbors not in aa_ngrams:
+                aa_ngrams[neighbors] = {}
+            if curr_chunk[1] not in aa_ngrams[neighbors]:
+                aa_ngrams[neighbors][curr_chunk[1]] = 0.0
+            aa_ngrams[neighbors][curr_chunk[1]] += 1.0
+            
+        beg_neighbor = ("_", seq[1])
+        if beg_neighbor not in aa_ngrams:
+            aa_ngrams[beg_neighbor] = {}
+        if seq[0] not in aa_ngrams[beg_neighbor]:
+            aa_ngrams[beg_neighbor][seq[0]] = 0.0
+        aa_ngrams[beg_neighbor][seq[0]] += 1.0
+
+        end_neighbor = (seq[-2], "_")
+        if end_neighbor not in aa_ngrams:
+            aa_ngrams[end_neighbor] = {}
+        if seq[-1] not in aa_ngrams[end_neighbor]:
+            aa_ngrams[end_neighbor][seq[-1]] = 0.0
+        aa_ngrams[end_neighbor][seq[-1]] += 1.0
+
+    # Divide frequencies by counts to get conditional probabilities
+    for neighbor in aa_ngrams:
+        curr_sum = 0.0
+        for middle in aa_ngrams[neighbor]:
+            curr_sum += aa_ngrams[neighbor][middle]
+
+        for middle in aa_ngrams[neighbor]:
+            aa_ngrams[neighbor][middle] /= curr_sum
+
+    # Sort the ngrams based on probability for future use
+    for neighbor in aa_ngrams:
+        middle_probabilities = [(middle, aa_ngrams[neighbor][middle]) for middle in aa_ngrams[neighbor]]
+        aa_top_ngrams[neighbor] = sorted(middle_probabilities, key=lambda x: x[1], reverse=True)[:5]

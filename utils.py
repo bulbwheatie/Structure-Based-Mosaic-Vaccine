@@ -11,13 +11,15 @@ Important notes:
 
 Functions to be called once at the very beginning of the program:
 --calc_aa_ngrams()
---calc_pop_epitope_freq() """
+--calc_pop_epitope_freq() 
+--calc_single_freq()"""
 
 epitope_length = 9
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 aa_top_ngrams = {} # prior & after : middle
 population_epitope_freq = {} # epitope string : frequency in population
 population_num_epitopes = 0.0 # Total number of epitopes (non-distinct) in all the population sequences
+population_top_single_freq= {} #Frequency for each amino acid at each position
 hard_epitope_coverage = {} # epitope : coverage (according to Fisher)
 fasta_filenames = ["data/HIV-1_gag.fasta",
                    "data/HIV-1_nef.fasta"]
@@ -94,7 +96,7 @@ def num_pop_seq_covered(mosaic, pop, coverage_thresh = 1):
 	num_pop_seq_covered = 0.0
 	for pop_seq in pop:
 		for pop_epi_start_i in xrange(len(pop_seq) - epitope_length + 1):
-			curr_pop_epi = pop_seq[]
+			curr_pop_epi = pop_seq[pop_epi_start_i]
 	
 
 def calc_aa_ngrams(pop_seqs):
@@ -155,6 +157,23 @@ def calc_pop_epitope_freq(pop_seqs):
     # Sum frequencies of all epitopes
     for key in population_epitope_freq:
         population_num_epitopes += population_epitope_freq[key]
+
+def calc_single_freq(pop_seqs, start_i, end_i):
+    """ Iterates through all aligned population sequences and calculates the amino acid frequence for each position"""
+    global population_top_single_freq
+    population_single_freq = {}
+    for seq in pop_seqs:
+        for i in xrange(start_i, end_i + 1):
+            amino_acid = seq[i]
+            if i not in population_single_freq:
+                population_single_freq[i] = {}
+            if amino_acid not in population_single_freq[i]:
+                population_single_freq[i][amino_acid] = 0.0
+            population_single_freq[i][amino_acid] += 1.0
+
+    for position in population_single_freq:
+        position_probs = [(amino_acid, population_single_freq[position][amino_acid]) for amino_acid in population_single_freq[position]]
+        population_top_single_freq[position] = sorted(position_probs, key=lambda x:x[1], reverse = True)
 
 def coverage(mosaic_seq, threshold = 0.0):
     """ Iterate through mosaic epitopes.  For each key in the global population epitopes dictionary,
@@ -247,15 +266,18 @@ if __name__ == "__main__":
     #calc_aa_ngrams(['ABC', 'ADC'])
 
     # Initialize data
-    pop = get_all_sequences(aligned=False)
-    calc_pop_epitope_freq(pop)
-    calc_aa_ngrams(pop)
-    
-    v1v2_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
-    init_coverage = coverage(v1v2_seq)
-    print init_coverage
-    #print choose_mutation(v1v2_seq, init_coverage, pop)
-    print fisher_coverage(v1v2_seq, pop)
+    #pop = get_all_sequences(aligned=False)
+    #calc_pop_epitope_freq(pop)
+    #calc_aa_ngrams(pop)
+    calc_single_freq(['ABCDEFGHIJKLMN', 'ABCDEBBBIJKLMN'], 0, 13)
+    print population_top_single_freq
+
+
+    # v1v2_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
+    # init_coverage = coverage(v1v2_seq)
+    # print init_coverage
+    # #print choose_mutation(v1v2_seq, init_coverage, pop)
+    # print fisher_coverage(v1v2_seq, pop)
     
 
 ################################## DEPRECATED FUNCTIONS ####################################

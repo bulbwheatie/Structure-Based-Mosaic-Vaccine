@@ -13,6 +13,7 @@ import sys
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 intermediate_struct_counter = 0
 RMSD_cutoff = 4
+pop_seq = None
 
 #Constants for Rosetta's refinement process
 kT = 1 #Temperature for MC
@@ -118,16 +119,13 @@ def optimize_structure(pose, iters = 60):
 
 def dump_intermediate_structure(pose, nameBase):
 	global intermediate_struct_counter
-	midpointFile = nameBase + "." + intermediate_struct_counter + " .pdb"
+	midpointFile = nameBase + "." + str(intermediate_struct_counter) + " .pdb"
 	pose.dump_pdb(midpointFile)
 	intermediate_struct_counter += 1
 
 def initialize_functions():
 	rosetta.init()
-	all_seqs = get_all_sequences(False) 
-	calc_aa_ngrams(all_seqs) #Initialize ngrams for mutation chooser
-	calc_pop_epitope_freq(all_seqs) #Initialize epitope freq dictionary for coverage metric
-	return all_seqs
+	calc_pop_epitope_freq(pop_seq) #Initialize epitope freq dictionary for coverage metric
 
 def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	"""# Calling ROSAIC will perform N iterations of mutation + optimization
@@ -148,7 +146,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	midpointFile = nameBase + "." + str(midpointCounter) + " .pdb"
 
 	# INITIALIZE EVERYTHING
-	all_seqs = initialize_functions()
+	initialize_functions()
 
 	pose = Pose() #Pose for mutation and manipulation
 	native_pose = Pose() #Keep a pose of the native structure
@@ -221,14 +219,13 @@ def mutation_selecter(sequence, midpointFile):
 	position = 0
 	aminoAcid = 0
 
-	all_seqs = get_all_sequences(False)
 	cover = coverage(sequence)
 	tmpCover = cover
 	print "Initial cover = " + str(cover)
 
 	count = 0
 	while (tmpCover <= cover):
-		(position, aminoAcid, tmpCover) = choose_mutation(sequence, tmpCover, all_seqs)
+		(position, aminoAcid, tmpCover) = choose_mutation(sequence, tmpCover, pop_seq)
 
 		# No improving mutations can be found; Tell driver to make a random mutation
 		if (position < 0):
@@ -257,15 +254,18 @@ def run_ROSAIC():
 	    --iters for the number of rounds of point mutations to perform
 	    --logFile for the name of the log file to output data
 	"""
+	global pop_seq
 
 	pdbFile = None
 	outfile = None
 	logFile = None
 	nameBase = None
 	iters = 1
+	fastaFile = None 
+	start_i = end_i = 0
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "nameBase=", "iters="])
+		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "nameBase=", "iters=", "fastaFile=", "start_i=", "end_i="])
 	except getopt.error, msg:
 		print msg
 		print "for help use --help"
@@ -276,8 +276,16 @@ def run_ROSAIC():
 			pdbFile = a
 		elif o in ("--nameBase"):
 			nameBase = a
+		elif o in ("--fastaFile"):
+			fastaFile = a
 		elif o in ("--iters"):
 			iters = int(a);
+		elif o in ("--start_i"):
+			start_i = int(a);
+		elif o in ("--end_i"):
+			end_i = int(a);
+
+	pop_seq = read_fasta_file(fastaFile, start_i, end_i) #Modify the global var
 	ROSAIC(pdbFile, nameBase, mutation_selecter, iters)
 
 if __name__ == "__main__":

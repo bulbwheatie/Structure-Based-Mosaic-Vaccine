@@ -29,21 +29,20 @@ def choose_mutation(mosaic_seq, init_coverage, population):
     top_choices = [] # (position, letter, coverage)
     rand_start = int(random.random() * epitope_length)
     for i in xrange(1, len(mosaic_seq) - 1):
-        if i % epitope_length == rand_start:
-            # Look up neighbors.  If no neighbors, don't do anything (we have random sampling as a backup)
-            neighbors = (mosaic_seq[i-1], mosaic_seq[i+1])
-            max_mutations = 2
-            num_mutations = min(max_mutations, len(population_top_single_freq[i]))
-            mutation_choices = [population_top_single_freq[i][m][0] for m in xrange(num_mutations)]
+        # Look up neighbors.  If no neighbors, don't do anything (we have random sampling as a backup)
+        neighbors = (mosaic_seq[i-1], mosaic_seq[i+1])
+        max_mutations = 2
+        num_mutations = min(max_mutations, len(population_top_single_freq[i]))
+        mutation_choices = [population_top_single_freq[i][m][0] for m in xrange(num_mutations)]
 
-            print mutation_choices
-            for mutation_choice in mutation_choices:
-                if mutation_choice != mosaic_seq[i]: # Only test if mutation is different than original sequence
-                    mutated_sequence = mosaic_seq[:i] + mutation_choice + mosaic_seq[i+1:]
-                    curr_coverage = coverage(mutated_sequence)
-                    print curr_coverage
-                    if curr_coverage > init_coverage:
-                        top_choices.append((i, mutation_choice, curr_coverage))
+        print mutation_choices
+        for mutation_choice in mutation_choices:
+            if mutation_choice != mosaic_seq[i]: # Only test if mutation is different than original sequence
+                mutated_sequence = mosaic_seq[:i] + mutation_choice + mosaic_seq[i+1:]
+                curr_coverage = coverage(mutated_sequence)
+                print curr_coverage
+                if curr_coverage > init_coverage:
+                    top_choices.append((i, mutation_choice, curr_coverage))
 
     if len(top_choices) == 0:
         return (-1, "-", init_coverage) # Flag that no mutations were found.

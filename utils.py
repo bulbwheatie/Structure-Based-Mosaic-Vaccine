@@ -18,19 +18,15 @@ def choose_mutation(mosaic_seq, init_coverage, population):
     """ Chooses a mutation by iterating though each position in the mosaic sequence and choosing, from the
     most frequently occuring 3 grams, what point mutations may increase coverage. """
     
-    # Handle beginning and end here (soon)
-
     # Iterate through the rest of the amino acids in the middle
     # For each position, create some number of mutations, the most probable mutations conditioned
     # on the neighbors.  If the coverage increases for any of these mutations, then add them to a set
     # of possibilities to then choose from later.  This is a way to narrow the search space and potentially
-    # get more coverage increases at each step (compared to random sampling)
-    
+    # get more coverage increases at each step (compared to random sampling)    
     top_choices = [] # (position, letter, coverage)
     rand_start = int(random.random() * epitope_length)
-    for i in xrange(1, len(mosaic_seq) - 1):
+    for i in xrange(len(mosaic_seq)):
         # Look up neighbors.  If no neighbors, don't do anything (we have random sampling as a backup)
-        neighbors = (mosaic_seq[i-1], mosaic_seq[i+1])
         max_mutations = 2
         num_mutations = min(max_mutations, len(population_top_single_freq[i]))
         mutation_choices = [population_top_single_freq[i][m][0] for m in xrange(num_mutations)]
@@ -38,7 +34,9 @@ def choose_mutation(mosaic_seq, init_coverage, population):
         print mutation_choices
         for mutation_choice in mutation_choices:
             if mutation_choice != mosaic_seq[i]: # Only test if mutation is different than original sequence
-                mutated_sequence = mosaic_seq[:i] + mutation_choice + mosaic_seq[i+1:]
+                mutated_sequence = mosaic_seq[:i] + mutation_choice
+				if i < len(mosaic_seq) - 1:
+					mutated_sequence += mosaic_seq[i+1:]
                 curr_coverage = coverage(mutated_sequence)
                 print curr_coverage
                 if curr_coverage > init_coverage:
@@ -204,9 +202,9 @@ def read_fasta_file(fasta_file, start_i, end_i, aligned = True):
 # Tester function
 if __name__ == "__main__":
     # Initialize data
-    pop = read_fasta_file('./data/HIV-1_gag.fasta', 343, 414, aligned=False)
-    calc_pop_epitope_freq(pop)
-    calc_single_freq(pop)
+    pop_gag = read_fasta_file('./data/HIV-1_gag.fasta', 343, 414, aligned=True)
+    calc_pop_epitope_freq(pop_gag)
+    calc_single_freq(pop_gag)
     print population_top_single_freq
     
     v1v2_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
@@ -214,14 +212,16 @@ if __name__ == "__main__":
     v1v2_end_i = 414
     init_coverage = coverage(v1v2_seq)
     print init_coverage
-    print choose_mutation(v1v2_seq, init_coverage, pop)
-    print fisher_coverage(v1v2_seq, pop)
-    print "num epitopes in mosaic: ", num_epitopes_in_mosaic(v1v2_seq, pop, eq_tolerance = 1, min_epitope_freq = 1)
-    print "frac pop covered: ", frac_pop_seq_covered(v1v2_seq, pop, tolerance = False, coverage_thresh = 20)
+    print choose_mutation(v1v2_seq, init_coverage, pop_gag)
+    print fisher_coverage(v1v2_seq, pop_gag)
+    print "num epitopes in mosaic: ", num_epitopes_in_mosaic(v1v2_seq, pop_gag, eq_tolerance = 1, min_epitope_freq = 1)
+    print "frac pop covered: ", frac_pop_seq_covered(v1v2_seq, pop_gag, tolerance = False, coverage_thresh = 20)
 
-    output_seq = 'SILKEGPGPAEPLRQILGLGLEEEEEEEAEEEEEEEELEALLVKGAPGLSKTLLKALGEGATLEEALGGHQ'
-    print "output mosaic num epitopes: ", num_epitopes_in_mosaic(output_seq, pop, eq_tolerance = 1, min_epitope_freq = 1)
-    print "frac pop covered: ", frac_pop_seq_covered(output_seq, pop, tolerance = False, coverage_thresh = 20)
+    nef_seq = 'AWLEAQEEEEVGFPVTPQVPLRPMTYKAAVDLSHFLKEKGGLEGLIHSQRRQDILDLWIYHTQGYFPDWQNYTPGPGIRYPLTFGWCYKLVPVEPEKLEEANKDDPEREVLEWRFDSRLAFHHMARELHPEYFKNA'
+	
+    #output_seq = 'SILKEGPGPAEPLRQILGLGLEEEEEEEAEEEEEEEELEALLVKGAPGLSKTLLKALGEGATLEEALGGHQ'
+    #print "output mosaic num epitopes: ", num_epitopes_in_mosaic(output_seq, pop, eq_tolerance = 1, min_epitope_freq = 1)
+    #print "frac pop covered: ", frac_pop_seq_covered(output_seq, pop, tolerance = False, coverage_thresh = 20)
 
 ################################## DEPRECATED FUNCTIONS ####################################
 

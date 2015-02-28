@@ -35,8 +35,8 @@ def choose_mutation(mosaic_seq, init_coverage, population):
         for mutation_choice in mutation_choices:
             if mutation_choice != mosaic_seq[i]: # Only test if mutation is different than original sequence
                 mutated_sequence = mosaic_seq[:i] + mutation_choice
-				if i < len(mosaic_seq) - 1:
-					mutated_sequence += mosaic_seq[i+1:]
+                if i < len(mosaic_seq) - 1:
+                    mutated_sequence += mosaic_seq[i+1:]
                 curr_coverage = coverage(mutated_sequence)
                 print curr_coverage
                 if curr_coverage > init_coverage:
@@ -218,7 +218,7 @@ if __name__ == "__main__":
     print "frac pop covered: ", frac_pop_seq_covered(v1v2_seq, pop_gag, tolerance = False, coverage_thresh = 20)
 
     nef_seq = 'AWLEAQEEEEVGFPVTPQVPLRPMTYKAAVDLSHFLKEKGGLEGLIHSQRRQDILDLWIYHTQGYFPDWQNYTPGPGIRYPLTFGWCYKLVPVEPEKLEEANKDDPEREVLEWRFDSRLAFHHMARELHPEYFKNA'
-	
+    
     #output_seq = 'SILKEGPGPAEPLRQILGLGLEEEEEEEAEEEEEEEELEALLVKGAPGLSKTLLKALGEGATLEEALGGHQ'
     #print "output mosaic num epitopes: ", num_epitopes_in_mosaic(output_seq, pop, eq_tolerance = 1, min_epitope_freq = 1)
     #print "frac pop covered: ", frac_pop_seq_covered(output_seq, pop, tolerance = False, coverage_thresh = 20)

@@ -1,4 +1,4 @@
-# OptimizeStructure.py 
+# optimize_structure.py 
 # --------------------
 # MUST CALL rosetta.init() prior to using any of these functions
 #---------------------
@@ -10,16 +10,23 @@ from utils import *
 import getopt
 import sys
 
-possibleMutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
+possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
+intermediate_struct_counter = 0
+RMSD_cutoff = 4
 
-def makeMutation(pose, position, mutation):
-	"""# Function: makeMutation()
+#Constants for Rosetta's refinement process
+kT = 1 #Temperature for MC
+numMoves = 3 #Number of small/shear backbone torsion moves
+backboneAngleMax = 7 #Maximum backbone torsion degrees that can change per iterations of refinement
+
+def make_mutation(pose, position, mutation):
+	"""# Function: make_mutation()
 	# Input: (1) Pose to mutate, (2) List of positions to mutate, (3) List of amino acids to mutate to
 	# Output: Pose of mutated structure (provided pose is also changed) or None if there is an error
 	# Notes: Input pose is changed if successful"""
 
 	if (pose is None):
-		print "**ERROAR (makeMutation): Pose is null"
+		print "**ERROAR (make_mutation): Pose is null"
 		return 
 
 	#Create a temporary pose
@@ -28,7 +35,7 @@ def makeMutation(pose, position, mutation):
 
 	#Pose object is one-indexed (not zero indexed)
 	if ((position + 1) > pose.total_residue()):
-		print "**ERROAR (makeMutation): Position does not exist in provided structure"
+		print "**ERROAR (make_mutation): Position does not exist in provided structure"
 		return 
 
 	mutate_residue(testPose, position + 1, mutation)
@@ -38,9 +45,9 @@ def makeMutation(pose, position, mutation):
 	return pose;
 
 
-def optimizeStructure(pose, iters = 60):
+def optimize_structure(pose, iters = 60):
 
-	"""Function: optimizeStructure()
+	"""Function: optimize_structure()
 	# Input: (1) Pose to optimize, (2) List of positions that were mutated, (3) number of optimization iterations (default 60)
 	# Output: Optimized structure (also changes input structure) or None if there is an error
 	# Note: Attempts to optimize all the positions at once
@@ -48,7 +55,7 @@ def optimizeStructure(pose, iters = 60):
 	"""
 	#Perform error checking on parameters
 	if (pose is None):
-		print "**ERROAR (optimizeStructure): Pose is null"
+		print "**ERROAR (optimize_structure): Pose is null"
 		return  
 
 	#Create a temporary pose
@@ -56,10 +63,7 @@ def optimizeStructure(pose, iters = 60):
 	testPose.assign(pose)
 
 	scorefxn = create_score_function('standard')
-	kT = 1 #TODO: Put this into a constants file?
-	neighborhood = 5
-	numMoves = 3
-	backboneAngleMax = 7
+
 	#---------------------------------
 	# CREATE THE MOVERS FOR THIS
 	#---------------------------------
@@ -112,6 +116,18 @@ def optimizeStructure(pose, iters = 60):
 	pose.assign(testPose)
 	return finalScore
 
+def dump_intermediate_structure(pose, nameBase):
+	global intermediate_struct_counter
+	midpointFile = nameBase + "." + intermediate_struct_counter + " .pdb"
+	pose.dump_pdb(midpointFile)
+	intermediate_struct_counter += 1
+
+def initialize_functions():
+	rosetta.init()
+	all_seqs = get_all_sequences(False) 
+	calc_aa_ngrams(all_seqs) #Initialize ngrams for mutation chooser
+	calc_pop_epitope_freq(all_seqs) #Initialize epitope freq dictionary for coverage metric
+	return all_seqs
 
 def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	"""# Calling ROSAIC will perform N iterations of mutation + optimization
@@ -132,19 +148,17 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	midpointFile = nameBase + "." + str(midpointCounter) + " .pdb"
 
 	# INITIALIZE EVERYTHING
-	rosetta.init()
-	all_seqs = get_all_sequences(False) 
-	calc_aa_ngrams(all_seqs) #Initialize ngrams for mutation chooser
-	calc_pop_epitope_freq(all_seqs) #Initialize epitope freq dictionary for coverage metric
+	all_seqs = initialize_functions()
 
-	pose = Pose()
-	pose_from_pdb(pose, pdbFile)
+	pose = Pose() #Pose for mutation and manipulation
+	native_pose = Pose() #Keep a pose of the native structure
+	pose_from_pdb(native_pose, pdbFile)
+	pose.assign(native_pose)
 	scorefxn = create_score_function('standard')
 	print "Initial energy: " + str(scorefxn(pose))
 
 	log = open(logFile, 'w')
-	log.write("-,-,-," \
-		+ str(coverage(pose.sequence())) + "," + str(scorefxn(pose)) + ",-\n")
+	log.write("-,-,-," + str(coverage(pose.sequence())) + "," + str(scorefxn(pose)) + ",-\n")
 
 	mc = MonteCarlo(pose, scorefxn, 100)
 
@@ -159,49 +173,43 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 
 		#If the mutationGenerator returns count as -1, choose a random mutation
 		if (count == -1):
-			pose.dump_pdb(midpointFile)
-			midpointCounter += 1
-			midpointFile = nameBase + "." + midpointCounter + " .pdb"
+			dump_intermediate_structure(pose, nameBase)
 			(position, aminioAcid) = random_mutation(sequence)
 
 		#Make a mutation
-		init_pose = Pose() #Use as a reset for unsuccessful mutations
-		init_pose.assign(pose)
-		makeMutation(pose, position, mutation)
+		iter_pose = Pose() #Keep a pose (pre-mutation and optimization) for this iteration in case we need to revert
+		iter_pose.assign(pose)
+		make_mutation(pose, position, mutation)
 
 		#Check for unsuccessful mutation
-		while (pose.sequence() == init_pose.sequence()):
+		while (pose.sequence() == iter_pose.sequence()):
 			#If the mutation is unsuccessful, dump the structure before making the random mutation
 			print "Unsuccessful mutation\n"
-			pose.dump_pdb(midpointFile)
-			midpointCounter += 1
-			midpointFile = nameBase + "." + midpointCounter + " .pdb"
-			pose.assign(init_pose)
+			dump_intermediate_structure(pose, nameBase)
+			pose.assign(iter_pose)
 			(position, aminioAcid) = random_mutation(sequence)
-			makeMutation(pose, position, mutation)
+			make_mutation(pose, position, mutation)
 
 		#Optimize the structure
-		energy = optimizeStructure(pose)
-		#Log info from this iteration
-		print "Coverage " + str(cover) + " from " + str(position) +  " to " + mutation \
-			+ "; Energy = " + str(energy) + "\n"
+		energy = optimize_structure(pose)
+		print "Coverage " + str(cover) + " from " + str(position) +  " to " + mutation + "; Energy = " + str(energy) + "\n"
 
 		#Accept or reject the mutated structure, if rejected, revert the structure
-		accepted = mc.boltzmann(pose)
-		if (not accepted): 
-			log.write(str(position) +  ", " + mutation \
-				+ "," + str(count) + "," + str(cover) + "," + str(energy) + ",0\n")
-			print "Mutation rejected \n"
-		else:
-			log.write(str(position) +  ", " + mutation \
-				+ "," + str(count) + "," + str(cover) + "," + str(energy) + ",1\n")
+		# (1) Check RMSD
+		if (CA_rmsd(pose, native_pose) < RMSD_cutoff and mc.boltzmann(pose)):
+			#Accept the structure
+			log.write(str(position) +  ", " + mutation + "," + str(count) + "," + str(cover) + "," + str(energy) + ",1\n")
+		else: 
+			log.write(str(position) +  ", " + mutation + "," + str(count) + "," + str(cover) + "," + str(energy) + ",0\n")
+			pose.assign(iter_pose) #Manual revert in case of RMSD rejection
+			print "Structure rejected \n"
 
 	#Dump the final structure and return the sequence
 	pose.dump_pdb(outfile)
 	log.close()
 	return pose.sequence()
 
-def mutationSelecter(sequence, midpointFile):
+def mutation_selecter(sequence, midpointFile):
 	"""
 	Calls the choose_mutation method in utils to find a point mutation that will improve coverage
 	Takes the mosaic sequence and name of the intermediate structure file as input. If the
@@ -241,7 +249,7 @@ def mutationSelecter(sequence, midpointFile):
 	print str(position) + ", " + str(aminoAcid)
 	return (position, aminoAcid, count, tmpCover)
 
-def RunROSAIC():
+def run_ROSAIC():
 	"""
 	Wrapper function to read in arguments and run ROSAIC with the current choose_mutation function from utils
 	Use --pdbFile to specify the starting structure
@@ -270,7 +278,7 @@ def RunROSAIC():
 			nameBase = a
 		elif o in ("--iters"):
 			iters = int(a);
-	ROSAIC(pdbFile, nameBase, mutationSelecter, iters)
+	ROSAIC(pdbFile, nameBase, mutation_selecter, iters)
 
 if __name__ == "__main__":
-    print RunROSAIC()
+    print run_ROSAIC()

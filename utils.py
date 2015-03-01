@@ -14,7 +14,7 @@ population_num_epitopes = 0.0 # Total number of epitopes (non-distinct) in all t
 population_top_single_freq = {}
 hard_epitope_coverage = {} # epitope : coverage (according to Fisher)
         
-def choose_mutation(mosaic_seq, init_coverage, population):
+def choose_mutation(mosaic_seq, init_coverage):
     """ Chooses a mutation by iterating though each position in the mosaic sequence and choosing, from the
     most frequently occuring 3 grams, what point mutations may increase coverage. """
     
@@ -166,7 +166,8 @@ def coverage(mosaic_seq, threshold = 0.0, weight_func = squared_weight):
     return total_coverage_score
 
 def fisher_coverage(mosaic_seq, population_seqs, threshold = 50):
-    """ Returns coverage score for a mosaic sequence based on the population using Fisher's metric. """
+    """ Returns coverage score for a mosaic sequence based on the population using Fisher's metric.
+	    Note: Population sequences should be UNALIGNED! """
     coverage = 0
     mosaic_seq = mosaic_seq.replace("-", "")
     already_seen = set() # Avoids double counting coverage (within a mosaic protein)

@@ -129,22 +129,38 @@ def calc_pop_epitope_freq(pop_seqs):
     for key in population_epitope_freq:
         population_num_epitopes += population_epitope_freq[key]
 
-def coverage(mosaic_seq, threshold = 0.0):
+squared_denominator = float(epitope_length ** 2)
+squared_numerator = [float(i ** 2) for i in xrange(epitope_length + 1)]
+def squared_weight(num_matches):
+    return squared_numerator[num_matches] / squared_denominator
+
+cubed_denominator = float(epitope_length ** 3)
+cubed_numerator = [float(i ** 3) for i in xrange(epitope_length + 1)]
+def cubed_weight(num_matches):
+    return cubed_numerator[num_matches] / cubed_denominator
+
+exponential_denominator = float(2 ** epitope_length - 1)
+exponential_numerator = [float(2 ** i - 1) for i in xrange(epitope_length + 1)]
+def exponential_weight(num_matches):
+    return exponential_numerator[num_matches] / exponential_denominator
+
+def coverage(mosaic_seq, threshold = 0.0, weight_func = squared_weight):
     """ Iterate through mosaic epitopes.  For each key in the global population epitopes dictionary,
     add fractional coverage of that epitope * frequency.  Then at the end, divide by total number of epitopes.
     Range: 0 to 1 (for a specific epitope).  The coverage is the sum of sliding windows of epitopes in the mosaic,
     so it can and likely will be over 1 for longer sequences.
     """
+    mosaic_seq = mosaic_seq.replace("-", "")
     global population_num_epitopes
     total_coverage_score = 0.0
     for mosaic_start_i in xrange(len(mosaic_seq) - epitope_length + 1):
         for key in population_epitope_freq:
             if population_epitope_freq[key] >= threshold:
-                epitope_coverage_score = 0.0
+                epitope_coverage_score = 0
                 for aa_i in xrange(epitope_length):
                     if mosaic_seq[mosaic_start_i + aa_i] == key[aa_i]:
-                        epitope_coverage_score += 1.0
-                epitope_coverage_score /= epitope_length
+                        epitope_coverage_score += 1
+                epitope_coverage_score = weight_func(epitope_coverage_score) / epitope_length
                 total_coverage_score += epitope_coverage_score * population_epitope_freq[key]
     total_coverage_score /= population_num_epitopes
     return total_coverage_score
@@ -152,6 +168,7 @@ def coverage(mosaic_seq, threshold = 0.0):
 def fisher_coverage(mosaic_seq, population_seqs, threshold = 50):
     """ Returns coverage score for a mosaic sequence based on the population using Fisher's metric. """
     coverage = 0
+    mosaic_seq = mosaic_seq.replace("-", "")
     already_seen = set() # Avoids double counting coverage (within a mosaic protein)
     for start_i in xrange(len(mosaic_seq) - epitope_length + 1):
         curr_epitope = mosaic_seq[start_i:start_i + epitope_length]
@@ -202,22 +219,31 @@ def read_fasta_file(fasta_file, start_i, end_i, aligned = True):
 # Tester function
 if __name__ == "__main__":
     # Initialize data
-    pop_gag = read_fasta_file('./data/HIV-1_gag.fasta', 343, 414, aligned=True)
-    calc_pop_epitope_freq(pop_gag)
-    calc_single_freq(pop_gag)
-    print population_top_single_freq
-    
-    v1v2_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
+    print "v1v2 loop diagnostics"
     v1v2_start_i = 343
     v1v2_end_i = 414
-    init_coverage = coverage(v1v2_seq)
+    pop_gag = read_fasta_file('./data/HIV-1_gag.fasta', v1v2_start_i, v1v2_end_i, aligned=True)
+    calc_pop_epitope_freq(pop_gag)
+    calc_single_freq(pop_gag)
+    v1v2_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
+    init_coverage = coverage(v1v2_seq, weight_func=squared_weight)
     print init_coverage
-    print choose_mutation(v1v2_seq, init_coverage, pop_gag)
-    print fisher_coverage(v1v2_seq, pop_gag)
+    #print choose_mutation(v1v2_seq, init_coverage, pop_gag)
+    #print fisher_coverage(v1v2_seq, pop_gag)
     print "num epitopes in mosaic: ", num_epitopes_in_mosaic(v1v2_seq, pop_gag, eq_tolerance = 1, min_epitope_freq = 1)
     print "frac pop covered: ", frac_pop_seq_covered(v1v2_seq, pop_gag, tolerance = False, coverage_thresh = 20)
 
-    nef_seq = 'AWLEAQEEEEVGFPVTPQVPLRPMTYKAAVDLSHFLKEKGGLEGLIHSQRRQDILDLWIYHTQGYFPDWQNYTPGPGIRYPLTFGWCYKLVPVEPEKLEEANKDDPEREVLEWRFDSRLAFHHMARELHPEYFKNA'
+    print
+    print "Nef sequence diagnostics"
+    #nef_seq = 'AWLEAQEEEEVGFPVTPQVPLRPMTYKAAVDLSHFLKEKGGLEGLIHSQRRQDILDLWIYHTQGYFPDWQNYTPGPGIRYPLTFGWCYKLVPVEPEKLEEANKDDPEREVLEWRFDSRLAFHHMARELHPEYFKNA'
+    nef_seq = 'AWL--EA-QE-----E---E--E--VGFPVTPQVPLRPMTYKAAVDLSHFLKEKGGLEGLIHSQRRQDILDLWIYHTQGYFPDWQNYTPGPGIRYP-----------------------------------------------------------------LTFGWCYKLVPVEPEKLE-EANK---------------------------DDP-EREVLEWRFDSRLAFHHMARELHPEYF-KNA'
+    nef_start_i = 111
+    nef_end_i = 357
+    pop_nef_aligned = read_fasta_file('./data/HIV-1_nef.fasta', nef_start_i, nef_end_i, aligned = True)
+    pop_nef_unaligned = read_fasta_file('./data/HIV-1_nef.fasta', nef_start_i, nef_end_i, aligned = False)
+    calc_pop_epitope_freq(pop_nef_unaligned)
+    calc_single_freq(pop_nef_aligned)
+    print coverage(nef_seq, weight_func=squared_weight)
     
     #output_seq = 'SILKEGPGPAEPLRQILGLGLEEEEEEEAEEEEEEEELEALLVKGAPGLSKTLLKALGEGATLEEALGGHQ'
     #print "output mosaic num epitopes: ", num_epitopes_in_mosaic(output_seq, pop, eq_tolerance = 1, min_epitope_freq = 1)

@@ -12,7 +12,7 @@ import sys
 
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 intermediate_struct_counter = 0
-RMSD_cutoff = 4
+RMSD_cutoff = 10
 pop_seq = None
 
 #Constants for Rosetta's refinement process
@@ -138,7 +138,6 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	#         dumps a intermediate PDB file whenever a random mutation is made (decrease in coverage) 
 	 """
 
-
 	print "Running ROSAIC"
 	outfile = nameBase + ".pdb"
 	logFile = nameBase + ".log"
@@ -146,7 +145,9 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	midpointFile = nameBase + "." + str(midpointCounter) + " .pdb"
 
 	# INITIALIZE EVERYTHING
-	initialize_functions()
+	rosetta.init()
+	calc_pop_epitope_freq(pop_seq) #Initialize epitope freq dictionary for coverage metric
+	calc_single_freq(pop_seq) #Initialize dictionary for mutation chooser
 
 	pose = Pose() #Pose for mutation and manipulation
 	native_pose = Pose() #Keep a pose of the native structure
@@ -162,7 +163,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 
 	for i in range(0, iter):
 		#Choose a mutation
-		(position, mutation, count, cover) = mutationGenerator(pose.sequence(), midpointFile);
+		(position, mutation, count, cover) = mutationGenerator(pose.sequence());
 		if (position == -1):
 			log.write("Mutations issues\n")
 			pose.dump_pdb(outfile)
@@ -190,7 +191,8 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 
 		#Optimize the structure
 		energy = optimize_structure(pose)
-		print "Coverage " + str(cover) + " from " + str(position) +  " to " + mutation + "; Energy = " + str(energy) + "\n"
+		print "Coverage " + str(cover) + " from " + str(position) +  " to " + mutation + "; Energy = " \
+			+ str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + "\n"
 
 		#Accept or reject the mutated structure, if rejected, revert the structure
 		# (1) Check RMSD
@@ -207,7 +209,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	log.close()
 	return pose.sequence()
 
-def mutation_selecter(sequence, midpointFile):
+def mutation_selecter(sequence):
 	"""
 	Calls the choose_mutation method in utils to find a point mutation that will improve coverage
 	Takes the mosaic sequence and name of the intermediate structure file as input. If the
@@ -285,7 +287,9 @@ def run_ROSAIC():
 		elif o in ("--end_i"):
 			end_i = int(a);
 
-	pop_seq = read_fasta_file(fastaFile, start_i, end_i) #Modify the global var
+	pop_seq = read_fasta_file(fastaFile, start_i, end_i, False) #Modify the global var
+	print start_i
+	print end_i
 	ROSAIC(pdbFile, nameBase, mutation_selecter, iters)
 
 if __name__ == "__main__":

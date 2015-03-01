@@ -20,6 +20,6 @@ module load python/2.7
 echo loaded python...
 source /home/grigoryanlab/library/PyRosetta-Release1.1-r34968.linux.64Bit/SetPyRosettaEnvironment.sh
 
-time python optimizeStructure.py  --pdbFile="nef.pdb" --nameBase="output/nef_3_1.2" --iters=200 
+time python optimizeStructure.py  --pdbFile="structs/2NEF.pdb" --nameBase="output/nef_4_0.2" --iters=50 --fastaFile="data/HIV-1_nef.fasta" --start_i= --end_i=
 
 exit 0

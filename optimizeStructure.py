@@ -30,16 +30,24 @@ def make_mutation(pose, position, mutation):
 		print "**ERROAR (make_mutation): Pose is null"
 		return 
 
-	#Create a temporary pose
-	testPose = Pose()
-	testPose.assign(pose)
-
 	#Pose object is one-indexed (not zero indexed)
 	if ((position + 1) > pose.total_residue()):
 		print "**ERROAR (make_mutation): Position does not exist in provided structure"
 		return 
 
-	mutate_residue(testPose, position + 1, mutation)
+	#Create a temporary pose
+	testPose = Pose()
+	testPose.assign(pose)
+
+	#Check what type of mutation is this (1) Insertion, (2) Deletion, (3) Point Mutation
+	if (pose.sequence[position] == "-" ):
+		#TODO: INSERT RESIDUE
+		pass
+	elif (mutation == "-"):
+		# TODO: DELETE RESIDUE
+		pass
+	else:
+		mutate_residue(testPose, position + 1, mutation)
 
 	# Update the provided pose and return the mutated pose
 	pose.assign(testPose)
@@ -173,7 +181,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 		#If the mutationGenerator returns count as -1, choose a random mutation
 		if (count == -1):
 			dump_intermediate_structure(pose, nameBase)
-			(position, aminioAcid) = random_mutation(sequence)
+			(position, aminioAcid) = random_mutation(pose.sequence())
 
 		#Make a mutation
 		iter_pose = Pose() #Keep a pose (pre-mutation and optimization) for this iteration in case we need to revert
@@ -186,7 +194,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 			print "Unsuccessful mutation\n"
 			dump_intermediate_structure(pose, nameBase)
 			pose.assign(iter_pose)
-			(position, aminioAcid) = random_mutation(sequence)
+			(position, aminioAcid) = random_mutation(pose.sequence())
 			make_mutation(pose, position, mutation)
 
 		#Optimize the structure

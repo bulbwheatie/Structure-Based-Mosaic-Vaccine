@@ -8,11 +8,13 @@
 #TODO: Keep aligned sequence separate from Pose object
 #TODO: Insertion and deletions
 #TODO: Compute hard coverage and various stats before exiting
+#TODO: Make number of mutations an option for choose mutation (Default 2 right now)
 
 from rosetta import *
 import random 
 import imp
 from utils import *
+from struct_utils import *
 import getopt
 import sys
 
@@ -25,40 +27,6 @@ pop_aligned = None
 kT = 1 #Temperature for MC
 numMoves = 3 #Number of small/shear backbone torsion moves
 backboneAngleMax = 7 #Maximum backbone torsion degrees that can change per iterations of refinement
-
-def make_mutation(pose, position, mutation):
-	"""# Function: make_mutation()
-	# Input: (1) Pose to mutate, (2) List of positions to mutate, (3) List of amino acids to mutate to
-	# Output: Pose of mutated structure (provided pose is also changed) or None if there is an error
-	# Notes: Input pose is changed if successful"""
-
-	if (pose is None):
-		print "**ERROAR (make_mutation): Pose is null"
-		return 
-
-	#Pose object is one-indexed (not zero indexed)
-	if ((position + 1) > pose.total_residue()):
-		print "**ERROAR (make_mutation): Position does not exist in provided structure"
-		return 
-
-	#Create a temporary pose
-	testPose = Pose()
-	testPose.assign(pose)
-
-	#Check what type of mutation is this (1) Insertion, (2) Deletion, (3) Point Mutation
-	if (pose.sequence[position] == "-" ):
-		#TODO: INSERT RESIDUE
-		pass
-	elif (mutation == "-"):
-		# TODO: DELETE RESIDUE
-		pass
-	else:
-		mutate_residue(testPose, position + 1, mutation)
-
-	# Update the provided pose and return the mutated pose
-	pose.assign(testPose)
-	return pose;
-
 
 def optimize_structure(pose, iters = 60):
 
@@ -131,12 +99,6 @@ def optimize_structure(pose, iters = 60):
 	pose.assign(testPose)
 	return finalScore
 
-def dump_intermediate_structure(pose, nameBase):
-	global intermediate_struct_counter
-	midpointFile = nameBase + "." + str(intermediate_struct_counter) + " .pdb"
-	pose.dump_pdb(midpointFile)
-	intermediate_struct_counter += 1
-
 def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	"""# Calling ROSAIC will perform N iterations of mutation + optimization
 	# INPUT: PDB file
@@ -151,8 +113,6 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	print "Running ROSAIC"
 	outfile = nameBase + ".pdb"
 	logFile = nameBase + ".log"
-	midpointCounter = 0
-	midpointFile = nameBase + "." + str(midpointCounter) + " .pdb"
 
 	pose = Pose() #Pose for mutation and manipulation
 	native_pose = Pose() #Keep a pose of the native structure
@@ -175,24 +135,10 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 			log.close()
 			return pose.sequence()
 
-		#If the mutationGenerator returns count as -1, choose a random mutation
-		if (count == -1):
-			dump_intermediate_structure(pose, nameBase)
-			(position, aminioAcid) = random_mutation(pose.sequence())
-
 		#Make a mutation
 		iter_pose = Pose() #Keep a pose (pre-mutation and optimization) for this iteration in case we need to revert
 		iter_pose.assign(pose)
-		make_mutation(pose, position, mutation)
-
-		#Check for unsuccessful mutation
-		while (pose.sequence() == iter_pose.sequence()):
-			#If the mutation is unsuccessful, dump the structure before making the random mutation
-			print "Unsuccessful mutation\n"
-			dump_intermediate_structure(pose, nameBase)
-			pose.assign(iter_pose)
-			(position, aminioAcid) = random_mutation(pose.sequence())
-			make_mutation(pose, position, mutation)
+		(position, mutation, random) = make_mutation(pose, position, mutation, count) 
 
 		#Optimize the structure
 		energy = optimize_structure(pose)
@@ -203,9 +149,9 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 		# (1) Check RMSD
 		if (CA_rmsd(pose, native_pose) < RMSD_cutoff and mc.boltzmann(pose)):
 			#Accept the structure
-			log.write(str(position) +  ", " + mutation + "," + str(count) + "," + str(cover) + "," + str(energy) + ",1\n")
+			log.write(str(position) +  ", " + mutation + "," + str(random) + "," + str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",1\n")
 		else: 
-			log.write(str(position) +  ", " + mutation + "," + str(count) + "," + str(cover) + "," + str(energy) + ",0\n")
+			log.write(str(position) +  ", " + mutation + "," + str(random) + "," + str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",0\n")
 			pose.assign(iter_pose) #Manual revert in case of RMSD rejection
 			print "Structure rejected \n"
 

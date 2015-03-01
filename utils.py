@@ -13,23 +13,45 @@ population_epitope_freq = {} # epitope string : frequency in population
 population_num_epitopes = 0.0 # Total number of epitopes (non-distinct) in all the population sequences
 population_top_single_freq = {}
 hard_epitope_coverage = {} # epitope : coverage (according to Fisher)
-        
-def choose_mutation(mosaic_seq, init_coverage):
+num_population_sequences = None
+
+def choose_mutation(mosaic_seq, init_coverage, max_mutations_per_position = 2):
     """ Chooses a mutation by iterating though each position in the mosaic sequence and choosing, from the
     most frequently occuring 3 grams, what point mutations may increase coverage. """
     
+    global num_population_sequences
+    top_choices = [] # (position, letter, coverage)
+
     # Iterate through the rest of the amino acids in the middle
     # For each position, create some number of mutations, the most probable mutations conditioned
     # on the neighbors.  If the coverage increases for any of these mutations, then add them to a set
     # of possibilities to then choose from later.  This is a way to narrow the search space and potentially
     # get more coverage increases at each step (compared to random sampling)    
-    top_choices = [] # (position, letter, coverage)
-    rand_start = int(random.random() * epitope_length)
+
     for i in xrange(len(mosaic_seq)):
         # Look up neighbors.  If no neighbors, don't do anything (we have random sampling as a backup)
-        max_mutations = 2
-        num_mutations = min(max_mutations, len(population_top_single_freq[i]))
-        mutation_choices = [population_top_single_freq[i][m][0] for m in xrange(num_mutations)]
+        num_mutations = min(max_mutations_per_position, len(population_top_single_freq[i]))
+        #mutation_choices = [population_top_single_freq[i][m][0] for m in xrange(num_mutations)]
+
+        # Choose 'num_mutations' mutations proportional to their frequency in the population
+        # Generate random integers between 0 and sum(freq), then use the mutation choice that
+        # corresponds to that number.  To avoid repeats, remove previous mutation frequency
+        # from the random number range
+        mutation_choices = []
+        rand_num_range = num_population_sequences
+        for m in xrange(num_mutations):
+            leftover = int(random.random() * rand_num_range)
+            count = 0
+            last_mutation = None
+            last_mutation_freq = None
+            while leftover >= 0:
+                if population_top_single_freq[i][count][0] not in mutation_choices:
+                    leftover -= population_top_single_freq[i][count][1]
+                    last_mutation = population_top_single_freq[i][count][0]
+                    last_mutation_count = population_top_single_freq[i][count][1]
+                count += 1
+            mutation_choices.append(last_mutation)
+            rand_num_range -= last_mutation_count
 
         print mutation_choices
         for mutation_choice in mutation_choices:
@@ -101,6 +123,8 @@ def frac_pop_seq_covered(mosaic, pop, tolerance = False, coverage_thresh = 1):
 def calc_single_freq(pop_seqs):
     """ Iterates through all aligned population sequences and calculates the amino acid frequence for each position"""
     global population_top_single_freq
+    global num_population_sequences
+    num_population_sequences = len(pop_seqs)
     population_single_freq = {}
     for seq in pop_seqs:
         for i in xrange(len(seq)):
@@ -167,7 +191,7 @@ def coverage(mosaic_seq, threshold = 0.0, weight_func = squared_weight):
 
 def fisher_coverage(mosaic_seq, population_seqs, threshold = 50):
     """ Returns coverage score for a mosaic sequence based on the population using Fisher's metric.
-	    Note: Population sequences should be UNALIGNED! """
+        Note: Population sequences should be UNALIGNED! """
     coverage = 0
     mosaic_seq = mosaic_seq.replace("-", "")
     already_seen = set() # Avoids double counting coverage (within a mosaic protein)
@@ -229,8 +253,8 @@ if __name__ == "__main__":
     v1v2_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
     init_coverage = coverage(v1v2_seq, weight_func=squared_weight)
     print init_coverage
-    #print choose_mutation(v1v2_seq, init_coverage, pop_gag)
-    #print fisher_coverage(v1v2_seq, pop_gag)
+    print choose_mutation(v1v2_seq, init_coverage)
+    print fisher_coverage(v1v2_seq, pop_gag)
     print "num epitopes in mosaic: ", num_epitopes_in_mosaic(v1v2_seq, pop_gag, eq_tolerance = 1, min_epitope_freq = 1)
     print "frac pop covered: ", frac_pop_seq_covered(v1v2_seq, pop_gag, tolerance = False, coverage_thresh = 20)
 

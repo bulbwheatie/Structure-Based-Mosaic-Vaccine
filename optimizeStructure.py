@@ -3,6 +3,12 @@
 # MUST CALL rosetta.init() prior to using any of these functions
 #---------------------
 # This file performs PyRosetta related mutations and optimizations for a protein structure 
+
+
+#TODO: Keep aligned sequence separate from Pose object
+#TODO: Insertion and deletions
+#TODO: Compute hard coverage and various stats before exiting
+
 from rosetta import *
 import random 
 import imp
@@ -13,7 +19,7 @@ import sys
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 intermediate_struct_counter = 0
 RMSD_cutoff = 10
-pop_seq = None
+pop_aligned = None
 
 #Constants for Rosetta's refinement process
 kT = 1 #Temperature for MC
@@ -131,10 +137,6 @@ def dump_intermediate_structure(pose, nameBase):
 	pose.dump_pdb(midpointFile)
 	intermediate_struct_counter += 1
 
-def initialize_functions():
-	rosetta.init()
-	calc_pop_epitope_freq(pop_seq) #Initialize epitope freq dictionary for coverage metric
-
 def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	"""# Calling ROSAIC will perform N iterations of mutation + optimization
 	# INPUT: PDB file
@@ -151,11 +153,6 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	logFile = nameBase + ".log"
 	midpointCounter = 0
 	midpointFile = nameBase + "." + str(midpointCounter) + " .pdb"
-
-	# INITIALIZE EVERYTHING
-	rosetta.init()
-	calc_pop_epitope_freq(pop_seq) #Initialize epitope freq dictionary for coverage metric
-	calc_single_freq(pop_seq) #Initialize dictionary for mutation chooser
 
 	pose = Pose() #Pose for mutation and manipulation
 	native_pose = Pose() #Keep a pose of the native structure
@@ -213,6 +210,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 			print "Structure rejected \n"
 
 	#Dump the final structure and return the sequence
+	#TODO: Print hard coverage
 	pose.dump_pdb(outfile)
 	log.close()
 	return pose.sequence()
@@ -235,7 +233,7 @@ def mutation_selecter(sequence):
 
 	count = 0
 	while (tmpCover <= cover):
-		(position, aminoAcid, tmpCover) = choose_mutation(sequence, tmpCover, pop_seq)
+		(position, aminoAcid, tmpCover) = choose_mutation(sequence, tmpCover)
 
 		# No improving mutations can be found; Tell driver to make a random mutation
 		if (position < 0):
@@ -264,7 +262,7 @@ def run_ROSAIC():
 	    --iters for the number of rounds of point mutations to perform
 	    --logFile for the name of the log file to output data
 	"""
-	global pop_seq
+	global pop_aligned
 
 	pdbFile = None
 	outfile = None
@@ -295,9 +293,13 @@ def run_ROSAIC():
 		elif o in ("--end_i"):
 			end_i = int(a);
 
-	pop_seq = read_fasta_file(fastaFile, start_i, end_i, False) #Modify the global var
-	print start_i
-	print end_i
+	# INITIALIZE EVERYTHING
+	rosetta.init()
+	pop_aligned = read_fasta_file(fastaFile, start_i, end_i, aligned = True)
+	pop_unaligned = read_fasta_file(fastaFile, start_i, end_i, aligned = False)
+	calc_pop_epitope_freq(pop_unaligned)
+	calc_single_freq(pop_aligned)
+
 	ROSAIC(pdbFile, nameBase, mutation_selecter, iters)
 
 if __name__ == "__main__":

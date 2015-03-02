@@ -109,8 +109,8 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	 """
 
 	print "Running ROSAIC"
-	outfile = nameBase + ".pdb"
-	logFile = nameBase + ".log"
+	outfile = "output/" + nameBase + "/" + nameBase + ".pdb"
+	logFile = "output/" + nameBase + "/" + nameBase  + ".log"
 
 	pose = Pose() #Pose for mutation and manipulation
 	native_pose = Pose() #Keep a pose of the native structure
@@ -118,6 +118,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	zero_pose(native_pose) #Align pose to origin
 	pose.assign(native_pose)
 	scorefxn = create_score_function('standard')
+	dump_intermediate_structure(pose) #Dump zero'd pose
 	print "Initial energy: " + str(scorefxn(pose))
 
 	log = open(logFile, 'w')
@@ -138,6 +139,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 		iter_pose = Pose() #Keep a pose (pre-mutation and optimization) for this iteration in case we need to revert
 		iter_pose.assign(pose)
 		(position, mutation, mutation_type) = make_mutation(pose, position, mutation, count) 
+		print "Mutation " + mutation + " at " + str(position)
 
 		#Optimize the structure
 		energy = optimize_structure(pose)
@@ -149,10 +151,10 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 		if (CA_rmsd(pose, native_pose) < RMSD_cutoff and mc.boltzmann(pose)):
 			#Accept the structure
 			log.write(str(position) +  ", " + mutation + "," + str(mutation_type) + "," + str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",1\n")
+			dump_intermediate_structure(pose) #Dump every accepted pose
 		else: 
 			log.write(str(position) +  ", " + mutation + "," + str(mutation_type) + "," + str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",0\n")
 			pose.assign(iter_pose) #Manual revert in case of RMSD rejection
-			dump_intermediate_structure(testPose)
 			print "Structure rejected \n"
 
 	#Dump the final structure and return the sequence
@@ -247,6 +249,7 @@ def run_ROSAIC():
 	calc_single_freq(pop_aligned)
 	initialize_struct_utils("SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ", nameBase)
 
+	#Use nameBase as the output dir for each struct
 	ROSAIC(pdbFile, nameBase, mutation_selecter, iters)
 
 if __name__ == "__main__":

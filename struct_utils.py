@@ -1,4 +1,5 @@
 from rosetta import *
+from utils import *
 
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 
@@ -166,7 +167,6 @@ def pose_random_mutation(testPose, pose):
 	random = 0
 	while (testPose.sequence() == pose.sequence()):
 		random = 1
-		dump_intermediate_structure(testPose)
 		(position, mutation) = random_mutation(sequence_master)
 		(pose_position, mutation_type) = calculate_mutation_for_pose(sequence_master, position, mutation, 0)
 		mutate_residue(pose, pose_position, mutation)
@@ -181,7 +181,7 @@ def dump_intermediate_structure(pose):
 	""" Dump intermediate struct 
 	"""
 	global intermediate_struct_counter
-	midpointFile = name_space + "." + str(intermediate_struct_counter) + " .pdb"
+	midpointFile = "output/" + name_space + "/" + str(intermediate_struct_counter) + ".pdb"
 	pose.dump_pdb(midpointFile)
 	intermediate_struct_counter += 1
 

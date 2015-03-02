@@ -68,24 +68,27 @@ def make_mutation(pose, position, mutation, count):
 		#TODO: INSERT RESIDUE
 		print "Point\n"
 		mutate_residue(testPose, pose_position, mutation)
-
 		pass
 	elif (mutation_type == "insert"):
 		# TODO: DELETE RESIDUE
+		insert_residue(testPose, pose_position, mutation)
 		print "Insert\n"
 		pass
 	elif (mutation_type == "delete"):
+		delete_residue(testPose, pose_position)
 		print "Delete\n"
 
 	#----Ensure mutation is successful or make a point random 
-	(position, mutation, random) = pose_random_mutation(testPose, pose)
+	if (testPose.sequence() == pose.sequence()):
+		(position, mutation, random) = pose_random_mutation(testPose, pose)
+		mutation_type = "random"
 
 	#----If mutation is successful, update the master sequence
 	update_master_sequence(position, mutation)
 
 	#----Update the provided pose and return sequence position and mutation made
 	pose.assign(testPose)
-	return (position, mutation, random);
+	return (position, mutation, mutation_type);
 
 def insert_residue(pose, position, mutation):
 	"""Performs an insertion into the pose right after the position
@@ -97,7 +100,8 @@ def insert_residue(pose, position, mutation):
 	new_seq = sequence[:position] + mutation + sequence[position:]
 
 	#Make pose from sequence
-	new_pose = pose_from_sequence(new_seq)
+	new_pose = Pose()
+	make_pose_from_sequence(new_pose, new_seq, 'fa_standard')
 
 	#Iterate through residues, setting the angles according to original pose
 	# (skipping) the deleted position
@@ -114,7 +118,7 @@ def insert_residue(pose, position, mutation):
 			new_pose.set_omega(new_idx, pose.omega(old_idx))
 			new_idx += 1
 			old_idx += 1
-	return new_pose
+	pose.assign(new_pose)
 
 def delete_residue(pose, position):
 	""" Deletes the pose in the residue
@@ -126,7 +130,8 @@ def delete_residue(pose, position):
 	new_seq = sequence[:position-1] + sequence[position:]
 
 	#Make pose from sequence
-	new_pose = pose_from_sequence(new_seq)
+	new_pose = Pose()
+	make_pose_from_sequence(new_pose, new_seq, 'fa_standard')
 
 	#Iterate through residues, setting the angles according to original pose
 	# (skipping) the deleted position
@@ -139,10 +144,11 @@ def delete_residue(pose, position):
 		new_pose.set_omega(i, pose.omega(i))
 		#new_pose.set_chi(2, i, pose.chi(2, i))
 		i += 1
-	return new_pose
+	pose.assign(new_pose)
 
 def zero_pose(pose):
-	new_pose = pose_from_sequence(pose.sequence())
+	new_pose = Pose()
+	make_pose_from_sequence(new_pose, pose.sequence(), 'fa_standard')
 
 	#Iterate through residues, setting the angles according to original pose
 	# (skipping) the deleted position
@@ -153,24 +159,25 @@ def zero_pose(pose):
 		new_pose.set_omega(i, pose.omega(i))
 		#new_pose.set_chi(2, i, pose.chi(2, i))
 		i += 1
-	return new_pose
+
+	pose.assign(new_pose)
 
 def pose_random_mutation(testPose, pose):
 	random = 0
 	while (testPose.sequence() == pose.sequence()):
 		random = 1
 		dump_intermediate_structure(testPose)
-		(pose_position, mutation_type) = calculate_mutation_for_pose(sequence_master, position, mutation, -1)
+		(position, mutation) = random_mutation(sequence_master)
+		(pose_position, mutation_type) = calculate_mutation_for_pose(sequence_master, position, mutation, 0)
 		mutate_residue(pose, pose_position, mutation)
 	return (position, mutation, random)
 
 def update_master_sequence(position, mutation):
 	global sequence_master
-	sequence_master[position] = mutation
+	sequence_master = sequence_master[:position-1] + mutation + sequence_master[position:]
 
 
 def dump_intermediate_structure(pose):
-	dump_intermediate_structure(testPose)
 	""" Dump intermediate struct 
 	"""
 	global intermediate_struct_counter
@@ -178,7 +185,7 @@ def dump_intermediate_structure(pose):
 	pose.dump_pdb(midpointFile)
 	intermediate_struct_counter += 1
 
-def initialize_vars(sequence, name_base):
+def initialize_struct_utils(sequence, name_base):
 	global sequence_master
 	global name_space
 	sequence_master = sequence
@@ -201,9 +208,8 @@ if __name__ == "__main__":
 	#INSERTION TEST
 	pose = Pose()
 	pose_from_pdb(pose, "test.pdb")
-	zero_pose = zero_pose(pose)
-	dump_pdb(zero_pose, "testZero.pdb")
+	dump_pdb(pose, "testZero.pdb")
 	print pose.sequence()
-	new_pose =  insert_residue(pose, 10, "E")
-	dump_pdb(new_pose, "testIns.pdb")
-	print new_pose.sequence()
+	insert_residue(pose, 10, "E")
+	dump_pdb(pose, "testIns.pdb")
+	print pose.sequence()

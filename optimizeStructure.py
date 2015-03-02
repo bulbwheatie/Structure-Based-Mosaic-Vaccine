@@ -4,11 +4,9 @@
 #---------------------
 # This file performs PyRosetta related mutations and optimizations for a protein structure 
 
-
-#TODO: Keep aligned sequence separate from Pose object
-#TODO: Insertion and deletions
 #TODO: Compute hard coverage and various stats before exiting
 #TODO: Make number of mutations an option for choose mutation (Default 2 right now)
+#TODO: Make sequence an input parameter
 
 from rosetta import *
 import random 
@@ -117,6 +115,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	pose = Pose() #Pose for mutation and manipulation
 	native_pose = Pose() #Keep a pose of the native structure
 	pose_from_pdb(native_pose, pdbFile)
+	zero_pose(native_pose) #Align pose to origin
 	pose.assign(native_pose)
 	scorefxn = create_score_function('standard')
 	print "Initial energy: " + str(scorefxn(pose))
@@ -138,7 +137,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 		#Make a mutation
 		iter_pose = Pose() #Keep a pose (pre-mutation and optimization) for this iteration in case we need to revert
 		iter_pose.assign(pose)
-		(position, mutation, random) = make_mutation(pose, position, mutation, count) 
+		(position, mutation, mutation_type) = make_mutation(pose, position, mutation, count) 
 
 		#Optimize the structure
 		energy = optimize_structure(pose)
@@ -149,10 +148,11 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 		# (1) Check RMSD
 		if (CA_rmsd(pose, native_pose) < RMSD_cutoff and mc.boltzmann(pose)):
 			#Accept the structure
-			log.write(str(position) +  ", " + mutation + "," + str(random) + "," + str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",1\n")
+			log.write(str(position) +  ", " + mutation + "," + str(mutation_type) + "," + str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",1\n")
 		else: 
-			log.write(str(position) +  ", " + mutation + "," + str(random) + "," + str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",0\n")
+			log.write(str(position) +  ", " + mutation + "," + str(mutation_type) + "," + str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",0\n")
 			pose.assign(iter_pose) #Manual revert in case of RMSD rejection
+			dump_intermediate_structure(testPose)
 			print "Structure rejected \n"
 
 	#Dump the final structure and return the sequence
@@ -245,6 +245,7 @@ def run_ROSAIC():
 	pop_unaligned = read_fasta_file(fastaFile, start_i, end_i, aligned = False)
 	calc_pop_epitope_freq(pop_unaligned)
 	calc_single_freq(pop_aligned)
+	initialize_struct_utils("SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ", nameBase)
 
 	ROSAIC(pdbFile, nameBase, mutation_selecter, iters)
 

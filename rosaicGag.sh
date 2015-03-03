@@ -20,7 +20,9 @@ module load python/2.7
 echo loaded python...
 source /home/grigoryanlab/library/PyRosetta-Release1.1-r34968.linux.64Bit/SetPyRosettaEnvironment.sh
 
-mkdir "output/gag_5_0"
-time python optimizeStructure.py  --pdbFile="structs/gag.pdb" --nameBase="gag_5_0" --iters=10 --fastaFile="data/HIV-1_gag.fasta" --start_i=343 --end_i=414
+mkdir "output/gag_5_0.1"
+time python optimizeStructure.py  --pdbFile="structs/gag.pdb" --nameBase="gag_5_0.1" --iters=10 \
+--fastaFile="data/HIV-1_gag.fasta" --start_i=343 --end_i=414 \
+--sequence="SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
 
 exit 0

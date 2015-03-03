@@ -5,8 +5,6 @@
 # This file performs PyRosetta related mutations and optimizations for a protein structure 
 
 #TODO: Compute hard coverage and various stats before exiting
-#TODO: Make number of mutations an option for choose mutation (Default 2 right now)
-#TODO: Make sequence an input parameter
 
 from rosetta import *
 import random 
@@ -18,13 +16,18 @@ import sys
 
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 intermediate_struct_counter = 0
-RMSD_cutoff = 10
+RMSD_cutoff = 5
 pop_aligned = None
+pop_unaligned = None
+num_mutation_choices = 2
 
 #Constants for Rosetta's refinement process
 kT = 1 #Temperature for MC
 numMoves = 3 #Number of small/shear backbone torsion moves
 backboneAngleMax = 7 #Maximum backbone torsion degrees that can change per iterations of refinement
+
+energy_temp = 5
+RMSD_temp = 1
 
 def optimize_structure(pose, iters = 60):
 
@@ -66,7 +69,7 @@ def optimize_structure(pose, iters = 60):
 	minMover.movemap(mm)
 	minMover.score_function(scorefxn)
 
-	packerTask = standard_packer_task(pose)
+	packerTask = standard_packer_task(testPose)
 	packerTask.restrict_to_repacking()
 	packerTask.or_include_current(True)
 	packMover = PackRotamersMover(scorefxn, packerTask)
@@ -116,19 +119,23 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	native_pose = Pose() #Keep a pose of the native structure
 	pose_from_pdb(native_pose, pdbFile)
 	zero_pose(native_pose) #Align pose to origin
+	optimize_structure(native_pose)
 	pose.assign(native_pose)
 	scorefxn = create_score_function('standard')
 	dump_intermediate_structure(pose) #Dump zero'd pose
 	print "Initial energy: " + str(scorefxn(pose))
 
 	log = open(logFile, 'w')
-	log.write("-,-,-," + str(coverage(pose.sequence())) + "," + str(scorefxn(pose)) + ",-\n")
+	log.write("Hard Covereage = " + str(fisher_coverage(get_master_sequence(), pop_aligned)) + "\n")
+	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(get_master_sequence(), pop_unaligned))+ "\n")
+	log.write("-,-,-," + str(coverage(get_master_sequence())) + "," + str(scorefxn(pose)) + ",-\n")
+	set_fLog(log)
 
 	mc = MonteCarlo(pose, scorefxn, 100)
 
 	for i in range(0, iter):
 		#Choose a mutation
-		(position, mutation, count, cover) = mutationGenerator(pose.sequence());
+		(position, mutation, count, cover) = mutationGenerator(get_master_sequence());
 		if (position == -1):
 			log.write("Mutations issues\n")
 			pose.dump_pdb(outfile)
@@ -140,6 +147,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 		iter_pose.assign(pose)
 		(position, mutation, mutation_type) = make_mutation(pose, position, mutation, count) 
 		print "Mutation " + mutation + " at " + str(position)
+		cover = coverage(get_master_sequence())
 
 		#Optimize the structure
 		energy = optimize_structure(pose)
@@ -148,20 +156,32 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 
 		#Accept or reject the mutated structure, if rejected, revert the structure
 		# (1) Check RMSD
-		if (CA_rmsd(pose, native_pose) < RMSD_cutoff and mc.boltzmann(pose)):
+		if (is_accept_struct(CA_rmsd(pose, native_pose), scorefxn(pose), scorefxn(native_pose))):
 			#Accept the structure
 			log.write(str(position) +  ", " + mutation + "," + str(mutation_type) + "," + str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",1\n")
 			dump_intermediate_structure(pose) #Dump every accepted pose
+			accept_master_sequence()
+			log.write("OS:DEBUG -- " + get_master_sequence() + "\n")
 		else: 
 			log.write(str(position) +  ", " + mutation + "," + str(mutation_type) + "," + str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",0\n")
 			pose.assign(iter_pose) #Manual revert in case of RMSD rejection
+			#Revert the master sequence 
+			reject_master_sequence()
+			log.write("OS:DEBUG -- " + get_master_sequence() + "\n")	
 			print "Structure rejected \n"
 
 	#Dump the final structure and return the sequence
 	#TODO: Print hard coverage
+	log.write("Hard Covereage = " + str(fisher_coverage(get_master_sequence(), pop_aligned)) + "\n")
+	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(get_master_sequence(), pop_unaligned))+ "\n")
 	pose.dump_pdb(outfile)
 	log.close()
 	return pose.sequence()
+
+def is_accept_struct(RMSD, energy, native_energy):
+	accept_energy = ((energy < native_energy) or (random.random() < exp(-(energy - native_energy)/energy_temp)))
+	accept_RMSD = ((RMSD < RMSD_cutoff) or (random.random() < exp(-(RMSD - RMSD_cutoff)/RMSD_temp)))
+	return (accept_energy and accept_RMSD)
 
 def mutation_selecter(sequence):
 	"""
@@ -211,6 +231,8 @@ def run_ROSAIC():
 	    --logFile for the name of the log file to output data
 	"""
 	global pop_aligned
+	global num_mutation_choices
+	global pop_unaligned
 
 	pdbFile = None
 	outfile = None
@@ -219,9 +241,10 @@ def run_ROSAIC():
 	iters = 1
 	fastaFile = None 
 	start_i = end_i = 0
+	sequence = None
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "nameBase=", "iters=", "fastaFile=", "start_i=", "end_i="])
+		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "nameBase=", "iters=", "fastaFile=", "start_i=", "end_i=", "sequence=", "num_mutation_choices="])
 	except getopt.error, msg:
 		print msg
 		print "for help use --help"
@@ -240,6 +263,10 @@ def run_ROSAIC():
 			start_i = int(a);
 		elif o in ("--end_i"):
 			end_i = int(a);
+		elif o in ("--num_mutation_choices"):
+			num_mutation_choices = int(a);
+		elif o in ("--sequence"):
+			sequence = a			
 
 	# INITIALIZE EVERYTHING
 	rosetta.init()
@@ -247,7 +274,7 @@ def run_ROSAIC():
 	pop_unaligned = read_fasta_file(fastaFile, start_i, end_i, aligned = False)
 	calc_pop_epitope_freq(pop_unaligned)
 	calc_single_freq(pop_aligned)
-	initialize_struct_utils("SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ", nameBase)
+	initialize_struct_utils(sequence, nameBase)
 
 	#Use nameBase as the output dir for each struct
 	ROSAIC(pdbFile, nameBase, mutation_selecter, iters)

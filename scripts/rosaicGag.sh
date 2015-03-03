@@ -16,11 +16,17 @@
 #$ -V
 # Now comes the command to be executed
 
+nameBase=$1 #i.e. gag_5_1.0
+iters=$2
+
 module load python/2.7
 echo loaded python...
 source /home/grigoryanlab/library/PyRosetta-Release1.1-r34968.linux.64Bit/SetPyRosettaEnvironment.sh
 
-mkdir "output/v1v2_5_0"
-time python optimizeStructure.py  --pdbFile="structs/v1v2.pdb" --nameBase="v1v2_5_0" --iters=50 --fastaFile="data/HIV-1_gag.fasta" --start_i=343 --end_i=414
+outdir="output/$nameBase"
+mkdir ${outdir}
+time python optimizeStructure.py  --pdbFile="structs/gag.pdb" --nameBase=${nameBase} --iters=${iters} \
+--fastaFile="data/HIV-1_gag.fasta" --start_i=343 --end_i=414 \
+--sequence="SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
 
 exit 0

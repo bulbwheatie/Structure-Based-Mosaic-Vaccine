@@ -225,15 +225,21 @@ def fisher_coverage(mosaic_seq, population_seqs, threshold = 50):
     return coverage
 
 def read_fasta_file(fasta_file, start_i, end_i, aligned = True):
-    sequences = []
+    sequences_all = []
     curr_seq = ""
     for line in open(fasta_file, 'r').readlines():
         if '>' in line:
             if len(curr_seq) != 0:
-                sequences.append(curr_seq[start_i:end_i])
+                sequences_all.append(curr_seq[start_i:end_i])
                 curr_seq = ''
         else:
             curr_seq += line.replace('\n', '').strip()
+
+    # Remove sequences that aren't the same length.  There are some oddball nef ones that aren't the same length
+    sequences = []
+    for seq in sequences_all:
+        if len(seq) == end_i - start_i:
+            sequences.append(seq)
 
     if not aligned:
         for i in xrange(len(sequences)):
@@ -243,20 +249,28 @@ def read_fasta_file(fasta_file, start_i, end_i, aligned = True):
 
 # Tester function
 if __name__ == "__main__":
-    # Initialize data
     print "v1v2 loop diagnostics"
-    v1v2_start_i = 343
-    v1v2_end_i = 414
-    pop_gag = read_fasta_file('./data/HIV-1_gag.fasta', v1v2_start_i, v1v2_end_i, aligned=True)
+    v1v2_start_i = 171
+    v1v2_end_i = 354
+    pop_env = read_fasta_file('./data/HIV-1_env.fasta', v1v2_start_i, v1v2_end_i, aligned=True)
+    calc_pop_epitope_freq(pop_env)
+    calc_single_freq(pop_env)
+    v1v2_seq = 'VKLTPLCVTLQCTNVTNNITDDMRGELKNCSFNMTTELRDKKQKVYSLFYRLDVVQINENQGNRSNNSNKEYRLINCNTSAITQA'
+
+    print "gag loop diagnostics"
+    gag_start_i = 343
+    gag_end_i = 414
+    pop_gag = read_fasta_file('./data/HIV-1_gag.fasta', gag_start_i, gag_end_i, aligned=True)
     calc_pop_epitope_freq(pop_gag)
     calc_single_freq(pop_gag)
-    v1v2_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
-    init_coverage = coverage(v1v2_seq, weight_func=squared_weight)
+    gag_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
+    init_coverage = coverage(gag_seq, weight_func=squared_weight)
+    print population_top_single_freq
     print init_coverage
-    print choose_mutation(v1v2_seq, init_coverage)
-    print fisher_coverage(v1v2_seq, pop_gag)
-    print "num epitopes in mosaic: ", num_epitopes_in_mosaic(v1v2_seq, pop_gag, eq_tolerance = 1, min_epitope_freq = 1)
-    print "frac pop covered: ", frac_pop_seq_covered(v1v2_seq, pop_gag, tolerance = False, coverage_thresh = 20)
+    print choose_mutation(gag_seq, init_coverage)
+    print fisher_coverage(gag_seq, pop_gag)
+    print "num epitopes in mosaic: ", num_epitopes_in_mosaic(gag_seq, pop_gag, eq_tolerance = 1, min_epitope_freq = 1)
+    print "frac pop covered: ", frac_pop_seq_covered(gag_seq, pop_gag, tolerance = False, coverage_thresh = 20)
 
     print
     print "Nef sequence diagnostics"
@@ -265,6 +279,9 @@ if __name__ == "__main__":
     nef_start_i = 111
     nef_end_i = 357
     pop_nef_aligned = read_fasta_file('./data/HIV-1_nef.fasta', nef_start_i, nef_end_i, aligned = True)
+    with open('popnef.fasta', 'w') as f:
+        for seq in pop_nef_aligned:
+            f.write(seq + '\n')
     pop_nef_unaligned = read_fasta_file('./data/HIV-1_nef.fasta', nef_start_i, nef_end_i, aligned = False)
     calc_pop_epitope_freq(pop_nef_unaligned)
     calc_single_freq(pop_nef_aligned)

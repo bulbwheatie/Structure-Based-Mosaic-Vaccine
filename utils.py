@@ -225,15 +225,21 @@ def fisher_coverage(mosaic_seq, population_seqs, threshold = 50):
     return coverage
 
 def read_fasta_file(fasta_file, start_i, end_i, aligned = True):
-    sequences = []
+    sequences_all = []
     curr_seq = ""
     for line in open(fasta_file, 'r').readlines():
         if '>' in line:
             if len(curr_seq) != 0:
-                sequences.append(curr_seq[start_i:end_i])
+                sequences_all.append(curr_seq[start_i:end_i])
                 curr_seq = ''
         else:
             curr_seq += line.replace('\n', '').strip()
+
+    # Remove sequences that aren't the same length.  There are some oddball nef ones that aren't the same length
+    sequences = []
+    for seq in sequences_all:
+        if len(seq) == end_i - start_i:
+            sequences.append(seq)
 
     if not aligned:
         for i in xrange(len(sequences)):
@@ -249,7 +255,7 @@ if __name__ == "__main__":
     pop_env = read_fasta_file('./data/HIV-1_env.fasta', v1v2_start_i, v1v2_end_i, aligned=True)
     calc_pop_epitope_freq(pop_env)
     calc_single_freq(pop_env)
-    v1v2_seq = 'VKLTPLCVTLQCTNVTNNITDDMRGELKNCSFNMTTELRDKKQKVYSLFYRLDVVQINENQGNRSNNSNKEYRLINCNTSAITQA' 
+    v1v2_seq = 'VKLTPLCVTLQCTNVTNNITDDMRGELKNCSFNMTTELRDKKQKVYSLFYRLDVVQINENQGNRSNNSNKEYRLINCNTSAITQA'
 
     print "gag loop diagnostics"
     gag_start_i = 343
@@ -273,6 +279,9 @@ if __name__ == "__main__":
     nef_start_i = 111
     nef_end_i = 357
     pop_nef_aligned = read_fasta_file('./data/HIV-1_nef.fasta', nef_start_i, nef_end_i, aligned = True)
+    with open('popnef.fasta', 'w') as f:
+        for seq in pop_nef_aligned:
+            f.write(seq + '\n')
     pop_nef_unaligned = read_fasta_file('./data/HIV-1_nef.fasta', nef_start_i, nef_end_i, aligned = False)
     calc_pop_epitope_freq(pop_nef_unaligned)
     calc_single_freq(pop_nef_aligned)

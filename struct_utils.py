@@ -174,6 +174,14 @@ def zero_pose(pose):
 		#new_pose.set_chi(2, i, pose.chi(2, i))
 		i += 1
 
+	#Repack the sidechains
+	scorefxn = create_score_function('standard')
+	packerTask = standard_packer_task(new_pose)
+	packerTask.restrict_to_repacking()
+	packerTask.or_include_current(True)
+	packMover = PackRotamersMover(scorefxn, packerTask)
+	packMover.apply(new_pose)
+
 	pose.assign(new_pose)
 
 def pose_random_mutation(testPose, pose):

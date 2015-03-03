@@ -16,13 +16,17 @@
 #$ -V
 # Now comes the command to be executed
 
+nameBase=$1 #i.e. nef_5_1.0
+iters=$2
+
 module load python/2.7
 echo loaded python...
 source /home/grigoryanlab/library/PyRosetta-Release1.1-r34968.linux.64Bit/SetPyRosettaEnvironment.sh
 
-mkdir "output/gag_5_0.1"
-time python optimizeStructure.py  --pdbFile="structs/gag.pdb" --nameBase="gag_5_0.1" --iters=10 \
---fastaFile="data/HIV-1_gag.fasta" --start_i=343 --end_i=414 \
---sequence="SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
+outdir="output/$nameBase"
+mkdir ${outdir}
+time python optimizeStructure.py  --pdbFile="structs/2NEF.pdb" --nameBase=${nameBase} --iters=${iters} \
+--fastaFile="data/HIV-1_nef.fasta" --start_i=111 --end_i=357 \
+--sequence="AWL--EA-QE-----E---E--E--VGFPVTPQVPLRPMTYKAAVDLSHFLKEKGGLEGLIHSQRRQDILDLWIYHTQGYFPDWQNYTPGPGIRYP-----------------------------------------------------------------LTFGWCYKLVPVEPEKLE-EANK---------------------------DDP-EREVLEWRFDSRLAFHHMARELHPEYF-KNA"
 
 exit 0

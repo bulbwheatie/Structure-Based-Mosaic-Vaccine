@@ -136,19 +136,28 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 
 	for i in range(0, iter):
 		#Choose a mutation
-		(position, mutation, count, cover) = mutationGenerator(get_master_sequence());
-		if (position == -1):
-			log.write("Mutations issues\n")
+		# (position, mutation, count, cover) = mutationGenerator(get_master_sequence());
+		# if (position == -1):
+		# 	log.write("Mutations issues\n")
+		# 	pose.dump_pdb(outfile)
+		# 	log.close()
+		# 	return pose.sequence()
+
+		(pose, sequence) = make_mutation(pop_aligned)
+
+		#The structure has been rejected too many times, terminate
+		if (pose == -1 or sequence == -1):
+			log.write("More than 5 structure rejections\n")
 			pose.dump_pdb(outfile)
 			log.close()
-			return pose.sequence()
+			return 			
 
 		#Make a mutation
-		iter_pose = Pose() #Keep a pose (pre-mutation and optimization) for this iteration in case we need to revert
-		iter_pose.assign(pose)
-		(position, mutation, mutation_type) = make_mutation(pose, position, mutation, count) 
-		print "Mutation " + mutation + " at " + str(position)
-		cover = coverage(get_master_sequence())
+		# iter_pose = Pose() #Keep a pose (pre-mutation and optimization) for this iteration in case we need to revert
+		# iter_pose.assign(pose)
+		# (position, mutation, mutation_type) = make_mutation(pose, position, mutation, count) 
+		# print "Mutation " + mutation + " at " + str(position)
+		cover = coverage(sequence)
 
 		#Optimize the structure
 		energy = optimize_structure(pose)
@@ -159,20 +168,19 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 		# (1) Check RMSD
 		if (is_accept_struct(CA_rmsd(pose, native_pose), scorefxn(pose), scorefxn(native_pose))):
 			#Accept the structure
-			log.write(str(position) +  ", " + mutation + "," + str(mutation_type) + "," + str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",1\n")
+			log.write(str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",1\n")
 			dump_intermediate_structure(pose) #Dump every accepted pose
-			accept_master_sequence()
-			log.write("OS:DEBUG -- " + get_master_sequence() + "\n")
+			update_archives(pose, sequence, cover)
+			log.write("OS:DEBUG -- " + sequence + "\n")
 		else: 
-			log.write(str(position) +  ", " + mutation + "," + str(mutation_type) + "," + str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",0\n")
+			log.write(str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",0\n")
 			pose.assign(iter_pose) #Manual revert in case of RMSD rejection
 			#Revert the master sequence 
-			reject_master_sequence()
-			log.write("OS:DEBUG -- " + get_master_sequence() + "\n")	
+			reject_archives()
+			log.write("OS:DEBUG -- " + sequence + "\n")	
 			print "Structure rejected \n"
 
 	#Dump the final structure and return the sequence
-	#TODO: Print hard coverage
 	log.write("Hard Covereage = " + str(fisher_coverage(get_master_sequence(), pop_aligned)) + "\n")
 	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(get_master_sequence(), pop_unaligned))+ "\n")
 	pose.dump_pdb(outfile)

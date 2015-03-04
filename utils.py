@@ -57,9 +57,7 @@ def choose_point_mutation(mosaic_seq, init_coverage, max_mutations_per_position 
         print mutation_choices
         for mutation_choice in mutation_choices:
             if mutation_choice != mosaic_seq[i]: # Only test if mutation is different than original sequence
-                mutated_sequence = mosaic_seq[:i] + mutation_choice
-                if i < len(mosaic_seq) - 1:
-                    mutated_sequence += mosaic_seq[i+1:]
+                mutated_sequence = update_seq_string(mosaic_seq, mutation_choice, i)
                 curr_coverage = coverage(mutated_sequence)
                 print curr_coverage
                 if curr_coverage > init_coverage:
@@ -142,9 +140,7 @@ def choose_n_sub_mutation(mosaic_seq, init_coverage, pop, mut_length = 2, max_mu
         
         for mutation_choice in mutation_choices:
             if mutation_choice != mosaic_seq[i:i + mut_length]: # Only test if mutation is different than original sequence
-                mutated_sequence = mosaic_seq[:i] + mutation_choice
-                if i < len(mosaic_seq) - mut_length:
-                    mutated_sequence += mosaic_seq[i + mut_length:]
+                mutated_sequence = update_seq_string(mosaic_seq, mutation_choice, i)
                 curr_coverage = coverage(mutated_sequence)
                 print curr_coverage
                 if curr_coverage > init_coverage:
@@ -315,6 +311,12 @@ def fisher_coverage(mosaic_seq, population_seqs, threshold = 50):
             hard_epitope_coverage[curr_epitope] /= len(population_seqs)
             coverage += hard_epitope_coverage[curr_epitope]
     return coverage
+
+def update_seq_string(original_seq, mutation_choice, pos):
+    mutated_sequence = mosaic_seq[:pos] + mutation_choice
+    if pos < len(mosaic_seq) - len(mutation_choice):
+        mutated_sequence += mosaic_seq[pos + len(mutation_choice):]
+    return mutated_sequence
 
 def read_fasta_file(fasta_file, start_i, end_i, aligned = True):
     sequences_all = []

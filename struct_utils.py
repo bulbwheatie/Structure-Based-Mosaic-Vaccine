@@ -16,7 +16,7 @@ intermediate_struct_counter = 0
 name_space = ""
 log = None
 
-point_to_chunk_prob = 0.9
+point_to_chunk_prob = 0.5
 
 #When we make a mutation, iterate determine find correlating position in structure
 def calculate_mutation_for_pose(sequence_master, position, amino_acid, count):
@@ -29,7 +29,6 @@ def calculate_mutation_for_pose(sequence_master, position, amino_acid, count):
 	pose_position = 0
 	curr_position = 0
 	mutation_type = "point"
-	log.write("DEBUG -- " + amino_acid + " at " + str(position) + "\n")
 
 	#If the mutation chooser returned nothing, then choose a random one
 	if (count < 0):
@@ -80,10 +79,10 @@ def make_mutation(pop):
 			sequence = tmp_sequence
 	else:
 		#Make a point mutation first
-		tmp_sequence = make_point_mutation(pose, sequence, cover, pop) 
+		tmp_sequence = make_point_mutation(pose, sequence, cover) 
 		if (tmp_sequence == -1):
 			#Make point mutation
-			tmp_sequence = make_chunk_mutation(pose, sequence, cover) 
+			tmp_sequence = make_chunk_mutation(pose, sequence, cover, pop) 
 			if (tmp_sequence == -1):
 				#Make a random mutation
 				sequence = make_random_mutation(pose, sequence)
@@ -95,50 +94,69 @@ def make_mutation(pop):
 	#Now sequence is our mutated sequence
 	#Pose is our mutated pose
 
-	return (sequence, pose)
+	return (pose, sequence)
 
 def make_point_mutation(pose, sequence, cover):
 	(position, mutation, cover) = choose_point_mutation(sequence, cover)
-	(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
-	mutate_residue(pose, pose_position, mutation)
-
-	update_seq_string(sequence, mutation, position)
-	if (sequence[position] == pose.sequence()[pose_position]):
+	log.write("POINT MUTATION: " + str(position) + " to " + mutation + "\n")
+	if (position == -1):
 		return -1
+	(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
+	print mutation + " at " + str(position) + "\n"
+	#Check the type and make the appropriate point mutation
+	if (mutation_type == "point" ):
+		print "Point\n"
+		mutate_residue(pose, pose_position, mutation)
+		if (sequence[position] == pose.sequence()[pose_position - 1]):
+			return -1
+	elif (mutation_type == "insert"):
+		insert_residue(pose, pose_position, mutation)
+		print "Insert\n"
+	elif (mutation_type == "delete"):
+		delete_residue(pose, pose_position)
+		print "Delete\n"
 
-	log.write("MUTATION: " + str(position) + "," + mutation + "\n")
+	mutated_sequence = update_seq_string(sequence, mutation, position)
+
+	log.write("POINT MUTATION: sequence =" + mutated_sequence + "\n")
 	return mutated_sequence
 
 def make_chunk_mutation(pose, sequence, cover, pop):
 	mutations = choose_n_sub_mutation(sequence, cover, pop)
+	log.write("CHUNK MUTATION: " + str(mutations)  + "\n")
+	print str(mutations) + "\n"
 	mutated_sequence = sequence
 	if (mutations[0][0] != -1):
 		i = 0
 		while i < len(mutations):
+			log.write("CHUNK MUTATION: attempting" + str(mutations[i][0]) + "to" + mutations[i][1] + "\n")
 			(position, mutation_type) = calculate_mutation_for_pose(sequence, mutations[i][0], mutations[i][1], 0)
 			mutate_residue(pose, position, mutations[i][1])
-			update_seq_string(sequence, mutation, position)
-			if (sequence[mutations[i][0]] == pose.sequence()[position]):
+			sequence = update_seq_string(sequence, mutations[i][1], mutations[i][0])
+			if (sequence[mutations[i][0]] == pose.sequence()[position-1]): #Pose position is 1 indexed, but strings are 0 indexed
+				log.write("CHUNK MUTATION: failed mutation " + sequence + " vs. " pose.sequence() + "\n")	
 				return -1
+			log.write("CHUNK MUTATION: sequence =" + sequence + "\n")	
 			i += 1
 	else :
 		#Fail state
 		return -1
 
 	#Update sequence for this iteration
-	log.write("MUTATION: " + str(position) + "," + sequence + "\n")
+	log.write("CHUNK MUTATION: " + mutated_sequence + " to " + sequence + "\n")
+	mutated_sequence = sequence
 	return mutated_sequence
 
 def make_random_mutation(pose, sequence):
 	(position, mutation) = random_mutation(sequence)
 	(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
 	mutate_residue(pose, pose_position, mutation)
-	while(sequence[position] == pose.sequence()[position])
+	while(sequence[position] == (pose.sequence())[pose_position-1]):
 		(position, mutation) = random_mutation(sequence)
 		(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
 		mutate_residue(pose, pose_position, mutation)
 
-	update_seq_string(sequence, mutation, position)
+	mutated_sequence = update_seq_string(sequence, mutation, position)
 	log.write("MUTATION: " + str(position) + "," + mutation + "\n")
 	return mutated_sequence
 
@@ -165,6 +183,7 @@ def update_archives(pose, sequence, cover):
 	"""
 	global sequence_master_archive
 	global pose_archive
+	global cover_archive
 
 	sequence_master_archive[1:] = sequence_master_archive[0:4]
 	sequence_master_archive[0] = sequence
@@ -181,10 +200,23 @@ def reject_archives():
 	""" 
 		Revert back one in the archives
 	"""
+	global sequence_master_archive
+	global pose_archive
+	global cover_archive
 	sequence_master_archive[-1] = 0
 	pose_archive[-1] = 0
 	cover_archive[-1] = 0
 	return
+def populate_archive(pose, sequence, cover):
+	global sequence_master_archive
+	global pose_archive
+	global cover_archive
+	i = 0
+	while i < len(sequence_master_archive):
+		sequence_master_archive[i] = sequence
+		pose_archive[i] = pose
+		cover_archive[i] = cover
+		i += 1
 
 def d_make_mutation(pose, position, mutation, count):
 	"""# Function: make_mutation()
@@ -348,17 +380,9 @@ def dump_intermediate_structure(pose):
 def initialize_struct_utils(sequence, name_base):
 	global sequence_master
 	global name_space
-	global sequence_master_archive
-	sequence_master = sequence_master_archive = sequence
+	sequence_master  = sequence
 	name_space = name_base
 
-def accept_master_sequence():
-	global sequence_master_archive
-	sequence_master_archive = sequence_master
-
-def reject_master_sequence():
-	global sequence_master
-	sequence_master = sequence_master_archive
 
 def set_fLog(logFile):
 	global log

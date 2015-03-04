@@ -101,7 +101,7 @@ def optimize_structure(pose, iters = 60):
 	pose.assign(testPose)
 	return finalScore
 
-def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
+def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence):
 	"""# Calling ROSAIC will perform N iterations of mutation + optimization
 	# INPUT: PDB file
 	#		 Outfile
@@ -119,17 +119,20 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	pose = Pose() #Pose for mutation and manipulation
 	native_pose = Pose() #Keep a pose of the native structure
 	pose_from_pdb(native_pose, pdbFile)
+	optimize_structure(native_pose)
 	zero_pose(native_pose) #Align pose to origin
 	optimize_structure(native_pose)
 	pose.assign(native_pose)
 	scorefxn = create_score_function('standard')
 	dump_intermediate_structure(pose) #Dump zero'd pose
+	cover = coverage(sequence)
+	populate_archive(pose, sequence, cover)
 	print "Initial energy: " + str(scorefxn(pose))
 
 	log = open(logFile, 'w')
-	log.write("Hard Covereage = " + str(fisher_coverage(get_master_sequence(), pop_aligned)) + "\n")
-	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(get_master_sequence(), pop_unaligned))+ "\n")
-	log.write("-,-,-," + str(coverage(get_master_sequence())) + "," + str(scorefxn(pose)) + ",-\n")
+	log.write("Hard Covereage = " + str(fisher_coverage(sequence, pop_aligned)) + "\n")
+	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(sequence, pop_unaligned))+ "\n")
+	log.write("-,-,-," + str(cover) + "," + str(scorefxn(pose)) + ",-\n")
 	set_fLog(log)
 
 	mc = MonteCarlo(pose, scorefxn, 100)
@@ -142,13 +145,15 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 		# 	pose.dump_pdb(outfile)
 		# 	log.close()
 		# 	return pose.sequence()
+		log.write("ROSAIC: Initial sequence = " + sequence + "\n")
 
 		(pose, sequence) = make_mutation(pop_aligned)
+
+		log.write("ROSAIC: Mutated sequence = " + sequence + "\n")
 
 		#The structure has been rejected too many times, terminate
 		if (pose == -1 or sequence == -1):
 			log.write("More than 5 structure rejections\n")
-			pose.dump_pdb(outfile)
 			log.close()
 			return 			
 
@@ -161,7 +166,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 
 		#Optimize the structure
 		energy = optimize_structure(pose)
-		print "Coverage " + str(cover) + " from " + str(position) +  " to " + mutation + "; Energy = " \
+		print "Coverage " + str(cover) + "; Energy = " \
 			+ str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + "\n"
 
 		#Accept or reject the mutated structure, if rejected, revert the structure
@@ -170,19 +175,18 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 			#Accept the structure
 			log.write(str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",1\n")
 			dump_intermediate_structure(pose) #Dump every accepted pose
-			update_archives(pose, sequence, cover)
-			log.write("OS:DEBUG -- " + sequence + "\n")
+			update_archives(pose, sequence, cover) #Update the accepted pose and sequence
 		else: 
 			log.write(str(cover) + "," + str(energy) + "; RMSD =" + str(CA_rmsd(pose, native_pose)) + ",0\n")
-			pose.assign(iter_pose) #Manual revert in case of RMSD rejection
-			#Revert the master sequence 
+			#Revert the master sequence and pose
 			reject_archives()
-			log.write("OS:DEBUG -- " + sequence + "\n")	
 			print "Structure rejected \n"
 
+		log.write("ROSAIC: End of iter sequence = " + get_current_structure()[1] + "\n")
+
 	#Dump the final structure and return the sequence
-	log.write("Hard Covereage = " + str(fisher_coverage(get_master_sequence(), pop_aligned)) + "\n")
-	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(get_master_sequence(), pop_unaligned))+ "\n")
+	log.write("Hard Covereage = " + str(fisher_coverage(sequence, pop_aligned)) + "\n")
+	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(sequence, pop_unaligned))+ "\n")
 	pose.dump_pdb(outfile)
 	log.close()
 	return pose.sequence()
@@ -286,7 +290,7 @@ def run_ROSAIC():
 	initialize_struct_utils(sequence, nameBase)
 
 	#Use nameBase as the output dir for each struct
-	ROSAIC(pdbFile, nameBase, mutation_selecter, iters)
+	ROSAIC(pdbFile, nameBase, mutation_selecter, iters, sequence)
 
 if __name__ == "__main__":
     print run_ROSAIC()

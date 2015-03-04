@@ -158,7 +158,8 @@ def choose_n_sub_mutation(mosaic_seq, init_coverage, pop, mut_length = 2, max_mu
         # Reformat final_choice as list of mutations
         formatted_mutation = []
         for aa_i in xrange(mut_length):
-            formatted_mutation.append((i + aa_i, final_choice[1][aa_i], final_choice[2]))
+            if final_choice[1][aa_i] != mosaic_seq[i + aa_i]:
+                formatted_mutation.append((i + aa_i, final_choice[1][aa_i], final_choice[2]))
         return formatted_mutation
 
 def random_mutation(sequence):
@@ -312,7 +313,7 @@ def fisher_coverage(mosaic_seq, population_seqs, threshold = 50):
             coverage += hard_epitope_coverage[curr_epitope]
     return coverage
 
-def update_seq_string(original_seq, mutation_choice, pos):
+def update_seq_string(mosaic_seq, mutation_choice, pos):
     mutated_sequence = mosaic_seq[:pos] + mutation_choice
     if pos < len(mosaic_seq) - len(mutation_choice):
         mutated_sequence += mosaic_seq[pos + len(mutation_choice):]

@@ -347,7 +347,7 @@ if __name__ == "__main__":
     pop_env = read_fasta_file('./data/HIV-1_env.fasta', v1v2_start_i, v1v2_end_i, aligned=True)
     calc_pop_epitope_freq(pop_env)
     calc_single_freq(pop_env)
-    v1v2_seq = 'VKLTPLCVTLQCTNVTNNITDDMRGELKNCSFNMTTELRDKKQKVYSLFYRLDVVQINENQGNRSNNSNKEYRLINCNTSAITQA'
+    v1v2_seq = 'VKLTPLCVTLQCTNVTNNITD--------------------------------------DMRGELKN----CSFNM-T-TE-LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA'
     init_coverage = coverage(v1v2_seq)
     choose_n_sub_mutation(v1v2_seq, init_coverage, pop_env, mut_length = 2, max_mutations_per_position = 1)
 

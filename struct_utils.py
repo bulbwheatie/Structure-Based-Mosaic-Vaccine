@@ -132,10 +132,11 @@ def make_chunk_mutation(pose, sequence, cover, pop):
 			log.write("CHUNK MUTATION: attempting" + str(mutations[i][0]) + "to" + mutations[i][1] + "\n")
 			(position, mutation_type) = calculate_mutation_for_pose(sequence, mutations[i][0], mutations[i][1], 0)
 			mutate_residue(pose, position, mutations[i][1])
-			sequence = update_seq_string(sequence, mutations[i][1], mutations[i][0])
+			mutated_sequence = update_seq_string(sequence, mutations[i][1], mutations[i][0])
 			if (sequence[mutations[i][0]] == pose.sequence()[position-1]): #Pose position is 1 indexed, but strings are 0 indexed
-				log.write("CHUNK MUTATION: failed mutation " + sequence + " vs. " pose.sequence() + "\n")	
+				log.write("CHUNK MUTATION: failed mutation " + sequence + " vs. " + pose.sequence() + "\n")	
 				return -1
+			sequence = mutated_sequence
 			log.write("CHUNK MUTATION: sequence =" + sequence + "\n")	
 			i += 1
 	else :
@@ -143,7 +144,6 @@ def make_chunk_mutation(pose, sequence, cover, pop):
 		return -1
 
 	#Update sequence for this iteration
-	log.write("CHUNK MUTATION: " + mutated_sequence + " to " + sequence + "\n")
 	mutated_sequence = sequence
 	return mutated_sequence
 

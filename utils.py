@@ -100,6 +100,7 @@ def choose_n_sub_mutation(mosaic_seq, init_coverage, pop, mut_length = 2, max_mu
             for nmer in population_top_nmer_freq[mut_length][aa_i]:
                 temp_list.append((nmer, population_top_nmer_freq[mut_length][aa_i][nmer]))
             population_top_nmer_freq[mut_length][aa_i] = sorted(temp_list, key=lambda x: x[1], reverse=True)
+    print population_top_nmer_freq[2]
 
     # Follow a similar path to the single point mutation, though with more checks against
     # substitution/insertion/deletion mixes
@@ -158,8 +159,8 @@ def choose_n_sub_mutation(mosaic_seq, init_coverage, pop, mut_length = 2, max_mu
         # Reformat final_choice as list of mutations
         formatted_mutation = []
         for aa_i in xrange(mut_length):
-            if final_choice[1][aa_i] != mosaic_seq[i + aa_i]:
-                formatted_mutation.append((i + aa_i, final_choice[1][aa_i], final_choice[2]))
+            if final_choice[1][aa_i] != mosaic_seq[final_choice[0] + aa_i]:
+                formatted_mutation.append((final_choice[0] + aa_i, final_choice[1][aa_i], final_choice[2]))
         return formatted_mutation
 
 def random_mutation(sequence):
@@ -344,7 +345,7 @@ def read_fasta_file(fasta_file, start_i, end_i, aligned = True):
 
 # Tester function
 if __name__ == "__main__":
-    print "v1v2 loop diagnostics"
+    """print "v1v2 loop diagnostics"
     v1v2_start_i = 171
     v1v2_end_i = 354
     pop_env = read_fasta_file('./data/HIV-1_env.fasta', v1v2_start_i, v1v2_end_i, aligned=True)
@@ -352,7 +353,7 @@ if __name__ == "__main__":
     calc_single_freq(pop_env)
     v1v2_seq = 'VKLTPLCVTLQCTNVTNNITD--------------------------------------DMRGELKN----CSFNM-T-TE-LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA'
     init_coverage = coverage(v1v2_seq)
-    choose_n_sub_mutation(v1v2_seq, init_coverage, pop_env, mut_length = 2, max_mutations_per_position = 1)
+    choose_n_sub_mutation(v1v2_seq, init_coverage, pop_env, mut_length = 2, max_mutations_per_position = 1)"""
 
     print "gag loop diagnostics"
     gag_start_i = 343
@@ -363,6 +364,8 @@ if __name__ == "__main__":
     gag_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
     init_coverage = coverage(gag_seq, weight_func=squared_weight)
     print population_top_single_freq
+    for i in xrange(3):
+        print choose_n_sub_mutation(gag_seq, init_coverage, pop_gag, mut_length = 2, max_mutations_per_position = 3)
     print init_coverage
     print choose_point_mutation(gag_seq, init_coverage)
     print fisher_coverage(gag_seq, pop_gag)

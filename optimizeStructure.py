@@ -13,6 +13,7 @@ from utils import *
 from struct_utils import *
 import getopt
 import sys
+import math
 
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 intermediate_struct_counter = 0
@@ -23,7 +24,7 @@ num_mutation_choices = 2
 
 #Constants for Rosetta's refinement process
 kT = 1 #Temperature for MC
-numMoves = 3 #Number of small/shear backbone torsion moves
+numMoves = 1 #Number of small/shear backbone torsion moves
 backboneAngleMax = 7 #Maximum backbone torsion degrees that can change per iterations of refinement
 
 energy_temp = 5
@@ -179,8 +180,8 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter):
 	return pose.sequence()
 
 def is_accept_struct(RMSD, energy, native_energy):
-	accept_energy = ((energy < native_energy) or (random.random() < exp(-(energy - native_energy)/energy_temp)))
-	accept_RMSD = ((RMSD < RMSD_cutoff) or (random.random() < exp(-(RMSD - RMSD_cutoff)/RMSD_temp)))
+	accept_energy = ((energy < native_energy) or (random.random() < math.exp(-(energy - native_energy)/energy_temp)))
+	accept_RMSD = ((RMSD < RMSD_cutoff) or (random.random() < math.exp(-(RMSD - RMSD_cutoff)/RMSD_temp)))
 	return (accept_energy and accept_RMSD)
 
 def mutation_selecter(sequence):

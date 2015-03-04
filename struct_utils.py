@@ -1,5 +1,6 @@
 from rosetta import *
 from utils import *
+from optimizeStructure import *
 
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 
@@ -125,6 +126,7 @@ def insert_residue(pose, position, mutation):
 			new_pose.set_phi(new_idx, 180)
 			new_pose.set_psi(new_idx, 180)
 			new_pose.set_omega(new_idx, 0)
+			new_pose.residue(i).chi(pose.residue(i).chi())
 			new_idx += 1
 		else:
 			new_pose.set_phi(new_idx, pose.phi(old_idx))
@@ -156,7 +158,7 @@ def delete_residue(pose, position):
 		new_pose.set_phi(i, pose.phi(i))
 		new_pose.set_psi(i, pose.psi(i))
 		new_pose.set_omega(i, pose.omega(i))
-		#new_pose.set_chi(2, i, pose.chi(2, i))
+		new_pose.residue(i).chi(pose.residue(i).chi())
 		i += 1
 	pose.assign(new_pose)
 
@@ -171,7 +173,7 @@ def zero_pose(pose):
 		new_pose.set_phi(i, pose.phi(i))
 		new_pose.set_psi(i, pose.psi(i))
 		new_pose.set_omega(i, pose.omega(i))
-		#new_pose.set_chi(2, i, pose.chi(2, i))
+		new_pose.residue(i).chi(pose.residue(i).chi())
 		i += 1
 
 	#Repack the sidechains
@@ -253,17 +255,29 @@ if __name__ == "__main__":
 	# print pose.sequence()
 
 	#POSITION CONVERTION TEST
-	sequence_master = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
-	position = 0
-	amino_acid = "-"
-	count = 0
-	print calculate_mutation_for_pose(sequence_master, position, amino_acid, count)
+	# sequence_master = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
+	# position = 0
+	# amino_acid = "-"
+	# count = 0
+	# print calculate_mutation_for_pose(sequence_master, position, amino_acid, count)
 
 	#UPDATE MASTER
 	# sequence_master = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
 	# position = 37
-	mutation = "-"
-	update_master_sequence(position, mutation)	
-	print sequence_master
+	# mutation = "-"
+	# update_master_sequence(position, mutation)	
+	# print sequence_master
 
+
+	pose = Pose()
+	pose_from_pdb(pose, "structures/gag.pdb")
+	optimize_structure(pose, 100)
+	zero_pose(pose)
+	dump_pdb(pose, "../gagZero.pdb")
+	optimize_structure(pose, 100)
+	dump_pdb(pose, "../gagZeroOpt.pdb")
+
+	pose_from_pdb(pose, "structures/gag.pdb")
+	optimize_structure(pose, 100)
+	dump_pdb(pose, "../gagOpt.pdb")
 

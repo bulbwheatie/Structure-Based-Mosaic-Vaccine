@@ -17,50 +17,59 @@ population_top_nmer_freq = {} # ALIGNED n(length of nmer) : position : amino aci
 hard_epitope_coverage = {} # UNALIGNED epitope : coverage (according to Fisher)
 num_population_sequences = None
 
-def choose_point_mutation(mosaic_seq, init_coverage, max_mutations_per_position = 2, allow_insertions_deletions = True):
+squared_denominator = float(epitope_length ** 2)
+squared_numerator = [float(i ** 2) for i in xrange(epitope_length + 1)]
+def squared_weight(num_matches):
+    return squared_numerator[num_matches] / squared_denominator
+
+exponential_denominator = float(2 ** epitope_length - 1)
+exponential_numerator = [float(2 ** i - 1) for i in xrange(epitope_length + 1)]
+def exponential_weight(num_matches):
+    return exponential_numerator[num_matches] / exponential_denominator
+
+def choose_point_mutation(mosaic_seq, init_coverage, max_mutations_per_position = 2, position_mutation_probability = 0.5, allow_insertions_deletions = True, weight_func = exponential_weight):
     """ Chooses a mutation by iterating though each position in the mosaic sequence and choosing, from the
     most frequently occuring 3 grams, what point mutations may increase coverage. """
     
     global num_population_sequences
     top_choices = [] # (position, letter, coverage)
 
-    # Iterate through the rest of the amino acids in the middle
     # For each position, create some number of mutations, the most probable mutations conditioned
     # on the neighbors.  If the coverage increases for any of these mutations, then add them to a set
     # of possibilities to then choose from later.  This is a way to narrow the search space and potentially
-    # get more coverage increases at each step (compared to random sampling)    
-
+    # get more coverage increases at each step (compared to random sampling)
     for i in xrange(len(mosaic_seq)):
-        # Look up neighbors.  If no neighbors, don't do anything (we have random sampling as a backup)
-        num_mutations = min(max_mutations_per_position, len(population_top_single_freq[i]))
+        if (random.random() > position_mutation_probability):
+            # Look up neighbors.  If no neighbors, don't do anything (we have random sampling as a backup)
+            num_mutations = min(max_mutations_per_position, len(population_top_single_freq[i]))
 
-        # Choose 'num_mutations' mutations proportional to their frequency in the population
-        # Generate random integers between 0 and sum(freq), then use the mutation choice that
-        # corresponds to that number.  To avoid repeats, remove previous mutation frequency
-        # from the random number range
-        mutation_choices = []
-        rand_num_range = num_population_sequences
-        for m in xrange(num_mutations):
-            leftover = int(random.random() * rand_num_range)
-            count = 0
-            last_mutation = None
-            last_mutation_freq = None
-            while leftover >= 0:
-                if population_top_single_freq[i][count][0] not in mutation_choices:
-                    leftover -= population_top_single_freq[i][count][1]
-                    last_mutation = population_top_single_freq[i][count][0]
-                    last_mutation_count = population_top_single_freq[i][count][1]
-                count += 1
-            if (allow_insertions_deletions or
-                (last_mutation == "-" and mosaic_seq[i] == "-") or (last_mutation != "-" and mosaic_seq[i] != "-")):
-                mutation_choices.append(last_mutation)
-            rand_num_range -= last_mutation_count
+            # Choose 'num_mutations' mutations proportional to their frequency in the population
+            # Generate random integers between 0 and sum(freq), then use the mutation choice that
+            # corresponds to that number.  To avoid repeats, remove previous mutation frequency
+            # from the random number range
+            mutation_choices = []
+            rand_num_range = num_population_sequences
+            for m in xrange(num_mutations):
+                leftover = int(random.random() * rand_num_range)
+                count = 0
+                last_mutation = None
+                last_mutation_freq = None
+                while leftover >= 0:
+                    if population_top_single_freq[i][count][0] not in mutation_choices:
+                        leftover -= population_top_single_freq[i][count][1]
+                        last_mutation = population_top_single_freq[i][count][0]
+                        last_mutation_count = population_top_single_freq[i][count][1]
+                    count += 1
+                if (allow_insertions_deletions or
+                    (last_mutation == "-" and mosaic_seq[i] == "-") or (last_mutation != "-" and mosaic_seq[i] != "-")):
+                    mutation_choices.append(last_mutation)
+                rand_num_range -= last_mutation_count
 
         print mutation_choices
         for mutation_choice in mutation_choices:
             if mutation_choice != mosaic_seq[i]: # Only test if mutation is different than original sequence
                 mutated_sequence = update_seq_string(mosaic_seq, mutation_choice, i)
-                curr_coverage = coverage(mutated_sequence)
+                curr_coverage = coverage(mutated_sequence, weight_func = weight_func)
                 print curr_coverage
                 if curr_coverage > init_coverage:
                     top_choices.append((i, mutation_choice, curr_coverage))
@@ -74,7 +83,7 @@ def choose_point_mutation(mosaic_seq, init_coverage, max_mutations_per_position 
         num_considered = min(len(top_choices), num_top_choices_considered)
         return top_choices[int(random.random() * num_considered)]
 
-def choose_n_sub_mutation(mosaic_seq, init_coverage, pop, mut_length = 2, max_mutations_per_position = 2):
+def choose_n_sub_mutation(mosaic_seq, init_coverage, pop, mut_length = 2, max_mutations_per_position = 2, position_mutation_probability = 0.5, weight_func = exponential_weight):
     """ Choose a substution mutation of length 'mut_length' that represents no insertion/deletions.
         Chooses the substitution based on the highest_frequency nmer starting at each position, ruling
         out substitutions that:
@@ -107,25 +116,25 @@ def choose_n_sub_mutation(mosaic_seq, init_coverage, pop, mut_length = 2, max_mu
     # substitution/insertion/deletion mixes
     top_choices = [] # (position, letters, coverage)
     for i in xrange(len(mosaic_seq) - mut_length + 1):
-        # Look up neighbors.  If no neighbors, don't do anything (we have random sampling as a backup)
-        num_mutations = min(max_mutations_per_position, len(population_top_nmer_freq[mut_length][i]))
+        if random.random() < position_mutation_probability:
+            num_mutations = min(max_mutations_per_position, len(population_top_nmer_freq[mut_length][i]))
 
-        # Choose 'num_mutations' mutations proportional to their frequency in the population
-        mutation_choices_unpruned = []
-        rand_num_range = num_population_sequences
-        for m in xrange(num_mutations):
-            leftover = int(random.random() * rand_num_range)
-            count = 0
-            last_mutation = None
-            last_mutation_freq = None
-            while leftover >= 0:
-                if population_top_nmer_freq[mut_length][i][count][0] not in mutation_choices_unpruned:
-                    leftover -= population_top_nmer_freq[mut_length][i][count][1]
-                    last_mutation = population_top_nmer_freq[mut_length][i][count][0]
-                    last_mutation_count = population_top_nmer_freq[mut_length][i][count][1]
-                count += 1
-            mutation_choices_unpruned.append(last_mutation)
-            rand_num_range -= last_mutation_count
+            # Choose 'num_mutations' mutations proportional to their frequency in the population
+            mutation_choices_unpruned = []
+            rand_num_range = num_population_sequences
+            for m in xrange(num_mutations):
+                leftover = int(random.random() * rand_num_range)
+                count = 0
+                last_mutation = None
+                last_mutation_freq = None
+                while leftover >= 0:
+                    if population_top_nmer_freq[mut_length][i][count][0] not in mutation_choices_unpruned:
+                        leftover -= population_top_nmer_freq[mut_length][i][count][1]
+                        last_mutation = population_top_nmer_freq[mut_length][i][count][0]
+                        last_mutation_count = population_top_nmer_freq[mut_length][i][count][1]
+                    count += 1
+                mutation_choices_unpruned.append(last_mutation)
+                rand_num_range -= last_mutation_count
 
         mutation_choices = []
         # Iterate through mutation choices, removing any that result in insertions/deletions
@@ -143,7 +152,7 @@ def choose_n_sub_mutation(mosaic_seq, init_coverage, pop, mut_length = 2, max_mu
         for mutation_choice in mutation_choices:
             if mutation_choice != mosaic_seq[i:i + mut_length]: # Only test if mutation is different than original sequence
                 mutated_sequence = update_seq_string(mosaic_seq, mutation_choice, i)
-                curr_coverage = coverage(mutated_sequence)
+                curr_coverage = coverage(mutated_sequence, weight_func = weight_func)
                 print curr_coverage
                 if curr_coverage > init_coverage:
                     top_choices.append((i, mutation_choice, curr_coverage))
@@ -257,22 +266,7 @@ def calc_pop_epitope_freq(pop_seqs):
     for key in population_epitope_freq_unaligned:
         population_num_epitopes += population_epitope_freq_unaligned[key]
 
-squared_denominator = float(epitope_length ** 2)
-squared_numerator = [float(i ** 2) for i in xrange(epitope_length + 1)]
-def squared_weight(num_matches):
-    return squared_numerator[num_matches] / squared_denominator
-
-cubed_denominator = float(epitope_length ** 3)
-cubed_numerator = [float(i ** 3) for i in xrange(epitope_length + 1)]
-def cubed_weight(num_matches):
-    return cubed_numerator[num_matches] / cubed_denominator
-
-exponential_denominator = float(2 ** epitope_length - 1)
-exponential_numerator = [float(2 ** i - 1) for i in xrange(epitope_length + 1)]
-def exponential_weight(num_matches):
-    return exponential_numerator[num_matches] / exponential_denominator
-
-def coverage(mosaic_seq, threshold = 0.0, weight_func = squared_weight):
+def coverage(mosaic_seq, threshold = 0.0, weight_func = exponential_weight):
     """ Iterate through mosaic epitopes.  For each key in the global population epitopes dictionary,
     add fractional coverage of that epitope * frequency.  Then at the end, divide by total number of epitopes.
     Range: 0 to 1 (for a specific epitope).  The coverage is the sum of sliding windows of epitopes in the mosaic,
@@ -366,7 +360,7 @@ if __name__ == "__main__":
     calc_pop_epitope_freq(pop_env)
     calc_single_freq(pop_env)
     v1v2_seq = 'VKLTPLCVTLQCTNVTNNITD--------------------------------------DMRGELKN----CSFNM-T-TE-LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA'
-    init_coverage = coverage(v1v2_seq)
+    init_coverage = coverage(v1v2_seq, weight_func = exponential_weight)
     print "Init coverage: ", init_coverage
     print choose_point_mutation(v1v2_seq, init_coverage, allow_insertions_deletions = True)
     choose_n_sub_mutation(v1v2_seq, init_coverage, pop_env, mut_length = 2, max_mutations_per_position = 1)
@@ -378,7 +372,7 @@ if __name__ == "__main__":
     calc_pop_epitope_freq(pop_gag)
     calc_single_freq(pop_gag)
     gag_seq = "SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
-    init_coverage = coverage(gag_seq, weight_func=squared_weight)
+    init_coverage = coverage(gag_seq, weight_func=exponential_weight)
     print population_top_single_freq
     for i in xrange(3):
         print choose_n_sub_mutation(gag_seq, init_coverage, pop_gag, mut_length = 2, max_mutations_per_position = 3)

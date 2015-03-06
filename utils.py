@@ -290,7 +290,7 @@ def coverage(mosaic_seq, threshold = 0.0, weight_func = exponential_weight):
                     for aa_i in xrange(epitope_length):
                         if mosaic_seq[mosaic_start_i + aa_i] == key[aa_i]:
                             epitope_coverage_score += 1
-                    epitope_coverage_score = weight_func(epitope_coverage_score) / epitope_length
+                    epitope_coverage_score = weight_func(epitope_coverage_score) # / epitope_length
                     if curr_mosaic_epi not in soft_epitope_coverage:
                         soft_epitope_coverage[curr_mosaic_epi] = 0.0
                     soft_epitope_coverage[curr_mosaic_epi] += epitope_coverage_score * population_epitope_freq_unaligned[key]
@@ -300,7 +300,7 @@ def coverage(mosaic_seq, threshold = 0.0, weight_func = exponential_weight):
 
 def fisher_coverage(mosaic_seq, population_seqs, threshold = 50):
     """ Returns coverage score for a mosaic sequence based on the population using Fisher's metric.
-        Note: Population sequences should be UNALIGNED! """
+        Note: Population sequences should be ALIGNED! """
     coverage = 0
     mosaic_seq = mosaic_seq.replace("-", "")
     already_seen = set() # Avoids double counting coverage (within a mosaic protein)
@@ -321,12 +321,13 @@ def fisher_coverage(mosaic_seq, population_seqs, threshold = 50):
             # If epitope in natural sequence, coverage = 1.0 / number of epitopes in sequence
             hard_epitope_coverage[curr_epitope] = 0.0
             for seq in population_seqs:
+                seq_ungapped = seq.replace("-", "")
                 curr_natural_seq_epitopes = set()
                 epitope_match = 0.0
-                for seq_start_i in xrange(len(seq) - epitope_length + 1):
-                    if seq[seq_start_i:seq_start_i + epitope_length] == curr_epitope:
+                for seq_start_i in xrange(len(seq_ungapped) - epitope_length + 1):
+                    if seq_ungapped[seq_start_i:seq_start_i + epitope_length] == curr_epitope:
                         epitope_match = 1.0
-                    curr_natural_seq_epitopes.add(seq[seq_start_i:seq_start_i + epitope_length])
+                    curr_natural_seq_epitopes.add(seq_ungapped[seq_start_i:seq_start_i + epitope_length])
                 hard_epitope_coverage[curr_epitope] += epitope_match / len(curr_natural_seq_epitopes)
 
             hard_epitope_coverage[curr_epitope] /= len(population_seqs)

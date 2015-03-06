@@ -1,6 +1,6 @@
 #!/bin/bash
 # The name of the job, can be anything, simply used when displaying the list of running jobs
-#$ -N rosaic
+#$ -N nef_rosaic
 # Combining output/error messages into one file
 #$ -j y
 # Set memory request:

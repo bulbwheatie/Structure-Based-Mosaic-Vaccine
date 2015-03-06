@@ -4,7 +4,7 @@
 #---------------------
 # This file performs PyRosetta related mutations and optimizations for a protein structure 
 
-#TODO: Compute hard coverage and various stats before exiting
+#TODO: Revert structures backwards after certain number of failures.
 
 from rosetta import *
 import random 

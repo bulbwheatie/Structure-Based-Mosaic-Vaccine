@@ -39,7 +39,7 @@ def choose_point_mutation(mosaic_seq, init_coverage, max_mutations_per_position 
     # of possibilities to then choose from later.  This is a way to narrow the search space and potentially
     # get more coverage increases at each step (compared to random sampling)
     for i in xrange(len(mosaic_seq)):
-        if (random.random() > position_mutation_probability):
+        if random.random() < position_mutation_probability:
             # Look up neighbors.  If no neighbors, don't do anything (we have random sampling as a backup)
             num_mutations = min(max_mutations_per_position, len(population_top_single_freq[i]))
 

@@ -59,7 +59,10 @@ def make_mutation(pop, coverage_weight):
 
 
 	"""
-	(pose, sequence, cover) = get_current_structure()
+	(tmp_pose, sequence, cover) = get_current_structure()
+	pose = Pose()
+	pose.assign(tmp_pose)
+	
 	mutation_type = ""
 	if (pose == 0 or sequence == 0):
 		#Rejected too many structures, terminate
@@ -216,8 +219,11 @@ def reject_archives():
 	global sequence_master_archive
 	global pose_archive
 	global cover_archive
+	#sequence_master_archive[0:4] = sequence_master_archive[1:]
 	sequence_master_archive[-1] = 0
+	pose_archive[0:4] = pose_archive[1:]
 	pose_archive[-1] = 0
+	cover_archive[0:4] = cover_archive[1:]
 	cover_archive[-1] = 0
 	return
 def populate_archive(pose, sequence, cover):
@@ -227,7 +233,8 @@ def populate_archive(pose, sequence, cover):
 	i = 0
 	while i < len(sequence_master_archive):
 		sequence_master_archive[i] = sequence
-		pose_archive[i] = pose
+		pose_archive[i] = Pose()
+		pose_archive[i].assign(pose)
 		cover_archive[i] = cover
 		i += 1
 

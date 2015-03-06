@@ -43,6 +43,10 @@ def optimize_structure(pose, iters = 60):
 		print "**ERROAR (optimize_structure): Pose is null"
 		return  
 
+	print "optimize_structure()\n"
+	sys.stdout.flush()
+
+
 	#Create a temporary pose
 	testPose = Pose()
 	testPose.assign(pose)
@@ -112,7 +116,8 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	#         dumps a intermediate PDB file whenever a random mutation is made (decrease in coverage) 
 	 """
 
-	print "Running ROSAIC"
+	print "Running ROSAIC\n"
+	sys.stdout.flush()
 	outfile = "output/" + nameBase + "/" + nameBase + ".pdb"
 	logFile = "output/" + nameBase + "/" + nameBase  + ".log"
 	debugFile = "output/" + nameBase + "/" + nameBase + ".debug"
@@ -129,11 +134,20 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	cover = coverage(sequence, weight_func = coverage_weight)
 	populate_archive(pose, sequence, cover)
 	print "Initial energy: " + str(scorefxn(pose))
+	sys.stdout.flush()
+
+	#Keep the struct with highest coverage
+	high_cover = cover
+	high_pose = Pose()
+	high_pose.assign(pose)
+	high_seq = sequence
 
 	log = open(logFile, 'w')
 	debug = open(debugFile, 'w')
 	log.write("Name base = " + nameBase + "\n")
 	log.write("Iters = " + str(iter) + "\n")
+	log.write("Soft coverage = " + str(cover) + "\n")
+	log.write("Energy = " + str(scorefxn(pose)) + "\n")
 	log.write("Hard Covereage = " + str(fisher_coverage(sequence, pop_aligned)) + "\n")
 	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(sequence, pop_aligned))+ "\n")
 	log.write("Initial seq = " + sequence + "\n")
@@ -183,24 +197,31 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 			#Accept the structure
 			debug.write(str(cover) + "," + str(energy) + "; RMSD =" + str(RMSD) + ",1\n")
 			dump_intermediate_structure(pose) #Dump every accepted pose
+			if (cover > high_cover):
+				high_cover = cover
+				high_seq = sequence
+				high_pose.assign(pose)
 			update_archives(pose, sequence, cover) #Update the accepted pose and sequence
 		else: 
 			debug.write(str(cover) + "," + str(energy) + "; RMSD =" + str(RMSD) + ",0\n")
-			#Revert the master sequence and pose
-			reject_archives()
+			dump_intermediate_structure(pose) #Dump every accepted pose
+			#Revert the master sequence and pose -- happens auto if new struct isnt pushed
+			#reject_archives()
 			print "Structure rejected \n"
 
 		#TODO: Make this debug
 		debug.write("ROSAIC: End of iter sequence = " + get_current_structure()[1] + "\n")
 		#TODO: Get these values
-		log.write("%.4f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(positions), mutation_type, str(mutations), sequence, RMSD, struct_accept))
-		print "%.4f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(positions), mutation_type, str(mutations), sequence, RMSD, struct_accept)
+		log.write("%.6f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(positions), mutation_type, str(mutations), sequence, RMSD, struct_accept))
+		print "%.6f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(positions), mutation_type, str(mutations), sequence, RMSD, struct_accept)
 
 	#Dump the final structure and return the sequence
 	log.write("------END OF DATA------\n")
+	log.write("Best coverage = " + str(high_cover) + "\n")
+	log.write("Best sequence = " + str(sequence) + "\n")
 	log.write("Hard Covereage = " + str(fisher_coverage(sequence, pop_aligned)) + "\n")
 	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(sequence, pop_aligned))+ "\n")
-	pose.dump_pdb(outfile)
+	high_pose.dump_pdb(outfile)
 	log.close()
 	debug.close()
 	return pose.sequence()
@@ -262,6 +283,9 @@ def run_ROSAIC():
 	global pop_unaligned
 	global RMSD_cutoff
 
+	print "DEBUG -- RUN ROSAIC"
+	sys.stdout.flush()
+
 	pdbFile = None
 	outfile = None
 	logFile = None
@@ -312,16 +336,34 @@ def run_ROSAIC():
 		print "Invalid or no coverage weight specified. Defaulting to exponential_weight\n"
 		coverage_weight = exponential_weight
 
+	print "ARGS PARSED\n"
+	sys.stdout.flush()
+
 	# INITIALIZE EVERYTHING
 	rosetta.init()
+	print "ROSETTA INIT\n"
+	sys.stdout.flush()
+
 	pop_aligned = read_fasta_file(fastaFile, start_i, end_i, aligned = True)
+	print "POP ALIGNED\n"
+	sys.stdout.flush()
+
 	#pop_unaligned = read_fasta_file(fastaFile, start_i, end_i, aligned = False)
 	calc_pop_epitope_freq(pop_aligned)
-	calc_single_freq(pop_aligned)
-	initialize_struct_utils(sequence, nameBase)
+	print "CALC POP EPITOPE FREQ\n"
+	sys.stdout.flush()
 
+	calc_single_freq(pop_aligned)
+	print "CALC SINGLE EPITOPE FREQ\n"
+	sys.stdout.flush()
+
+	initialize_struct_utils(sequence, nameBase)
+	print "INIT STRUCT\n"
+	sys.stdout.flush()
+	
 	#Use nameBase as the output dir for each struct
-	ROSAIC(pdbFile, nameBase, d_mutation_selecter, iters, sequence, coverage_weight)
+	return ROSAIC(pdbFile, nameBase, d_mutation_selecter, iters, sequence, coverage_weight)
 
 if __name__ == "__main__":
-    print run_ROSAIC()
+	print "RUNNING OPTIMIZE STRUCTURE\n"
+	print run_ROSAIC()

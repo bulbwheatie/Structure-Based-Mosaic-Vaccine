@@ -120,8 +120,8 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	pose = Pose() #Pose for mutation and manipulation
 	native_pose = Pose() #Keep a pose of the native structure
 	pose_from_pdb(native_pose, pdbFile)
-	optimize_structure(native_pose)
-	zero_pose(native_pose) #Align pose to origin
+	#optimize_structure(native_pose)
+	#zero_pose(native_pose) #Align pose to origin
 	optimize_structure(native_pose)
 	pose.assign(native_pose)
 	scorefxn = create_score_function('standard')
@@ -134,7 +134,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	debug = open(debugFile, 'w')
 	log.write("Name base = " + nameBase + "\n")
 	log.write("Iters = " + str(iter) + "\n")
-	log.write("Hard Covereage = " + str(fisher_coverage(sequence, pop_aligned, weight_func = coverage_weight)) + "\n")
+	log.write("Hard Covereage = " + str(fisher_coverage(sequence, pop_aligned)) + "\n")
 	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(sequence, pop_aligned))+ "\n")
 	log.write("Initial seq = " + sequence + "\n")
 	log.write("-------START OF DATA------\n")
@@ -193,12 +193,12 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 		#TODO: Make this debug
 		debug.write("ROSAIC: End of iter sequence = " + get_current_structure()[1] + "\n")
 		#TODO: Get these values
-		log.write("%.4f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(position), mutation_type, str(mutation), sequence, RMSD, struct_accept))
-		print "%.4f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(position), mutation_type, str(mutation), sequence, RMSD, struct_accept)
+		log.write("%.4f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(positions), mutation_type, str(mutations), sequence, RMSD, struct_accept))
+		print "%.4f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(positions), mutation_type, str(mutations), sequence, RMSD, struct_accept)
 
 	#Dump the final structure and return the sequence
 	log.write("------END OF DATA------\n")
-	log.write("Hard Covereage = " + str(fisher_coverage(sequence, pop_aligned, weight_func = coverage_weight)) + "\n")
+	log.write("Hard Covereage = " + str(fisher_coverage(sequence, pop_aligned)) + "\n")
 	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(sequence, pop_aligned))+ "\n")
 	pose.dump_pdb(outfile)
 	log.close()
@@ -321,7 +321,7 @@ def run_ROSAIC():
 	initialize_struct_utils(sequence, nameBase)
 
 	#Use nameBase as the output dir for each struct
-	ROSAIC(pdbFile, nameBase, mutation_selecter, iters, sequence, coverage_weight)
+	ROSAIC(pdbFile, nameBase, d_mutation_selecter, iters, sequence, coverage_weight)
 
 if __name__ == "__main__":
     print run_ROSAIC()

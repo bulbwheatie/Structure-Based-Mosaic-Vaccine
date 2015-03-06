@@ -126,7 +126,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	pose.assign(native_pose)
 	scorefxn = create_score_function('standard')
 	dump_intermediate_structure(pose) #Dump zero'd pose
-	cover = coverage(sequence)
+	cover = coverage(sequence, weight_func = coverage_weight)
 	populate_archive(pose, sequence, cover)
 	print "Initial energy: " + str(scorefxn(pose))
 
@@ -153,7 +153,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 		debug.write("ROSAIC: Initial sequence = " + sequence + "\n")
 
 		#TODO: Get mutations, positions, mutation types
-		(pose, sequence, positions, mutations, mutation_type) = make_mutation(pop_aligned)
+		(pose, sequence, positions, mutations, mutation_type) = make_mutation(pop_aligned, coverage_weight)
 
 		debug.write("ROSAIC: Mutated sequence = " + sequence + "\n")
 
@@ -309,8 +309,8 @@ def run_ROSAIC():
 			RMSD_cutoff = int(a)	 
 
 	if (coverage_weight == None):
-		print "Invalid or no coverage weight specified. Defaulting to squared\n"
-		coverage_weight = squared_weight
+		print "Invalid or no coverage weight specified. Defaulting to exponential_weight\n"
+		coverage_weight = exponential_weight
 
 	# INITIALIZE EVERYTHING
 	rosetta.init()

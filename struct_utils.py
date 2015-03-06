@@ -139,7 +139,7 @@ def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight):
 	print str(mutations) + "\n"
 	mutated_sequence = sequence
 	#WHY ARE YOU UNHAPPY??
-	if (mutations is None and mutations[0] != -1 and mutations[0][0] != -1):
+	if (mutations is not None and mutations[0] != -1 and mutations[0][0] != -1):
 		i = 0
 		while i < len(mutations):
 			log.write("CHUNK MUTATION: attempting" + str(mutations[i][0]) + "to" + mutations[i][1] + "\n")

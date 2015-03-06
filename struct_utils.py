@@ -16,7 +16,7 @@ intermediate_struct_counter = 0
 name_space = ""
 log = None
 
-point_to_chunk_prob = 0.5
+point_to_chunk_prob = 0.7
 
 #When we make a mutation, iterate determine find correlating position in structure
 def calculate_mutation_for_pose(sequence_master, position, amino_acid, count):
@@ -47,7 +47,7 @@ def calculate_mutation_for_pose(sequence_master, position, amino_acid, count):
 
 	return (pose_position + 1, mutation_type)
 
-def make_mutation(pop):
+def make_mutation(pop, coverage_weight):
 	"""
 		(1) Gets the current sequence
 		(2) Randomly chooses either a point or chunk mutation 
@@ -59,33 +59,43 @@ def make_mutation(pop):
 
 
 	"""
-	(pose, sequence, cover) = get_current_structure()
+	(tmp_pose, sequence, cover) = get_current_structure()
+	pose = Pose()
+	pose.assign(tmp_pose)
+	
+	mutation_type = ""
 	if (pose == 0 or sequence == 0):
 		#Rejected too many structures, terminate
 		return (-1, -1)
 
 	if (random.random() > point_to_chunk_prob):
 		#Make a chunk mutation first
-		tmp_sequence = make_chunk_mutation(pose, sequence, cover, pop) 
+		(tmp_sequence, positions, mutations) = make_chunk_mutation(pose, sequence, cover, pop, coverage_weight) 
+		mutation_type = "CHUNK"
 		if (tmp_sequence == -1):
 			#Make point mutation
-			tmp_sequence = make_point_mutation(pose, sequence, cover) 
+			(tmp_sequence, positions, mutations) = make_point_mutation(pose, sequence, cover, coverage_weight) 
+			mutation_type = "POINT"
 			if (tmp_sequence == -1):
 				#Make a random mutation
-				sequence = make_random_mutation(pose, sequence)
+				(sequence, positions, mutations) = make_random_mutation(pose, sequence)
+				mutation_type = "RANDOM"
 			else:
 				sequence = tmp_sequence
 		else:
 			sequence = tmp_sequence
 	else:
 		#Make a point mutation first
-		tmp_sequence = make_point_mutation(pose, sequence, cover) 
+		(tmp_sequence, positions, mutations) = make_point_mutation(pose, sequence, cover, coverage_weight) 
+		mutation_type = "POINT"
 		if (tmp_sequence == -1):
 			#Make point mutation
-			tmp_sequence = make_chunk_mutation(pose, sequence, cover, pop) 
+			(tmp_sequence, positions, mutations) = make_chunk_mutation(pose, sequence, cover, pop, coverage_weight) 
+			mutation_type = "CHUNK"
 			if (tmp_sequence == -1):
 				#Make a random mutation
-				sequence = make_random_mutation(pose, sequence)
+				(sequence, positions, mutations) = make_random_mutation(pose, sequence)
+				mutation_type = "RANDOM"
 			else:
 				sequence = tmp_sequence
 		else:
@@ -94,13 +104,13 @@ def make_mutation(pop):
 	#Now sequence is our mutated sequence
 	#Pose is our mutated pose
 
-	return (pose, sequence)
+	return (pose, sequence, positions, mutations, mutation_type)
 
-def make_point_mutation(pose, sequence, cover):
-	(position, mutation, cover) = choose_point_mutation(sequence, cover)
+def make_point_mutation(pose, sequence, cover, coverage_weight):
+	(position, mutation, cover) = choose_point_mutation(sequence, cover, allow_insertions_deletions = False, weight_func = coverage_weight)
 	log.write("POINT MUTATION: " + str(position) + " to " + mutation + "\n")
 	if (position == -1):
-		return -1
+		return (-1, -1, -1)
 	(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
 	print mutation + " at " + str(position) + "\n"
 	#Check the type and make the appropriate point mutation
@@ -108,7 +118,7 @@ def make_point_mutation(pose, sequence, cover):
 		print "Point\n"
 		mutate_residue(pose, pose_position, mutation)
 		if (sequence[position] == pose.sequence()[pose_position - 1]):
-			return -1
+			return (-1, -1, -1)
 	elif (mutation_type == "insert"):
 		insert_residue(pose, pose_position, mutation)
 		print "Insert\n"
@@ -119,33 +129,38 @@ def make_point_mutation(pose, sequence, cover):
 	mutated_sequence = update_seq_string(sequence, mutation, position)
 
 	log.write("POINT MUTATION: sequence =" + mutated_sequence + "\n")
-	return mutated_sequence
+	return (mutated_sequence, position, mutation)
 
-def make_chunk_mutation(pose, sequence, cover, pop):
-	mutations = choose_n_sub_mutation(sequence, cover, pop)
+def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight):
+	mutations = choose_n_sub_mutation(sequence, cover, pop, weight_func = coverage_weight)
 	log.write("CHUNK MUTATION: " + str(mutations)  + "\n")
+	positions = []
+	mutations = []
 	print str(mutations) + "\n"
 	mutated_sequence = sequence
-	if (mutations[0][0] != -1):
+	#WHY ARE YOU UNHAPPY??
+	if (mutations is None and mutations[0] != -1 and mutations[0][0] != -1):
 		i = 0
 		while i < len(mutations):
 			log.write("CHUNK MUTATION: attempting" + str(mutations[i][0]) + "to" + mutations[i][1] + "\n")
 			(position, mutation_type) = calculate_mutation_for_pose(sequence, mutations[i][0], mutations[i][1], 0)
 			mutate_residue(pose, position, mutations[i][1])
-			sequence = update_seq_string(sequence, mutations[i][1], mutations[i][0])
+			mutated_sequence = update_seq_string(sequence, mutations[i][1], mutations[i][0])
+			positions.append(mutations[i][0])
+			mutations.append(mutations[i][1])
 			if (sequence[mutations[i][0]] == pose.sequence()[position-1]): #Pose position is 1 indexed, but strings are 0 indexed
-				log.write("CHUNK MUTATION: failed mutation " + sequence + " vs. " pose.sequence() + "\n")	
-				return -1
+				log.write("CHUNK MUTATION: failed mutation " + sequence + " vs. " + pose.sequence() + "\n")	
+				return (-1, -1, -1)
+			sequence = mutated_sequence
 			log.write("CHUNK MUTATION: sequence =" + sequence + "\n")	
 			i += 1
 	else :
 		#Fail state
-		return -1
+		return (-1, -1, -1)
 
 	#Update sequence for this iteration
-	log.write("CHUNK MUTATION: " + mutated_sequence + " to " + sequence + "\n")
 	mutated_sequence = sequence
-	return mutated_sequence
+	return (mutated_sequence, positions, mutations)
 
 def make_random_mutation(pose, sequence):
 	(position, mutation) = random_mutation(sequence)
@@ -158,7 +173,7 @@ def make_random_mutation(pose, sequence):
 
 	mutated_sequence = update_seq_string(sequence, mutation, position)
 	log.write("MUTATION: " + str(position) + "," + mutation + "\n")
-	return mutated_sequence
+	return (mutated_sequence, position, mutation)
 
 def d_pose_random_mutation(testPose, pose):
 	random = 0
@@ -189,7 +204,8 @@ def update_archives(pose, sequence, cover):
 	sequence_master_archive[0] = sequence
 
 	pose_archive[1:] = pose_archive[0:4]
-	pose_archive[0] = pose
+	pose_archive[0] = Pose()
+	pose_archive[0].assign(pose)
 
 	cover_archive[1:] = cover_archive[0:4]
 	cover_archive[0] = cover
@@ -203,8 +219,11 @@ def reject_archives():
 	global sequence_master_archive
 	global pose_archive
 	global cover_archive
+	#sequence_master_archive[0:4] = sequence_master_archive[1:]
 	sequence_master_archive[-1] = 0
+	pose_archive[0:4] = pose_archive[1:]
 	pose_archive[-1] = 0
+	cover_archive[0:4] = cover_archive[1:]
 	cover_archive[-1] = 0
 	return
 def populate_archive(pose, sequence, cover):
@@ -214,7 +233,8 @@ def populate_archive(pose, sequence, cover):
 	i = 0
 	while i < len(sequence_master_archive):
 		sequence_master_archive[i] = sequence
-		pose_archive[i] = pose
+		pose_archive[i] = Pose()
+		pose_archive[i].assign(pose)
 		cover_archive[i] = cover
 		i += 1
 

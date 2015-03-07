@@ -1,0 +1,13 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+x_vect = None
+y_vect = None
+
+def read_log(filename):
+	raw_lines = open(filename, 'r').readlines()
+	for l in raw_lines:
+		
+
+if __name__ == "__main__":
+	read_log("../anthill_output/Mar7/v1v2_6_2.2/v1v2_6_2.2.log")

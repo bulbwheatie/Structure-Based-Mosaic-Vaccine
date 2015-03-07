@@ -18,6 +18,7 @@
 
 nameBase=$1 #i.e. gag_5_1.0
 iters=$2
+weight=$3
 
 module load python/2.7
 echo loaded python...
@@ -26,7 +27,7 @@ source /home/grigoryanlab/library/PyRosetta-Release1.1-r34968.linux.64Bit/SetPyR
 outdir="output/$nameBase"
 mkdir ${outdir}
 time python optimizeStructure.py  --pdbFile="structs/gag.pdb" --nameBase=${nameBase} --iters=${iters} \
---fastaFile="data/HIV-1_gag.fasta" --start_i=343 --end_i=414 \
+--fastaFile="data/HIV-1_gag.fasta" --start_i=343 --end_i=414 --coverage_weight=${weight} \
 --sequence="SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
 
 exit 0

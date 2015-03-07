@@ -18,6 +18,7 @@
 
 nameBase=$1 #i.e. nef_5_1.0
 iters=$2
+weight=$3
 
 module load python/2.7
 echo loaded python...
@@ -26,7 +27,7 @@ source /home/grigoryanlab/library/PyRosetta-Release1.1-r34968.linux.64Bit/SetPyR
 outdir="output/$nameBase"
 mkdir ${outdir}
 time python optimizeStructure.py  --pdbFile="structs/2NEF.pdb" --nameBase=${nameBase} --iters=${iters} \
---fastaFile="data/HIV-1_nef.fasta" --start_i=111 --end_i=357 \
+--fastaFile="data/HIV-1_nef.fasta" --start_i=111 --end_i=357 --coverage_weight=${weight} \
 --sequence="AWL--EA-QE-----E---E--E--VGFPVTPQVPLRPMTYKAAVDLSHFLKEKGGLEGLIHSQRRQDILDLWIYHTQGYFPDWQNYTPGPGIRYP-----------------------------------------------------------------LTFGWCYKLVPVEPEKLE-EANK---------------------------DDP-EREVLEWRFDSRLAFHHMARELHPEYF-KNA"
 
 exit 0

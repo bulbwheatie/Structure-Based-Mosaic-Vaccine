@@ -48,7 +48,7 @@ def calculate_mutation_for_pose(sequence_master, position, amino_acid, count):
 
 	return (pose_position + 1, mutation_type)
 
-def make_mutation(pop, coverage_weight):
+def make_mutation(pop, coverage_weight, mutation_length = 2):
 	"""
 		(1) Gets the current sequence
 		(2) Randomly chooses either a point or chunk mutation 
@@ -71,7 +71,7 @@ def make_mutation(pop, coverage_weight):
 
 	if (random.random() > point_to_chunk_prob):
 		#Make a chunk mutation first
-		(tmp_sequence, positions, mutations) = make_chunk_mutation(pose, sequence, cover, pop, coverage_weight) 
+		(tmp_sequence, positions, mutations) = make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_length) 
 		mutation_type = "CHUNK"
 		if (tmp_sequence == -1):
 			#Make point mutation
@@ -91,7 +91,7 @@ def make_mutation(pop, coverage_weight):
 		mutation_type = "POINT"
 		if (tmp_sequence == -1):
 			#Make point mutation
-			(tmp_sequence, positions, mutations) = make_chunk_mutation(pose, sequence, cover, pop, coverage_weight) 
+			(tmp_sequence, positions, mutations) = make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_length) 
 			mutation_type = "CHUNK"
 			if (tmp_sequence == -1):
 				#Make a random mutation
@@ -132,8 +132,8 @@ def make_point_mutation(pose, sequence, cover, coverage_weight):
 	log.write("POINT MUTATION: sequence =" + mutated_sequence + "\n")
 	return (mutated_sequence, position, mutation)
 
-def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight):
-	mutations = choose_n_sub_mutation(sequence, cover, pop, weight_func = coverage_weight)
+def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_length):
+	mutations = choose_n_sub_mutation(sequence, cover, pop, mut_length = mutation_length, weight_func = coverage_weight)
 	log.write("CHUNK MUTATION: " + str(mutations)  + "\n")
 	log_positions = []
 	log_mutations = []

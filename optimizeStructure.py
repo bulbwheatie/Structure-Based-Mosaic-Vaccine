@@ -21,6 +21,7 @@ RMSD_cutoff = 5
 pop_aligned = None
 pop_unaligned = None
 num_mutation_choices = 2 #TODO: Wire this into struct utils
+mutation_length = 2
 
 #Constants for Rosetta's refinement process
 kT = 1 #Temperature for MC
@@ -142,6 +143,8 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	high_pose = Pose()
 	high_pose.assign(pose)
 	high_seq = sequence
+	high_energy = scorefxn(pose)
+	high_RMSD = 0
 
 	log = open(logFile, 'w')
 	debug = open(debugFile, 'w')
@@ -168,7 +171,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 		debug.write("ROSAIC: Initial sequence = " + sequence + "\n")
 
 		#TODO: Get mutations, positions, mutation types
-		(pose, sequence, positions, mutations, mutation_type) = make_mutation(pop_aligned, coverage_weight)
+		(pose, sequence, positions, mutations, mutation_type) = make_mutation(pop_aligned, coverage_weight, mutation_length = mutation_length)
 
 		debug.write("ROSAIC: Mutated sequence = " + sequence + "\n")
 
@@ -202,6 +205,8 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 				high_cover = cover
 				high_seq = sequence
 				high_pose.assign(pose)
+				high_energy = energy
+				high_RMSD = RMSD
 			update_archives(pose, sequence, cover) #Update the accepted pose and sequence
 		else: 
 			debug.write(str(cover) + "," + str(energy) + "; RMSD =" + str(RMSD) + ",0\n")
@@ -219,9 +224,11 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	#Dump the final structure and return the sequence
 	log.write("------END OF DATA------\n")
 	log.write("Best coverage = " + str(high_cover) + "\n")
-	log.write("Best sequence = " + str(sequence) + "\n")
-	log.write("Hard Covereage = " + str(fisher_coverage(sequence, pop_aligned)) + "\n")
-	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(sequence, pop_aligned))+ "\n")
+	log.write("Best sequence = " + str(high_seq) + "\n")
+	log.write("Best energy = " + str(high_energy) + "\n")
+	log.write("Best RMSD = " + str(high_RMSD) + "\n")
+	log.write("Hard Covereage = " + str(fisher_coverage(high_seq, pop_aligned)) + "\n")
+	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(high_seq, pop_aligned))+ "\n")
 	high_pose.dump_pdb(outfile)
 	log.close()
 	debug.close()
@@ -284,6 +291,7 @@ def run_ROSAIC():
 	global pop_unaligned
 	global RMSD_cutoff
 	global energy_temp
+	global mutation_length
 
 	print "DEBUG -- RUN ROSAIC"
 	sys.stdout.flush()
@@ -301,7 +309,7 @@ def run_ROSAIC():
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "nameBase=", "iters=", "fastaFile=", "start_i=", \
 			"end_i=", "sequence=", "num_mutation_choices=", "coverage_weight=", \
-			"RMSD_cutoff=", "energy_temp="])
+			"RMSD_cutoff=", "energy_temp=", "mutation_length="])
 	except getopt.error, msg:
 		print msg
 		print "for help use --help"
@@ -322,6 +330,8 @@ def run_ROSAIC():
 			end_i = int(a);
 		elif o in ("--energy_temp"):
 			energy_temp = int(a);
+		elif o in ("--mutation_length"):
+			mutation_length = int(a);
 		elif o in ("--num_mutation_choices"):
 			num_mutation_choices = int(a);
 		elif o in ("--sequence"):

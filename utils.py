@@ -175,8 +175,19 @@ def choose_n_sub_mutation(mosaic_seq, init_coverage, pop, mut_length = 2, max_mu
 
 def random_mutation(sequence):
     position = int(random.random() * len(sequence))
+
+    while (sequence[position] == "-"):
+        position = int(random.random() * len(sequence))
+
     amino_acid = possible_mutations[int(random.random() * 20)]
-    return (position, amino_acid)
+
+    #Calculate the position in the pose
+    pose_position = 0
+    for i in xrange(position + 1):
+        if (sequence[i] != "-"):
+            pose_position +=1
+
+    return (position, pose_position, amino_acid)
 
 def num_epitopes_in_mosaic(mosaic, pop, eq_tolerance = 1, min_epitope_freq = 1):
     """ Returns the number of distinct population epitopes (with min_epitope_freq) that occur in the mosaic (with

@@ -58,7 +58,8 @@ def optimize_structure(pose, iters = 60):
 	#---------------------------------
 
 	mm = MoveMap()
-	mm.set_bb(True)
+	#mm.set_bb(True)
+	mm.set_bb_true_range(12, 16)
 
 	smallMover = SmallMover(mm, kT, numMoves)
 	smallMover.angle_max('H', backboneAngleMax)
@@ -206,7 +207,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 			debug.write(str(cover) + "," + str(energy) + "; RMSD =" + str(RMSD) + ",0\n")
 			dump_intermediate_structure(pose) #Dump every accepted pose
 			#Revert the master sequence and pose -- happens auto if new struct isnt pushed
-			#reject_archives()
+			reject_archives()
 			print "Structure rejected \n"
 
 		#TODO: Make this debug
@@ -282,6 +283,7 @@ def run_ROSAIC():
 	global num_mutation_choices
 	global pop_unaligned
 	global RMSD_cutoff
+	global energy_temp
 
 	print "DEBUG -- RUN ROSAIC"
 	sys.stdout.flush()
@@ -298,8 +300,8 @@ def run_ROSAIC():
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "nameBase=", "iters=", "fastaFile=", "start_i=", \
-			"end_i=", "sequence=", "num_mutation_choices=", "coverage_weight="\
-			"RMSD_cutoff="])
+			"end_i=", "sequence=", "num_mutation_choices=", "coverage_weight=", \
+			"RMSD_cutoff=", "energy_temp="])
 	except getopt.error, msg:
 		print msg
 		print "for help use --help"
@@ -318,6 +320,8 @@ def run_ROSAIC():
 			start_i = int(a);
 		elif o in ("--end_i"):
 			end_i = int(a);
+		elif o in ("--energy_temp"):
+			energy_temp = int(a);
 		elif o in ("--num_mutation_choices"):
 			num_mutation_choices = int(a);
 		elif o in ("--sequence"):

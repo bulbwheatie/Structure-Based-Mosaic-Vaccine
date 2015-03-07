@@ -15,6 +15,7 @@ cover_archive = [0] * 5
 intermediate_struct_counter = 0
 name_space = ""
 log = None
+reject_count = 1
 
 point_to_chunk_prob = 0.7
 
@@ -134,8 +135,8 @@ def make_point_mutation(pose, sequence, cover, coverage_weight):
 def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight):
 	mutations = choose_n_sub_mutation(sequence, cover, pop, weight_func = coverage_weight)
 	log.write("CHUNK MUTATION: " + str(mutations)  + "\n")
-	positions = []
-	mutations = []
+	log_positions = []
+	log_mutations = []
 	print str(mutations) + "\n"
 	mutated_sequence = sequence
 	#WHY ARE YOU UNHAPPY??
@@ -146,8 +147,8 @@ def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight):
 			(position, mutation_type) = calculate_mutation_for_pose(sequence, mutations[i][0], mutations[i][1], 0)
 			mutate_residue(pose, position, mutations[i][1])
 			mutated_sequence = update_seq_string(sequence, mutations[i][1], mutations[i][0])
-			positions.append(mutations[i][0])
-			mutations.append(mutations[i][1])
+			log_positions.append(mutations[i][0])
+			log_mutations.append(mutations[i][1])
 			if (sequence[mutations[i][0]] == pose.sequence()[position-1]): #Pose position is 1 indexed, but strings are 0 indexed
 				log.write("CHUNK MUTATION: failed mutation " + sequence + " vs. " + pose.sequence() + "\n")	
 				return (-1, -1, -1)
@@ -160,30 +161,30 @@ def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight):
 
 	#Update sequence for this iteration
 	mutated_sequence = sequence
-	return (mutated_sequence, positions, mutations)
+	return (mutated_sequence, log_positions, log_mutations)
 
 def make_random_mutation(pose, sequence):
-	(position, mutation) = random_mutation(sequence)
-	(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
+	(position,pose_position, mutation) = random_mutation(sequence)
+	#(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
 	mutate_residue(pose, pose_position, mutation)
 	while(sequence[position] == (pose.sequence())[pose_position-1]):
-		(position, mutation) = random_mutation(sequence)
-		(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
+		(position, pose_position, mutation) = random_mutation(sequence)
+		#(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
 		mutate_residue(pose, pose_position, mutation)
 
 	mutated_sequence = update_seq_string(sequence, mutation, position)
-	log.write("MUTATION: " + str(position) + "," + mutation + "\n")
+	#log.write("MUTATION: " + str(position) + "," + mutation + "\n")
 	return (mutated_sequence, position, mutation)
 
 def d_pose_random_mutation(testPose, pose):
 	random = 0
 	while (testPose.sequence() == pose.sequence()):
 		random = 1
-		(position, mutation) = random_mutation(sequence_master)
+		(position, pose_position, mutation) = random_mutation(sequence_master)
 		print "Random mutation " + str(position) + ", " + mutation
 		(pose_position, mutation_type) = calculate_mutation_for_pose(sequence_master, position, mutation, 0)
 		print "Random mutation " + str(pose_position) + ", " + mutation
-		mutate_residue(pose, pose_position, mutation)
+		mutate_residue(pose, pose_position + 1, mutation)
 	return (position, mutation, random)
 
 def get_current_structure():
@@ -199,7 +200,8 @@ def update_archives(pose, sequence, cover):
 	global sequence_master_archive
 	global pose_archive
 	global cover_archive
-
+	global reject_count
+	
 	sequence_master_archive[1:] = sequence_master_archive[0:4]
 	sequence_master_archive[0] = sequence
 
@@ -209,6 +211,9 @@ def update_archives(pose, sequence, cover):
 
 	cover_archive[1:] = cover_archive[0:4]
 	cover_archive[0] = cover
+
+	#Reset reject counter
+	reject_count = 0
 	return 
 
 def reject_archives():
@@ -219,12 +224,20 @@ def reject_archives():
 	global sequence_master_archive
 	global pose_archive
 	global cover_archive
-	#sequence_master_archive[0:4] = sequence_master_archive[1:]
-	sequence_master_archive[-1] = 0
-	pose_archive[0:4] = pose_archive[1:]
-	pose_archive[-1] = 0
-	cover_archive[0:4] = cover_archive[1:]
-	cover_archive[-1] = 0
+	global reject_count
+
+	reject_count += 1
+
+	#If three structures have been rejected, start going back in archive
+	if (reject_count > 3):
+		sequence_master_archive[0:4] = sequence_master_archive[1:]
+		sequence_master_archive[-1] = 0
+		pose_archive[0:4] = pose_archive[1:]
+		pose_archive[-1] = 0
+		cover_archive[0:4] = cover_archive[1:]
+		cover_archive[-1] = 0
+		reject_count = 0
+
 	return
 def populate_archive(pose, sequence, cover):
 	global sequence_master_archive
@@ -447,14 +460,23 @@ if __name__ == "__main__":
 
 
 	pose = Pose()
-	pose_from_pdb(pose, "structures/gag.pdb")
-	optimize_structure(pose, 100)
-	zero_pose(pose)
-	dump_pdb(pose, "../gagZero.pdb")
-	optimize_structure(pose, 100)
-	dump_pdb(pose, "../gagZeroOpt.pdb")
+	pose_from_pdb(pose, "structures/v1v2.pdb")
+	v1v2_seq = 'VKLTPLCVTLQCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA'
 
-	pose_from_pdb(pose, "structures/gag.pdb")
-	optimize_structure(pose, 100)
-	dump_pdb(pose, "../gagOpt.pdb")
+	# optimize_structure(pose, 100)
+	# zero_pose(pose)
+	# dump_pdb(pose, "../gagZero.pdb")
+	# optimize_structure(pose, 100)
+	# dump_pdb(pose, "../gagZeroOpt.pdb")
 
+	# pose_from_pdb(pose, "structures/gag.pdb")
+	# optimize_structure(pose, 100)
+	# dump_pdb(pose, "../gagOpt.pdb")
+
+	print pose.sequence()
+	(mutated_sequence, position, mutation) = make_random_mutation(pose, v1v2_seq)
+	print pose.sequence()
+	print mutated_sequence
+	print position
+	print mutation
+	print v1v2_seq[position]

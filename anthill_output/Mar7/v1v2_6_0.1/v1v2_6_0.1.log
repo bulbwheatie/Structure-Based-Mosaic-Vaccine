@@ -1,0 +1,23 @@
+Name base = v1v2_6_0.1
+Iters = 10
+Soft coverage = 0.284621885725
+Energy = -131.339191021
+Hard Covereage = 0.0368019545157
+Num epitopes = 65
+Initial seq = VKLTPLCVTLQCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+-------START OF DATA------
+0.286902, -131.7275, 20, POINT, N, VKLTPLCVTLQCTNVTNNITN-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.0000, 1
+0.296873, -94.5135, 74, POINT, I, VKLTPLCVTLQCTNVTNNITN-------------------------------------DMRGELKN----CSFNI-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.8728, 0
+0.289238, -126.7174, 60, POINT, T, VKLTPLCVTLQCTNVTNNITN-------------------------------------DMTGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.0000, 0
+0.295283, -131.9041, 94, POINT, A, VKLTPLCVTLQCTNVTNNITN-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.0000, 1
+0.296955, -58.0119, 82, POINT, I, VKLTPLCVTLQCTNVTNNITN-------------------------------------DMRGELKN----CSFNM-T-TE--IRD-KK-QKV-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.1970, 0
+0.318950, -131.8160, [10], CHUNK, ['N'], VKLTPLCVTLNCTNVTNNITN-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.0000, 1
+0.325754, -129.8786, 99, POINT, K, VKLTPLCVTLNCTNVTNNITN-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.0000, 1
+0.327426, -59.2807, 82, POINT, I, VKLTPLCVTLNCTNVTNNITN-------------------------------------DMRGELKN----CSFNM-T-TE--IRD-KK-QKV-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.3324, 0
+0.326253, -129.3828, 58, POINT, E, VKLTPLCVTLNCTNVTNNITN-------------------------------------EMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.0000, 1
+0.327057, -127.0456, 60, POINT, S, VKLTPLCVTLNCTNVTNNITN-------------------------------------EMSGELKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.0449, 0
+------END OF DATA------
+Best coverage = 0.326253120037
+Best sequence = VKLTPLCVTLNCTNVTNNITN-------------------------------------EMSGELKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+Hard Covereage = 0.0689083639292
+Num epitopes = 65

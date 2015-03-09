@@ -27,19 +27,79 @@ def read_mosaic_sequences(begin, end, filename):
 		mosaic_seqs.append(curr[begin:end].replace("-",""))
 	return mosaic_seqs
 
-if __name__ == "__main__":
+def fisher_main(gag_pop, nef_pop, v1v2_pop, type):
 	gag_mosaics = read_mosaic_sequences(280, 351, './fisher_mosaics/GAG.fasta')
 	nef_mosaics = read_mosaic_sequences(23, 175, './fisher_mosaics/NEF.fasta')
 	v1v2_mosaics = read_mosaic_sequences(126, 224, './fisher_mosaics/ENV.fasta')
+	if type == "gag":
+		print gag_mosaics[0]
+		print gag_pop[0]
+		print
+
+		score(gag_mosaics, gag_pop)
+	elif type == "nef":
+		print nef_mosaics[0]
+		print nef_pop[0]
+		print
+
+		score(nef_mosaics, nef_pop)
+	else:
+		print v1v2_mosaics[0]
+		print v1v2_pop[0]
+		print
+		score(v1v2_mosaics, v1v2_pop)
+
+if __name__ == "__main__":
 	gag_pop = utils.read_fasta_file('./data/HIV-1_gag.fasta', 343, 414, aligned = False)
 	nef_pop = utils.read_fasta_file('./data/HIV-1_nef.fasta', 111 + 47, 357 - 72, aligned = False)
 	v1v2_pop = utils.read_fasta_file('./data/HIV-1_env.fasta', 171, 354 - 8, aligned = False)
 
-	if sys.argv[1] == "gag":
-		score(gag_mosaics, gag_pop)
-	elif sys.argv[1] == "nef":
-		score(nef_mosaics, nef_pop)
+	if sys.argv[1] == "fisher":
+		fisher_main(gag_pop, nef_pop, v1v2_pop, sys.argv[2])
 	else:
-		score(v1v2_mosaics, v1v2_pop)
-	
+		# Score our own mosaics based on coverage on the restricted range
+		# log file
+		gag_logfile = './anthill_output/Final2/Gag_70_sq_9_5_ni/Gag_70_sq_9_5_ni.log'
+		nef_logfile = './anthill_output/Final2/Nef_70_sq_9_5_ni/Nef_70_sq_9_5_ni.log'
+		v1v2_logfile = './anthill_output/Final2/V1V2_70_sq_9_5_ni/V1V2_70_sq_9_5_ni.log'
+		logfile = gag_logfile
 
+		start_i = None
+		end_i = None
+		if "Gag" in logfile:
+			start_i = 0
+			end_i = 71
+			#print gag_pop[1]
+			#print gag_pop[2]
+			#print gag_pop[3]
+
+		elif "Nef" in logfile:
+			start_i = 47
+			end_i = -72
+			#print nef_pop[1]
+			#print nef_pop[212]
+			#print nef_pop[2232]
+
+		elif "V1V2" in logfile:
+			start_i = 0
+			end_i = -8
+			#print v1v2_pop[1]
+			#print v1v2_pop[1122]
+			#print v1v2_pop[373]
+
+		else:
+			print "ERROR"
+		
+		logs = open(logfile, 'r').read()
+		our_mosaic = logs[logs.index('Best sequence'):]
+		our_mosaic = our_mosaic[our_mosaic.index('=') + 2:our_mosaic.index('\n')]
+		our_mosaic = our_mosaic[start_i:end_i].replace('-', '')
+
+		print our_mosaic
+		if "Gag" in logfile:
+			score([our_mosaic], gag_pop)
+		elif "Nef" in logfile:
+			score([our_mosaic], nef_pop)
+		elif "V1V2" in logfile:
+			score([our_mosaic], v1v2_pop)
+		

@@ -1,0 +1,489 @@
+ROSAIC: Initial sequence = VKLTPLCVTLQCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(10, 'N', 0.2997816677646063), (13, 'D', 0.2997816677646063), (14, 'I', 0.2997816677646063), (15, 'A', 0.2997816677646063)]
+CHUNK MUTATION: attempting10toN
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting13toD
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTDVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting14toI
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTDITNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting15toA
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTDIANNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTDIANNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+0.299781667765,-127.652845669; RMSD =0.04511526227,0
+ROSAIC: End of iter sequence = VKLTPLCVTLQCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTDIANNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+POINT MUTATION: 10 to N
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+0.308288670809,-131.053541729; RMSD =0.0,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+POINT MUTATION: 74 to V
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNV-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNV-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+0.312780687454,-114.536916507; RMSD =0.152483135462,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNV-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(160, 'T', 0.3203951895901884), (161, 'S', 0.3203951895901884)]
+CHUNK MUTATION: attempting160toT
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NTEYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting161toS
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.32039518959,-130.166198748; RMSD =0.0,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 82 to I
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--IRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--IRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.322067569022,-34.4350891366; RMSD =0.228518515825,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--IRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 94 to A
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.328776675358,-130.41506031; RMSD =0.0177008360624,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(74, 'I', 0.3387485929973798)]
+CHUNK MUTATION: attempting74toI
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNI-T-TE--LRD-KK-QKV-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNI-T-TE--LRD-KK-QKV-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.338748592997,-89.5563128931; RMSD =0.408287495375,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNI-T-TE--LRD-KK-QKV-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(89, 'K', 0.33380179120786746), (91, 'E', 0.33380179120786746)]
+CHUNK MUTATION: attempting89toK
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-KKV-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting91toE
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.333801791208,-128.827895825; RMSD =0.0177008360624,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 63 to I
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.341072879045,-126.373955225; RMSD =0.0177008360624,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 18 to N
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.343236725833,-125.192140368; RMSD =0.0330452471972,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(74, 'I', 0.3546294715873084)]
+CHUNK MUTATION: attempting74toI
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.354629471587,-118.853625493; RMSD =0.0630712285638,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 60 to T
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.345567907459,-120.19977589; RMSD =0.0330452471972,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(99, 'K', 0.3531070830800229)]
+CHUNK MUTATION: attempting99toK
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.35310708308,-118.587415638; RMSD =0.0471137389541,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 174 to V
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+0.352850226851,-105.243320943; RMSD =0.389210492373,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+POINT MUTATION: 74 to I
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.356960653212,-102.310832582; RMSD =0.302276134491,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 20 to T
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.349417957132,-116.942026872; RMSD =0.0330452471972,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 107 to N
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.346743078602,-125.709920882; RMSD =0.0344636663795,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YRLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(99, 'K', 0.35077590145489074)]
+CHUNK MUTATION: attempting99toK
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.350775901455,-123.645255792; RMSD =0.0478320233524,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 174 to T
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.352945037006,-121.419941964; RMSD =0.0556041263044,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+POINT MUTATION: 20 to T
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.356894418525,-118.161720188; RMSD =0.0556041263044,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+POINT MUTATION: 104 to P
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.361317422873,-118.351698465; RMSD =0.0556041263044,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+POINT MUTATION: 59 to T
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DTRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DTRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.359814913654,-117.289457127; RMSD =0.0556041263044,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DTRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+POINT MUTATION: 59 to N
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.360498835451,-118.127116758; RMSD =0.0556041263044,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+CHUNK MUTATION: [(74, 'I', 0.371891581204657)]
+CHUNK MUTATION: attempting74toI
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.371891581205,-108.769002802; RMSD =0.253653347492,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+POINT MUTATION: 60 to K
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNKGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNKGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.361869852303,-116.22735989; RMSD =0.0625953674316,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNKGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+POINT MUTATION: 107 to N
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.364110059135,-118.240157445; RMSD =0.0556041263044,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+CHUNK MUTATION: [(174, 'V', 0.3656120192921679)]
+CHUNK MUTATION: attempting174toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+0.365612019292,-100.919748273; RMSD =0.2907551229,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+CHUNK MUTATION: [(116, 'N', 0.3586833283738994)]
+CHUNK MUTATION: attempting116toN
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNN------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNN------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.358683328374,-117.361562739; RMSD =0.0556041263044,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNN------------------------------------------NTSYRLI---NCNTSTI-T---QA
+CHUNK MUTATION: [(104, 'P', 0.3613174228726832)]
+CHUNK MUTATION: attempting104toP
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.361317422873,-118.351698465; RMSD =0.0556041263044,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+POINT MUTATION: 59 to S
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DSRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DSRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.358664862114,-117.568304503; RMSD =0.0556041263044,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DSRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+CHUNK MUTATION: [(74, 'I', 0.36828716427875047)]
+CHUNK MUTATION: attempting74toI
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.368287164279,-106.904292433; RMSD =0.484450519085,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+POINT MUTATION: 104 to P
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.357368041354,-121.609920241; RMSD =0.0556041263044,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+CHUNK MUTATION: [(74, 'I', 0.36433778275998174)]
+CHUNK MUTATION: attempting74toI
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.36433778276,-112.541086788; RMSD =0.167917132378,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+POINT MUTATION: 104 to P
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.357368041354,-121.609920241; RMSD =0.0556041263044,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+POINT MUTATION: 107 to N
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.356556260691,-121.532982651; RMSD =0.0556041263044,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+POINT MUTATION: 18 to T
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNTTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNTTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.356757379013,-122.073352122; RMSD =0.0544259287417,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNTTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+CHUNK MUTATION: [(74, 'I', 0.36794900644458367)]
+CHUNK MUTATION: attempting74toI
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.367949006445,-112.71308769; RMSD =0.0963674858212,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+CHUNK MUTATION: [(174, 'V', 0.36166944453209476)]
+CHUNK MUTATION: attempting174toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+0.361669444532,-106.789822473; RMSD =0.44850730896,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+POINT MUTATION: 74 to I
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.367949006445,-113.643583582; RMSD =0.163671240211,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+CHUNK MUTATION: [(169, 'S', 0.3594954158660453), (174, 'V', 0.3594954158660453)]
+CHUNK MUTATION: attempting169toS
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---SCNTSTI-T---QA
+CHUNK MUTATION: attempting174toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---SCNTSVI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---SCNTSVI-T---QA
+0.359495415866,-99.8795874294; RMSD =0.368418574333,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---SCNTSVI-T---QA
+POINT MUTATION: 20 to N
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTN-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTN-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+0.35582612076,-121.79429109; RMSD =0.0556041263044,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTN-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+CHUNK MUTATION: [(174, 'V', 0.35805822084749267)]
+CHUNK MUTATION: attempting174toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+0.358058220847,-107.156373013; RMSD =0.326153665781,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSTI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+POINT MUTATION: 174 to V
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+0.358058220847,-102.668598143; RMSD =0.224939867854,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+CHUNK MUTATION: [(74, 'V', 0.3554200568274967)]
+CHUNK MUTATION: attempting74toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNV-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNV-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.355420056827,-110.435468623; RMSD =0.16973502934,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNV-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(104, 'P', 0.3634085511928993), (107, 'N', 0.3634085511928993), (109, 'S', 0.3634085511928993)]
+CHUNK MUTATION: attempting104toP
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting107toN
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting109toS
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.363408551193,-122.932058637; RMSD =0.0478320233524,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 59 to N
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.366537496241,-123.328814693; RMSD =0.0478320233524,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DNRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 106 to D
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPIDNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPIDNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.363536886451,-122.838528182; RMSD =0.0478320233524,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPIDNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 60 to T
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.365739732818,-118.022142138; RMSD =0.0478320233524,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMTGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(174, 'V', 0.37069087058550126)]
+CHUNK MUTATION: attempting174toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+0.370690870586,-100.912152654; RMSD =0.253811538219,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNSGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+CHUNK MUTATION: [(74, 'I', 0.36216864720872943)]
+CHUNK MUTATION: attempting74toI
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.362168647209,-105.883769933; RMSD =0.433749377728,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(174, 'V', 0.35805822084749267)]
+CHUNK MUTATION: attempting174toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+0.358058220847,-104.31673159; RMSD =0.3148470819,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+CHUNK MUTATION: [(74, 'I', 0.36216864720872943)]
+CHUNK MUTATION: attempting74toI
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.362168647209,-115.069292306; RMSD =0.149424433708,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 59 to L
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.351208732178,-124.160849624; RMSD =0.0478320233524,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(104, 'P', 0.3598449909680673), (106, 'D', 0.3598449909680673), (107, 'N', 0.3598449909680673)]
+CHUNK MUTATION: attempting104toP
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting106toD
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPIDENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting107toN
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPIDNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPIDNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.359844990968,-124.624611793; RMSD =0.0561168901622,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPIDNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 58 to E
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.351737245097,-123.644183155; RMSD =0.0478320233524,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(79, 'N', 0.3542315709208853), (82, 'I', 0.3542315709208853)]
+CHUNK MUTATION: attempting79toN
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TN--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting82toI
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TN--IRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TN--IRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.354231570921,-4.94468065978; RMSD =0.263582348824,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TN--IRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(104, 'P', 0.3603735038867742), (106, 'D', 0.3603735038867742), (107, 'N', 0.3603735038867742)]
+CHUNK MUTATION: attempting104toP
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting106toD
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPIDENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting107toN
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPIDNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPIDNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.360373503887,-123.888902632; RMSD =0.0478320233524,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPIDNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(169, 'S', 0.36045675950826234), (174, 'V', 0.36045675950826234)]
+CHUNK MUTATION: attempting169toS
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---SCNTSAI-T---QA
+CHUNK MUTATION: attempting174toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---SCNTSVI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---SCNTSVI-T---QA
+0.360456759508,-96.8830426885; RMSD =0.277300745249,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---SCNTSVI-T---QA
+POINT MUTATION: 82 to I
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--IRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--IRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.353621296153,-5.75946856284; RMSD =0.115925170481,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------ELRGEIKN----CSFNM-T-TE--IRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(74, 'I', 0.3626014779322395)]
+CHUNK MUTATION: attempting74toI
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.362601477932,-118.1154384; RMSD =0.0984666869044,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 20 to T
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTT-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.355494842354,-121.097730696; RMSD =0.058268584311,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTT-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(174, 'V', 0.3584910515710029)]
+CHUNK MUTATION: attempting174toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+0.358491051571,-106.55898917; RMSD =0.393134653568,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+CHUNK MUTATION: [(74, 'V', 0.3558528875510069)]
+CHUNK MUTATION: attempting74toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNV-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNV-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.355852887551,-117.40747128; RMSD =0.191784858704,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DLRGEIKN----CSFNV-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(74, 'I', 0.36216864720872943)]
+CHUNK MUTATION: attempting74toI
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.362168647209,-118.16881815; RMSD =0.0615817531943,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 104 to P
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.355198905803,-123.835107197; RMSD =0.0478320233524,1
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+POINT MUTATION: 107 to N
+POINT MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.359027057576,-123.948098864; RMSD =0.0478320233524,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(74, 'V', 0.35984306117526793)]
+CHUNK MUTATION: attempting74toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNV-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNV-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.359843061175,-110.314400232; RMSD =0.188908800483,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNV-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(104, 'Q', 0.3599625145420019), (106, 'D', 0.3599625145420019), (107, 'N', 0.3599625145420019), (109, 'T', 0.3599625145420019)]
+CHUNK MUTATION: attempting104toQ
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting106toD
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQIDENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting107toN
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQIDNNQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: attempting109toT
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQIDNNTGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQIDNNTGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+0.359962514542,-122.22000181; RMSD =0.0478320233524,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQIDNNTGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+CHUNK MUTATION: [(174, 'V', 0.36248122519526393)]
+CHUNK MUTATION: attempting174toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+0.362481225195,-106.730971117; RMSD =0.284277528524,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA
+ROSAIC: Initial sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVPINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+CHUNK MUTATION: [(174, 'V', 0.35805822084749267)]
+CHUNK MUTATION: attempting174toV
+CHUNK MUTATION: sequence =VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+ROSAIC: Mutated sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSVI-T---QA
+0.358058220847,-105.142556303; RMSD =0.289851456881,0
+ROSAIC: End of iter sequence = VKLTPLCVTLNCTNVTNNNTD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-KKE-YALF-YKLDVVQINENQGNRSNNS------------------------------------------NTSYRLI---NCNTSAI-T---QA

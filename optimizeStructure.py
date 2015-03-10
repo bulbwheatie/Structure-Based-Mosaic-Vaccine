@@ -4,8 +4,6 @@
 #---------------------
 # This file performs PyRosetta related mutations and optimizations for a protein structure 
 
-#TODO: Revert structures backwards after certain number of failures.
-
 from rosetta import *
 import random 
 import imp
@@ -25,7 +23,7 @@ mutation_length = 2
 
 #Constants for Rosetta's refinement process
 kT = 1 #Temperature for MC
-numMoves = 1 #Number of small/shear backbone torsion moves
+numMoves = 3 #Number of small/shear backbone torsion moves
 backboneAngleMax = 7 #Maximum backbone torsion degrees that can change per iterations of refinement
 
 energy_temp = 5
@@ -44,10 +42,6 @@ def optimize_structure(pose, iters = 60):
 		print "**ERROAR (optimize_structure): Pose is null"
 		return  
 
-	print "optimize_structure()\n"
-	sys.stdout.flush()
-
-
 	#Create a temporary pose
 	testPose = Pose()
 	testPose.assign(pose)
@@ -59,8 +53,8 @@ def optimize_structure(pose, iters = 60):
 	#---------------------------------
 
 	mm = MoveMap()
-	#mm.set_bb(True)
-	mm.set_bb_true_range(12, 16)
+	mm.set_bb(True)
+	#mm.set_bb_true_range(12, 16)
 
 	smallMover = SmallMover(mm, kT, numMoves)
 	smallMover.angle_max('H', backboneAngleMax)
@@ -107,6 +101,26 @@ def optimize_structure(pose, iters = 60):
 	pose.assign(testPose)
 	return finalScore
 
+def baseline_optimization():
+	energies = []
+	RMSDs = []
+	pose = Pose()
+	pose_from_pdb(pose, "structures/gag.pdb")
+	native_pose = Pose()
+	native_pose.assign(pose)
+	output = open("baseline_gag.txt", 'w+')
+
+	for iters in xrange(70):
+		energy = optimize_structure(pose)
+		RMSD = CA_rmsd(pose, native_pose)		
+		energies.append(energy)
+		RMSDs.append(RMSD)
+		output.write(str(energy) + "," + str(RMSD) + "\n")
+
+	output.close()
+	return energies
+
+
 def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight):
 	"""# Calling ROSAIC will perform N iterations of mutation + optimization
 	# INPUT: PDB file
@@ -119,7 +133,6 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	 """
 
 	print "Running ROSAIC\n"
-	sys.stdout.flush()
 	outfile = "output/" + nameBase + "/" + nameBase + ".pdb"
 	logFile = "output/" + nameBase + "/" + nameBase  + ".log"
 	debugFile = "output/" + nameBase + "/" + nameBase + ".debug"
@@ -127,16 +140,14 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	pose = Pose() #Pose for mutation and manipulation
 	native_pose = Pose() #Keep a pose of the native structure
 	pose_from_pdb(native_pose, pdbFile)
-	#optimize_structure(native_pose)
-	#zero_pose(native_pose) #Align pose to origin
 	optimize_structure(native_pose)
+
 	pose.assign(native_pose)
 	scorefxn = create_score_function('standard')
 	dump_intermediate_structure(pose) #Dump zero'd pose
 	cover = coverage(sequence, weight_func = coverage_weight)
 	populate_archive(pose, sequence, cover)
 	print "Initial energy: " + str(scorefxn(pose))
-	sys.stdout.flush()
 
 	#Keep the struct with highest coverage
 	high_cover = cover
@@ -146,6 +157,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	high_energy = scorefxn(pose)
 	high_RMSD = 0
 
+	#Write some initial stats 
 	log = open(logFile, 'w')
 	debug = open(debugFile, 'w')
 	log.write("Name base = " + nameBase + "\n")
@@ -168,16 +180,25 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 		# 	pose.dump_pdb(outfile)
 		# 	debug.close()
 		# 	return pose.sequence()
-		debug.write("ROSAIC: Initial sequence = " + sequence + "\n")
+		debug.write("ROSAIC: Initial sequence = " + str(get_current_structure)[1] + "\n")
 
-		#TODO: Get mutations, positions, mutation types
+		#Get mutations, positions, mutation types
 		(pose, sequence, positions, mutations, mutation_type) = make_mutation(pop_aligned, coverage_weight, mutation_length = mutation_length)
 
-		debug.write("ROSAIC: Mutated sequence = " + sequence + "\n")
+		debug.write("ROSAIC: Mutated sequence = " + str(sequence) + "\n")
 
 		#The structure has been rejected too many times, terminate
 		if (pose == -1 or sequence == -1):
-			debug.write("More than 5 structure rejections\n")
+			log.write("------END OF DATA------\n")
+			log.write("Best coverage = " + str(high_cover) + "\n")
+			log.write("Best sequence = " + str(high_seq) + "\n")
+			log.write("Best energy = " + str(high_energy) + "\n")
+			log.write("Best RMSD = " + str(high_RMSD) + "\n")
+			log.write("Hard Covereage = " + str(fisher_coverage(high_seq, pop_aligned)) + "\n")
+			log.write("Num epitopes = " + str(num_epitopes_in_mosaic(high_seq, pop_aligned))+ "\n")
+			high_pose.dump_pdb(outfile)
+			debug.write("Structure Rejection\n")
+			log.close()
 			debug.close()
 			return 			
 
@@ -200,7 +221,9 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 		if (struct_accept):
 			#Accept the structure
 			debug.write(str(cover) + "," + str(energy) + "; RMSD =" + str(RMSD) + ",1\n")
-			dump_intermediate_structure(pose) #Dump every accepted pose
+			#dump_intermediate_structure(pose) #Dump every accepted pose
+			
+			#Keep track of best structure
 			if (cover > high_cover):
 				high_cover = cover
 				high_seq = sequence
@@ -209,17 +232,17 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 				high_RMSD = RMSD
 			update_archives(pose, sequence, cover) #Update the accepted pose and sequence
 		else: 
-			debug.write(str(cover) + "," + str(energy) + "; RMSD =" + str(RMSD) + ",0\n")
-			dump_intermediate_structure(pose) #Dump every accepted pose
+			debug.write"Rejected" + str(cover) + "," + str(energy) + "; RMSD =" + str(RMSD) + ",0\n")
+			#dump_intermediate_structure(pose) #Dump every accepted pose
 			#Revert the master sequence and pose -- happens auto if new struct isnt pushed
 			reject_archives()
 			print "Structure rejected \n"
 
-		#TODO: Make this debug
-		debug.write("ROSAIC: End of iter sequence = " + get_current_structure()[1] + "\n")
-		#TODO: Get these values
-		log.write("%.6f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(positions), mutation_type, str(mutations), sequence, RMSD, struct_accept))
-		print "%.6f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(positions), mutation_type, str(mutations), sequence, RMSD, struct_accept)
+
+		debug.write("ROSAIC: End of iter sequence = " + str(sequence) + "\n")
+		#Outptu values for this iteration values
+		log.write("%.6f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, struct_accept))
+		print "%.6f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, struct_accept)
 
 	#Dump the final structure and return the sequence
 	log.write("------END OF DATA------\n")
@@ -305,11 +328,12 @@ def run_ROSAIC():
 	start_i = end_i = 0
 	sequence = None
 	coverage_weight = None
+	template = None
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "nameBase=", "iters=", "fastaFile=", "start_i=", \
 			"end_i=", "sequence=", "num_mutation_choices=", "coverage_weight=", \
-			"RMSD_cutoff=", "energy_temp=", "mutation_length="])
+			"RMSD_cutoff=", "energy_temp=", "mutation_length=", "template="])
 	except getopt.error, msg:
 		print msg
 		print "for help use --help"
@@ -335,7 +359,9 @@ def run_ROSAIC():
 		elif o in ("--num_mutation_choices"):
 			num_mutation_choices = int(a);
 		elif o in ("--sequence"):
-			sequence = a			
+			sequence = a	
+		elif o in ("--template"):
+			template = a			
 		elif o in ("--coverage_weight"):
 			coverage_weight = a
 			if (coverage_weight == "exponential"):

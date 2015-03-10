@@ -17,7 +17,7 @@ name_space = ""
 log = None
 reject_count = 1
 
-point_to_chunk_prob = 0.7
+point_to_chunk_prob = 0.5
 
 #When we make a mutation, iterate determine find correlating position in structure
 def calculate_mutation_for_pose(sequence_master, position, amino_acid, count):
@@ -61,13 +61,15 @@ def make_mutation(pop, coverage_weight, mutation_length = 2):
 
 	"""
 	(tmp_pose, sequence, cover) = get_current_structure()
-	pose = Pose()
-	pose.assign(tmp_pose)
+
 	
 	mutation_type = ""
-	if (pose == 0 or sequence == 0):
+	if (tmp_pose == 0 or sequence == 0):
 		#Rejected too many structures, terminate
-		return (-1, -1)
+		return (-1, -1, -1, -1, -1)
+
+	pose = Pose()
+	pose.assign(tmp_pose)
 
 	if (random.random() > point_to_chunk_prob):
 		#Make a chunk mutation first
@@ -121,11 +123,16 @@ def make_point_mutation(pose, sequence, cover, coverage_weight):
 		if (sequence[position] == pose.sequence()[pose_position - 1]):
 			return (-1, -1, -1)
 	elif (mutation_type == "insert"):
-		insert_residue(pose, pose_position, mutation)
+		dump_pdb(pose, "tmpRemodelPdb.pdb")
+		(new_pdb, mutated_sequence) = insert_residue("tmpRemodelPdb.pdb", position, sequence)
+		pose_from_pdb(pose, new_pdb)
 		print "Insert\n"
+		return (mutated_sequence, position, pose.sequence()[pose_position + 1])
 	elif (mutation_type == "delete"):
-		delete_residue(pose, pose_position)
+		dump_pdb(pose, new_pdb)
+		(new_pdb, mutated_sequence) = delete_residue("tmpRemodelPdb.pdb", position, sequence)
 		print "Delete\n"
+		return (mutated_sequence, position, "-")
 
 	mutated_sequence = update_seq_string(sequence, mutation, position)
 
@@ -173,7 +180,7 @@ def make_random_mutation(pose, sequence):
 		mutate_residue(pose, pose_position, mutation)
 
 	mutated_sequence = update_seq_string(sequence, mutation, position)
-	#log.write("MUTATION: " + str(position) + "," + mutation + "\n")
+	log.write("MUTATION: " + str(position) + "," + mutation + "\n")
 	return (mutated_sequence, position, mutation)
 
 def d_pose_random_mutation(testPose, pose):
@@ -188,7 +195,8 @@ def d_pose_random_mutation(testPose, pose):
 	return (position, mutation, random)
 
 def get_current_structure():
-	pose = pose_archive[0]
+	pose = Pose()
+	pose.assign(pose_archive[0])
 	sequence = sequence_master_archive[0]
 	cover = cover_archive[0]
 	return (pose, sequence, cover)	
@@ -239,6 +247,7 @@ def reject_archives():
 		reject_count = 0
 
 	return
+
 def populate_archive(pose, sequence, cover):
 	global sequence_master_archive
 	global pose_archive
@@ -312,7 +321,7 @@ def d_make_mutation(pose, position, mutation, count):
 	print "Assigned pose\n"
 	return (position, mutation, mutation_type);
 
-def insert_residue(pose, position, mutation):
+def d_su_insert_residue(pose, position, mutation):
 	"""Performs an insertion into the pose right before the position
 	position = position in POSE
 	will insert after position specified
@@ -343,7 +352,7 @@ def insert_residue(pose, position, mutation):
 			old_idx += 1
 	pose.assign(new_pose)
 
-def delete_residue(pose, position):
+def d_su_delete_residue(pose, position):
 	""" Deletes the pose in the residue
 	position = position in POSE
 	"""
@@ -369,7 +378,7 @@ def delete_residue(pose, position):
 		i += 1
 	pose.assign(new_pose)
 
-def zero_pose(pose):
+def d_zero_pose(pose):
 	new_pose = Pose()
 	make_pose_from_sequence(new_pose, pose.sequence(), 'fa_standard')
 
@@ -393,9 +402,7 @@ def zero_pose(pose):
 
 	pose.assign(new_pose)
 
-
-
-def update_master_sequence(position, mutation):
+def d_update_master_sequence(position, mutation):
 	global sequence_master
 	sequence_master = sequence_master[:position] + mutation + sequence_master[position+1:]
 

@@ -1,13 +1,13 @@
-import sys
+import sys, os
 import utils
 
 def score(mos, pop):
 	utils.calc_pop_epitope_freq(pop)
 	utils.calc_single_freq(pop)
-	print "soft coverage, exponential"
+	print "soft coverage, square"
 	soft_covs = []
 	for m in mos:
-		soft_covs.append(utils.coverage(m))
+		soft_covs.append(utils.coverage(m, weight_func = utils.squared_weight))
 	print soft_covs
 	print
 	print "hard coverage"
@@ -59,47 +59,48 @@ if __name__ == "__main__":
 	else:
 		# Score our own mosaics based on coverage on the restricted range
 		# log file
-		gag_logfile = './anthill_output/Final2/Gag_70_sq_9_5_ni/Gag_70_sq_9_5_ni.log'
-		nef_logfile = './anthill_output/Final2/Nef_70_sq_9_5_ni/Nef_70_sq_9_5_ni.log'
-		v1v2_logfile = './anthill_output/Final2/V1V2_70_sq_9_5_ni/V1V2_70_sq_9_5_ni.log'
-		logfile = gag_logfile
-
-		start_i = None
-		end_i = None
-		if "Gag" in logfile:
-			start_i = 0
-			end_i = 71
-			#print gag_pop[1]
-			#print gag_pop[2]
-			#print gag_pop[3]
-
-		elif "Nef" in logfile:
-			start_i = 47
-			end_i = -72
-			#print nef_pop[1]
-			#print nef_pop[212]
-			#print nef_pop[2232]
-
-		elif "V1V2" in logfile:
-			start_i = 0
-			end_i = -8
-			#print v1v2_pop[1]
-			#print v1v2_pop[1122]
-			#print v1v2_pop[373]
-
-		else:
-			print "ERROR"
+		loc = './anthill_output/Final2/'
+		temp_logfiles = os.listdir(loc)
+		logfiles70 = [loc + l + '/' + l.split('/')[-1] + '.log' for l in temp_logfiles if '70' in l]
+		logfiles200 = [loc + l + '/' + l.split('/')[-1] + '.log' for l in temp_logfiles if '200' in l]
 		
-		logs = open(logfile, 'r').read()
-		our_mosaic = logs[logs.index('Best sequence'):]
-		our_mosaic = our_mosaic[our_mosaic.index('=') + 2:our_mosaic.index('\n')]
-		our_mosaic = our_mosaic[start_i:end_i].replace('-', '')
+		gag_logfiles70 = [loc + l + '/' + l.split('/')[-1] + '.log' for l in temp_logfiles if ('70' in l and 'Gag' in l)]
+		nef_logfiles70 = [loc + l + '/' + l.split('/')[-1] + '.log' for l in temp_logfiles if ('70' in l and 'Nef' in l)]
+		v1v2_logfiles70 = [loc + l + '/' + l.split('/')[-1] + '.log' for l in temp_logfiles if ('70' in l and 'V1V2' in l)]
+		
+		gag_logfiles200 = [loc + l + '/' + l.split('/')[-1] + '.log' for l in temp_logfiles if ('200' in l and 'Gag' in l)]
+		nef_logfiles200 = [loc + l + '/' + l.split('/')[-1] + '.log' for l in temp_logfiles if ('200' in l and 'Nef' in l)]
+		v1v2_logfiles200 = [loc + l + '/' + l.split('/')[-1] + '.log' for l in temp_logfiles if ('200' in l and 'V1V2' in l)]
 
-		print our_mosaic
-		if "Gag" in logfile:
-			score([our_mosaic], gag_pop)
-		elif "Nef" in logfile:
-			score([our_mosaic], nef_pop)
-		elif "V1V2" in logfile:
-			score([our_mosaic], v1v2_pop)
+		for logfile in v1v2_logfiles200:
+			start_i = None
+			end_i = None
+			if "Gag" in logfile:
+				start_i = 0
+				end_i = 71
+				
+			elif "Nef" in logfile:
+				start_i = 47
+				end_i = -72
+
+			elif "V1V2" in logfile:
+				start_i = 0
+				end_i = -8
+
+			else:
+				print "ERROR"
+		
+			logs = open(logfile, 'r').read()
+			if ('Best sequence' in logs):
+				our_mosaic = logs[logs.index('Best sequence'):]
+				our_mosaic = our_mosaic[our_mosaic.index('=') + 2:our_mosaic.index('\n')]
+				our_mosaic = our_mosaic[start_i:end_i].replace('-', '')
+
+				print our_mosaic
+				if "Gag" in logfile:
+					score([our_mosaic], gag_pop)
+				elif "Nef" in logfile:
+					score([our_mosaic], nef_pop)
+				elif "V1V2" in logfile:
+					score([our_mosaic], v1v2_pop)
 		

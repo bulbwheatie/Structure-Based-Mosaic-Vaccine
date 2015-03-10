@@ -44,7 +44,7 @@ id_v1v2_logfiles200 = [insdel_loc + l + '/' + l.split('/')[-1] + '.log' for l in
 		plt.plot([i for i in xrange(iters + 1)], soft_covs)
 		plt.show()"""
 
-def plot_avg_over_iters(filenames, iters, xlab, ylab, title, type = "cov", show = True, label = ''):
+def plot_avg_over_iters(filenames, iters, xlab, ylab, title, type = "cov", show = True, label = '', errorbar = True):
 	avg_soft_covs = [0.0] * (iters + 1)
 	avg_energies = [0.0] * (iters + 1)
 	avg_rmsds = [0.0] * (iters + 1)
@@ -80,11 +80,21 @@ def plot_avg_over_iters(filenames, iters, xlab, ylab, title, type = "cov", show 
 	se_energies = sem(np.array(all_energies))
 	se_rmsds = sem(np.array(all_rmsds))
 	if type == "cov":
-		plt.errorbar([i for i in xrange(iters + 1)], avg_soft_covs, se_soft_covs, linestyle='None', marker='^', label = label)
+		if errorbar:
+			plt.errorbar([i for i in xrange(iters + 1)], avg_soft_covs, se_soft_covs, linestyle='None', marker='^', label = label)
+		else:
+			plt.plot([i for i in xrange(iters + 1)], avg_soft_covs, linestyle='-', marker='^', label = label)
 	elif type == "energy":
-		plt.errorbar([i for i in xrange(iters + 1)], avg_energies, se_energies, linestyle='None', marker='^', label = label)
+		if errorbar:
+			plt.errorbar([i for i in xrange(iters + 1)], avg_energies, se_energies, linestyle='None', marker='^', label = label)
+		else:
+			plt.plot([i for i in xrange(iters + 1)], avg_energies, linestyle='-', marker='^', label = label)
 	else:
-		plt.errorbar([i for i in xrange(iters + 1)], avg_rmsds, se_rmsds, linestyle='None', marker='^', label = label)
+		if errorbar:
+			plt.errorbar([i for i in xrange(iters + 1)], avg_rmsds, se_rmsds, linestyle='None', marker='^', label = label)
+		else:
+			plt.plot([i for i in xrange(iters + 1)], avg_rmsds, linestyle='-', marker='^', label = label)
+			
 	if show:
 		plt.show()
 
@@ -105,8 +115,8 @@ def plot_avgs_multiple_over_iters(filelist_list, iters, xlab, ylab, title, type)
 
 def plot_insdel(filelist_list, iters, xlab, ylab, title, type):
 	# filenames is list of list
-	avg1, se1 = plot_avg_over_iters(filelist_list[0], iters, xlab, ylab, title, type = type, show = False, label = 'No ins/del')
-	avg2, se2 = plot_avg_over_iters(filelist_list[1], iters, xlab, ylab, title, type = type, show = False, label = 'Ins/del incl.')
+	avg1, se1 = plot_avg_over_iters(filelist_list[0], iters, xlab, ylab, title, type = type, show = False, label = 'No ins/del', errorbar = False)
+	avg2, se2 = plot_avg_over_iters(filelist_list[1], iters, xlab, ylab, title, type = type, show = False, label = 'Ins/del incl.', errorbar = False)
 	plt.legend(loc = 'upper left')
 	plt.show()
 
@@ -238,6 +248,7 @@ def plot_chunks_over_iters(chunk_list, iters, xlab, ylab, title):
 	se_hard_covs = [sem(np.array(all_hard_covs[i])) for i in xrange(4)]
 
 	fig, ax1 = plt.subplots()
+	ax1.set_xlim([0, 10])
 	plt.xlabel(xlab)
 	plt.ylabel(ylab)
 	plt.title(title)
@@ -247,6 +258,7 @@ def plot_chunks_over_iters(chunk_list, iters, xlab, ylab, title):
 	ax1.legend(loc = 'lower left')
 	
 	ax2 = ax1.twinx()
+	ax2.set_xlim([0, 10])
 	ax2.errorbar([1, 3, 6, 9], avg_hard_covs, se_hard_covs, linestyle='-', color = 'b', marker = '^', label = 'Hard Coverage')
 	for tl in ax2.get_yticklabels():
 		tl.set_color('b')	
@@ -259,6 +271,9 @@ def plot_chunks_over_iters(chunk_list, iters, xlab, ylab, title):
 def read_single_log(filename, soft_coverages = None, energies = None, rmsds = None, mutation_positions = None):
 	""" The optional arguments should be empty lists, which will be populated with values from within one run """
 	raw_lines = open(filename, 'r').readlines()
+
+	if filename == '../anthill_output/InsDel/Nef_200_exp_9_3_i/Nef_200_exp_9_3_i.log':
+		return
 
 	# Variables that we return
 	iters = None
@@ -345,33 +360,67 @@ if __name__ == "__main__":
 	v1v2_files_all = copy.copy(v1v2_70iters_files_no_subs_sq)
 	v1v2_files_all.extend(v1v2_70iters_files_no_subs_exp)'''
 
-	plot_insdel([nef_logfiles70, id_nef_logfiles70],
-				70,
-				'Iteration', 'Soft Coverage', 'Insertions/Deletions vs Only Substitutions', 'cov')
+
+	#nef_logfiles200_sq = [l for l in nef_logfiles200 if 'sq' in nef_logfiles200]
+	#id_nef_logfiles200_sq = [l for l in id_nef_logfiles200 if 'sq' in id_nef_logfiles200]
+	#plot_insdel([nef_logfiles200_sq, id_nef_logfiles200_sq],
+	#			200,
+	#			'Iteration',
+	#			'Soft Coverage',
+	#			'nef Insertions/Deletions vs Only Substitutions',
+	#			'cov')
+
+	v1v2_logfiles200_sq = [l for l in v1v2_logfiles200 if 'sq' in l]
+	id_v1v2_logfiles200_sq = [l for l in id_v1v2_logfiles200 if 'sq' in l]
+
+	v1v2_logfiles70_sq = [l for l in v1v2_logfiles70 if 'sq' in l]
+	id_v1v2_logfiles70_sq = [l for l in id_v1v2_logfiles70 if 'sq' in l]
+	plot_insdel([v1v2_logfiles200_sq, id_v1v2_logfiles200_sq],
+				200,
+				'Iteration',
+				'Soft Coverage',
+				'v1v2 Insertions/Deletions vs Only Substitutions',
+				'cov')
 
 	
-	v1v2_1chunk = [l for l in logfiles200 if ('V1V2' in l and ('p_1_' in l or 'q_1_' in l))]
-	v1v2_3chunk = [l for l in logfiles200 if ('V1V2' in l and ('p_3_' in l or 'q_3_' in l))]
-	v1v2_6chunk = [l for l in logfiles200 if ('V1V2' in l and ('p_6_' in l or 'q_6_' in l))]
-	v1v2_9chunk = [l for l in logfiles200 if ('V1V2' in l and ('p_9_' in l or 'q_9_' in l))]
-	plot_chunks_over_iters([v1v2_1chunk, v1v2_3chunk, v1v2_6chunk, v1v2_9chunk],
-						   200,
+	v1v2_1chunk = [l for l in logfiles200 if ('V1V2' in l and 'sq' in l and ('p_1_' in l or 'q_1_' in l))]
+	v1v2_3chunk = [l for l in logfiles200 if ('V1V2' in l and 'sq' in l and ('p_3_' in l or 'q_3_' in l))]
+	v1v2_6chunk = [l for l in logfiles200 if ('V1V2' in l and 'sq' in l and ('p_6_' in l or 'q_6_' in l))]
+	v1v2_9chunk = [l for l in logfiles200 if ('V1V2' in l and 'sq' in l and ('p_9_' in l or 'q_9_' in l))]
+	v1v2_1chunk70 = [l for l in logfiles70 if ('V1V2' in l and 'sq' in l and ('p_1_' in l or 'q_1_' in l))]
+	v1v2_3chunk70 = [l for l in logfiles70 if ('V1V2' in l and 'sq' in l and ('p_3_' in l or 'q_3_' in l))]
+	v1v2_6chunk70 = [l for l in logfiles70 if ('V1V2' in l and 'sq' in l and ('p_6_' in l or 'q_6_' in l))]
+	v1v2_9chunk70 = [l for l in logfiles70 if ('V1V2' in l and 'sq' in l and ('p_9_' in l or 'q_9_' in l))]
+
+	plot_chunks_over_iters([v1v2_1chunk70, v1v2_3chunk70, v1v2_6chunk70, v1v2_9chunk70],
+						   70,
 						   'Chunk size',
 						   'Hard/Soft Coverage',
 						   'V1V2 Coverage vs Substitution Chunk Size')
 
-	nef_1chunk = [l for l in logfiles200 if ('Nef' in l and ('p_1_' in l or 'q_1_' in l))]
-	nef_3chunk = [l for l in logfiles200 if ('Nef' in l and ('p_3_' in l or 'q_3_' in l))]
-	nef_6chunk = [l for l in logfiles200 if ('Nef' in l and ('p_6_' in l or 'q_6_' in l))]
-	nef_9chunk = [l for l in logfiles200 if ('Nef' in l and ('p_9_' in l or 'q_9_' in l))]
-	plot_chunks_over_iters([nef_1chunk, nef_3chunk, nef_6chunk, nef_9chunk],
-						   200,
+	nef_1chunk = [l for l in logfiles200 if ('Nef' in l and 'sq' in l and ('p_1_' in l or 'q_1_' in l))]
+	nef_3chunk = [l for l in logfiles200 if ('Nef' in l and 'sq' in l and ('p_3_' in l or 'q_3_' in l))]
+	nef_6chunk = [l for l in logfiles200 if ('Nef' in l and 'sq' in l and ('p_6_' in l or 'q_6_' in l))]
+	nef_9chunk = [l for l in logfiles200 if ('Nef' in l and 'sq' in l and ('p_9_' in l or 'q_9_' in l))]
+	nef_1chunk70 = [l for l in logfiles70 if ('Nef' in l and 'sq' in l and ('p_1_' in l or 'q_1_' in l))]
+	nef_3chunk70 = [l for l in logfiles70 if ('Nef' in l and 'sq' in l and ('p_3_' in l or 'q_3_' in l))]
+	nef_6chunk70 = [l for l in logfiles70 if ('Nef' in l and 'sq' in l and ('p_6_' in l or 'q_6_' in l))]
+	nef_9chunk70 = [l for l in logfiles70 if ('Nef' in l and 'sq' in l and ('p_9_' in l or 'q_9_' in l))]
+
+	plot_chunks_over_iters([nef_1chunk70, nef_3chunk70, nef_6chunk70, nef_9chunk70],
+						   70,
 						   'Chunk size',
 						   'Hard/Soft Coverage',
 						   'Nef Coverage vs Substitution Chunk Size')
 
-	plot_avgs_multiple_over_iters([gag_logfiles70, nef_logfiles70, v1v2_logfiles70],
-								 70,
+
+	gag_logfiles200_sq = [l for l in gag_logfiles200 if 'sq' in l]
+	nef_logfiles200_sq = [l for l in nef_logfiles200 if 'sq' in l]
+	v1v2_logfiles200_sq = [l for l in v1v2_logfiles200 if 'sq' in l]
+	print len(gag_logfiles200_sq), len(nef_logfiles200_sq), len(v1v2_logfiles200_sq)
+	print len(gag_logfiles200), len(nef_logfiles200), len(v1v2_logfiles200)
+	plot_avgs_multiple_over_iters([gag_logfiles200_sq, nef_logfiles200_sq, v1v2_logfiles200_sq],
+								 200,
 								 'Iteration',
 								 'Soft Coverage',
 								 'Soft Coverage vs Iteration Count',

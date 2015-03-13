@@ -6,7 +6,12 @@ import copy
 from pprint import pprint
 
 loc = '../anthill_output/Final2/'
+#loc = '../anthill_output/Final3/'
+#loc = '../anthill_output/Remodel/'
 temp_logfiles = os.listdir(loc)
+#temp_logfiles.extend(os.listdir(loc))
+
+
 logfiles70 = [loc + l + '/' + l.split('/')[-1] + '.log' for l in temp_logfiles if '70' in l]
 logfiles200 = [loc + l + '/' + l.split('/')[-1] + '.log' for l in temp_logfiles if '200' in l]
 
@@ -34,17 +39,36 @@ id_v1v2_logfiles200 = [insdel_loc + l + '/' + l.split('/')[-1] + '.log' for l in
 
 
 
-"""def plot_one_run_soft_coverage_over_iters(filenames):
+def plot_one_run_soft_coverage_over_iters(filenames):
 	for fn in filenames:
 		soft_covs = []
 		energies = []
 		rmsds = []
 		mut_pos = []
 		iters, (begin_soft_cov, end_soft_cov), (begin_hard_cov, end_hard_cov), (begin_energy, end_energy), end_rmsd = read_single_log(fn, soft_coverages = soft_covs, energies = energies, rmsds = rmsds, mutation_positions = mut_pos)
-		plt.plot([i for i in xrange(iters + 1)], soft_covs)
-		plt.show()"""
+		#plt.plot([i for i in xrange(iters + 1)], energies)
 
-def plot_avg_over_iters(filenames, iters, xlab, ylab, title, type = "cov", show = True, label = '', errorbar = True):
+		fig, ax1 = plt.subplots()
+		plt.xlabel("Iteration")
+		plt.ylabel("Energy/RMSD")
+		plt.title("V1V2 Insertions/Deletions Cause Energy Rejections")
+		ax1.set_xlim([0, 50])
+		ax1.set_ylim([-150, -50])
+		ax1.plot([i for i in xrange(iters + 1)], energies, 'ro-', label = "energy")
+		for tl in ax1.get_yticklabels():
+			tl.set_color('r')
+		ax1.legend(loc = 'upper left')
+	
+		ax2 = ax1.twinx()
+		ax2.set_xlim([0, 50])
+		ax2.set_ylim([0, 5])
+		ax2.plot([i for i in xrange(iters + 1)], rmsds, 'b^-', label = "RMSD")
+		for tl in ax2.get_yticklabels():
+			tl.set_color('b')	
+		ax2.legend(loc = 'upper right')
+		plt.show()
+
+def plot_avg_over_iters(filenames, iters, xlab, ylab, title, type = "cov", show = True, label = '', errorbar = True, iter_cutoff = 100):
 	avg_soft_covs = [0.0] * (iters + 1)
 	avg_energies = [0.0] * (iters + 1)
 	avg_rmsds = [0.0] * (iters + 1)
@@ -52,48 +76,78 @@ def plot_avg_over_iters(filenames, iters, xlab, ylab, title, type = "cov", show 
 	all_energies = []
 	all_rmsds = []
 	num_full_files = 0
+	num_files_at_iter = [0.0] * (iters + 1)
 	for f in filenames:
 		curr_soft_covs = []
 		curr_energies = []
 		curr_rmsds = []
-		iters, (begin_soft_cov, end_soft_cov), (begin_hard_cov, end_hard_cov), (begin_energy, end_energy), end_rmsd = read_single_log(f, soft_coverages = curr_soft_covs, energies = curr_energies, rmsds = curr_rmsds)
+		curr_iters, (begin_soft_cov, end_soft_cov), (begin_hard_cov, end_hard_cov), (begin_energy, end_energy), end_rmsd = read_single_log(f, soft_coverages = curr_soft_covs, energies = curr_energies, rmsds = curr_rmsds)
 
-		if len(curr_soft_covs) == iters + 1:
-			for i in xrange(0, iters + 1):
+		#if len(curr_soft_covs) == iters + 1:
+		#	for i in xrange(0, iters + 1):
+		#		avg_soft_covs[i] += curr_soft_covs[i]
+		#		avg_energies[i] += curr_energies[i]
+		#		avg_rmsds[i] += curr_rmsds[i]
+		#	all_soft_covs.append(curr_soft_covs)
+		#	all_energies.append(curr_energies)
+		#	all_rmsds.append(curr_rmsds)
+		#	num_full_files += 1
+		if curr_iters >= iter_cutoff:
+			for i in xrange(0, curr_iters + 1):
 				avg_soft_covs[i] += curr_soft_covs[i]
 				avg_energies[i] += curr_energies[i]
 				avg_rmsds[i] += curr_rmsds[i]
+				num_files_at_iter[i] += 1.0
+			
 			all_soft_covs.append(curr_soft_covs)
 			all_energies.append(curr_energies)
 			all_rmsds.append(curr_rmsds)
-			num_full_files += 1
 
-	for i in xrange(iters + 1):
-		avg_soft_covs[i] /= num_full_files
-		avg_energies[i] /= num_full_files
-		avg_rmsds[i] /= num_full_files
+
+	#iter_cutoff = -1
+	#for i in xrange(iters + 1):
+	#	if num_files_at_iter[i] > 2:
+	#		avg_soft_covs[i] /= num_files_at_iter[i]
+	#		avg_energies[i] /= num_files_at_iter[i]
+	#		avg_rmsds[i] /= num_files_at_iter[i]
+	#	elif iter_cutoff < 0:
+	#		iter_cutoff = i
+
+	if iter_cutoff > 0:
+		avg_soft_covs = avg_soft_covs[:iter_cutoff]
+		avg_energies = avg_energies[:iter_cutoff]
+		avg_rmsds = avg_rmsds[:iter_cutoff]
+		all_soft_covs = [constituent_list[:iter_cutoff] for constituent_list in all_soft_covs]
+		all_energies = [constituent_list[:iter_cutoff] for constituent_list in all_energies]
+		all_rmsds = [constituent_list[:iter_cutoff] for constituent_list in all_rmsds]
+
+	print avg_soft_covs
 
 	plt.xlabel(xlab)
 	plt.ylabel(ylab)
 	plt.title(title)
-	se_soft_covs = sem(np.array(all_soft_covs))
-	se_energies = sem(np.array(all_energies))
-	se_rmsds = sem(np.array(all_rmsds))
+
+	#se_soft_covs = sem(np.array(all_soft_covs))
+	#se_energies = sem(np.array(all_energies))
+	#se_rmsds = sem(np.array(all_rmsds))
+	se_soft_covs = [1.0] * len(avg_soft_covs)
+	se_energies = [1.0] * len(avg_energies)
+	se_rmsds = [1.0] * len(avg_rmsds)
 	if type == "cov":
 		if errorbar:
-			plt.errorbar([i for i in xrange(iters + 1)], avg_soft_covs, se_soft_covs, linestyle='None', marker='^', label = label)
+			plt.errorbar([i for i in xrange(iter_cutoff)], avg_soft_covs, se_soft_covs, linestyle='None', marker='^', label = label)
 		else:
-			plt.plot([i for i in xrange(iters + 1)], avg_soft_covs, linestyle='-', marker='^', label = label)
+			plt.plot([i for i in xrange(iter_cutoff)], avg_soft_covs, linestyle='-', marker='^', label = label)
 	elif type == "energy":
 		if errorbar:
-			plt.errorbar([i for i in xrange(iters + 1)], avg_energies, se_energies, linestyle='None', marker='^', label = label)
+			plt.errorbar([i for i in xrange(iter_cutoff)], avg_energies, se_energies, linestyle='None', marker='^', label = label)
 		else:
-			plt.plot([i for i in xrange(iters + 1)], avg_energies, linestyle='-', marker='^', label = label)
+			plt.plot([i for i in xrange(iter_cutoff)], avg_energies, linestyle='-', marker='^', label = label)
 	else:
 		if errorbar:
-			plt.errorbar([i for i in xrange(iters + 1)], avg_rmsds, se_rmsds, linestyle='None', marker='^', label = label)
+			plt.errorbar([i for i in xrange(iter_cutoff)], avg_rmsds, se_rmsds, linestyle='None', marker='^', label = label)
 		else:
-			plt.plot([i for i in xrange(iters + 1)], avg_rmsds, linestyle='-', marker='^', label = label)
+			plt.plot([i for i in xrange(iter_cutoff)], avg_rmsds, linestyle='-', marker='^', label = label)
 			
 	if show:
 		plt.show()
@@ -268,13 +322,9 @@ def plot_chunks_over_iters(chunk_list, iters, xlab, ylab, title):
 
 
 
-def read_single_log(filename, soft_coverages = None, energies = None, rmsds = None, mutation_positions = None):
+def read_single_log(filename, soft_coverages = None, energies = None, rmsds = None, mutation_positions = None, remove_rejections = True):
 	""" The optional arguments should be empty lists, which will be populated with values from within one run """
 	raw_lines = open(filename, 'r').readlines()
-
-	if filename == '../anthill_output/InsDel/Nef_200_exp_9_3_i/Nef_200_exp_9_3_i.log':
-		return
-
 	# Variables that we return
 	iters = None
 	begin_soft_cov = None
@@ -291,12 +341,10 @@ def read_single_log(filename, soft_coverages = None, energies = None, rmsds = No
 	# State variables
 	finished_reading_header = False
 	finished_reading_data = False
-	
+	iters = 0
 	for l in raw_lines:
 		# Header variables
 		if not finished_reading_header:
-			if 'Iters' in l:
-				iters = int(l.split(" ")[-1])
 			if 'Soft' in l:
 				begin_soft_cov = float(l.split(" ")[-1])
 				if soft_coverages is not None:
@@ -320,21 +368,23 @@ def read_single_log(filename, soft_coverages = None, energies = None, rmsds = No
 			else:
 				# Read the data
 				data = l.split(',')
-				if soft_coverages is not None:
-					soft_coverages.append(float(data[0]))
-				if energies is not None:
-					energies.append(float(data[1]))
-				if rmsds is not None:
-					rmsds.append(float(data[-2]))
-				if mutation_positions is not None:
-					if 'CHUNK' in l:
-						positions = ','.join(data)
-						begin_i = positions.index('[') + 1
-						end_i = positions.index(']')
-						temp_positions = [int(pos) for pos in positions[begin_i:end_i].split(',')]
-						mutation_positions.extend(temp_positions)
-					else:
-						mutation_positions.append(int(data[2]))
+				if int(data[-1]) == 1 or not remove_rejections:
+					if soft_coverages is not None:
+						soft_coverages.append(float(data[0]))
+					if energies is not None:
+						energies.append(float(data[1]))
+					if rmsds is not None:
+						rmsds.append(float(data[-2]))
+					if mutation_positions is not None:
+						if 'CHUNK' in l:
+							positions = ','.join(data)
+							begin_i = positions.index('[') + 1
+							end_i = positions.index(']')
+							temp_positions = [int(pos) for pos in positions[begin_i:end_i].split(',')]
+							mutation_positions.extend(temp_positions)
+						else:
+							mutation_positions.append(int(data[2]))
+					iters += 1
 					
 		if finished_reading_data:
 			if 'Best coverage' in l:
@@ -346,6 +396,7 @@ def read_single_log(filename, soft_coverages = None, energies = None, rmsds = No
 			if 'rmsd' in l:
 				end_rmsd = float(l.split(" ")[-1])
 
+	#return iters, (begin_soft_cov, end_soft_cov), (begin_hard_cov, end_hard_cov), (begin_energy, end_energy), end_rmsd
 	return iters, (begin_soft_cov, end_soft_cov), (begin_hard_cov, end_hard_cov), (begin_energy, end_energy), end_rmsd
 			
 if __name__ == "__main__":
@@ -359,7 +410,7 @@ if __name__ == "__main__":
 
 	v1v2_files_all = copy.copy(v1v2_70iters_files_no_subs_sq)
 	v1v2_files_all.extend(v1v2_70iters_files_no_subs_exp)'''
-
+	#plot_one_run_soft_coverage_over_iters(logfiles200)
 
 	#nef_logfiles200_sq = [l for l in nef_logfiles200 if 'sq' in nef_logfiles200]
 	#id_nef_logfiles200_sq = [l for l in id_nef_logfiles200 if 'sq' in id_nef_logfiles200]
@@ -370,17 +421,47 @@ if __name__ == "__main__":
 	#			'nef Insertions/Deletions vs Only Substitutions',
 	#			'cov')
 
-	v1v2_logfiles200_sq = [l for l in v1v2_logfiles200 if 'sq' in l]
-	id_v1v2_logfiles200_sq = [l for l in id_v1v2_logfiles200 if 'sq' in l]
+	#v1v2_logfiles200_sq = [l for l in v1v2_logfiles200 if 'sq' in l]
+	#id_v1v2_logfiles200_sq = [l for l in id_v1v2_logfiles200 if 'sq' in l]
 
-	v1v2_logfiles70_sq = [l for l in v1v2_logfiles70 if 'sq' in l]
-	id_v1v2_logfiles70_sq = [l for l in id_v1v2_logfiles70 if 'sq' in l]
-	plot_insdel([v1v2_logfiles200_sq, id_v1v2_logfiles200_sq],
-				200,
-				'Iteration',
-				'Soft Coverage',
-				'v1v2 Insertions/Deletions vs Only Substitutions',
-				'cov')
+	#v1v2_logfiles70_sq = [l for l in v1v2_logfiles70 if 'sq' in l]
+	#id_v1v2_logfiles70_sq = [l for l in id_v1v2_logfiles70 if 'sq' in l]
+	#plot_insdel([v1v2_logfiles200_sq, id_v1v2_logfiles200_sq],
+	#			200,
+	#			'Iteration',
+	#			'Soft Coverage',
+	#			'v1v2 Insertions/Deletions vs Only Substitutions',
+	#			'cov')
+
+	gag_logfiles200_sq = [l for l in gag_logfiles200 if 'sq' in l]
+	nef_logfiles200_sq = [l for l in nef_logfiles200 if 'sq' in l]
+	v1v2_logfiles200_sq = [l for l in v1v2_logfiles200 if 'sq' in l]
+	plot_avg_over_iters(gag_logfiles200_sq,
+						200,
+						'Iteration',
+						'Soft Coverage',
+						'Soft Coverage vs Iteration Count',
+						'cov')
+	plot_avgs_multiple_over_iters([gag_logfiles200_sq, nef_logfiles200_sq, v1v2_logfiles200_sq],
+								 200,
+								 'Iteration',
+								 'Soft Coverage',
+								 'Soft Coverage vs Iteration Count',
+								 'cov')
+
+	plot_avgs_multiple_over_iters([gag_logfiles200, nef_logfiles200, v1v2_logfiles200],
+								 200,
+								 'Iteration',
+								 'Energy',
+								 'Energy vs Iteration Count',
+								 'energy')
+
+	plot_avgs_multiple_over_iters([gag_logfiles200, nef_logfiles200, v1v2_logfiles200],
+								 200,
+								 'Iteration',
+								 'RMSD',
+								 'RMSD vs Iteration Count',
+								 'rmsd')
 
 	
 	v1v2_1chunk = [l for l in logfiles200 if ('V1V2' in l and 'sq' in l and ('p_1_' in l or 'q_1_' in l))]
@@ -414,31 +495,6 @@ if __name__ == "__main__":
 						   'Nef Coverage vs Substitution Chunk Size')
 
 
-	gag_logfiles200_sq = [l for l in gag_logfiles200 if 'sq' in l]
-	nef_logfiles200_sq = [l for l in nef_logfiles200 if 'sq' in l]
-	v1v2_logfiles200_sq = [l for l in v1v2_logfiles200 if 'sq' in l]
-	print len(gag_logfiles200_sq), len(nef_logfiles200_sq), len(v1v2_logfiles200_sq)
-	print len(gag_logfiles200), len(nef_logfiles200), len(v1v2_logfiles200)
-	plot_avgs_multiple_over_iters([gag_logfiles200_sq, nef_logfiles200_sq, v1v2_logfiles200_sq],
-								 200,
-								 'Iteration',
-								 'Soft Coverage',
-								 'Soft Coverage vs Iteration Count',
-								 'cov')
-
-	plot_avgs_multiple_over_iters([gag_logfiles200, nef_logfiles200, v1v2_logfiles200],
-								 200,
-								 'Iteration',
-								 'Energy',
-								 'Soft Coverage vs Iteration Count',
-								 'energy')
-
-	plot_avgs_multiple_over_iters([gag_logfiles200, nef_logfiles200, v1v2_logfiles200],
-								 200,
-								 'Iteration',
-								 'RMSD',
-								 'RMSD vs Iteration Count',
-								 'rmsd')
 
 	# General Graphs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	plot_energy_funcs()

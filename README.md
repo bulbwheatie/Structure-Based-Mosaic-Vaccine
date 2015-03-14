@@ -46,3 +46,5 @@ python optimizeStructure_ins.py  --pdbFile="../../../structs/gagRenum.pdb" --nam
 Insertion and deletion runs a separate script and requries blueprint files for RosettaRemodel. The program will automativally generate these from the templates, but the naming is the same, so runs should have separate directories. In order to run the inserino and deletion script, PDBparser.py must be modified to point to your installation of Rosetta. 
 
 Rosaic will output logs containing [soft coverage, energy, position of mutation, mutation type, mutation amino acids, sequence, RMSD, whether the structure was accepted (1 yes, 0 no), hard coverage] as a comma separated value for each iteration. Only some of the logs output hard coverage for each iteration as this signficantly slows down the program. 
+
+Additional example runs can be taken from the bash scripts in the scripts/ directory. 

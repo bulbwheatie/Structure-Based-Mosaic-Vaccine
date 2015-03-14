@@ -15,7 +15,7 @@ import math
 
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 intermediate_struct_counter = 0
-RMSD_cutoff = 5
+RMSD_cutoff = 7
 pop_aligned = None
 pop_unaligned = None
 num_mutation_choices = 2 #TODO: Wire this into struct utils
@@ -208,6 +208,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 		# (position, mutation, mutation_type) = make_mutation(pose, position, mutation, count) 
 		# print "Mutation " + mutation + " at " + str(position)
 		cover = coverage(sequence, weight_func = coverage_weight)
+		hard_cover = fisher_coverage(high_seq, pop_aligned)
 
 		#Optimize the structure
 		energy = optimize_structure(pose)
@@ -232,7 +233,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 				high_RMSD = RMSD
 			update_archives(pose, sequence, cover) #Update the accepted pose and sequence
 		else: 
-			debug.write"Rejected" + str(cover) + "," + str(energy) + "; RMSD =" + str(RMSD) + ",0\n")
+			debug.write("Rejected" + str(cover) + "," + str(energy) + "; RMSD =" + str(RMSD) + ",0\n")
 			#dump_intermediate_structure(pose) #Dump every accepted pose
 			#Revert the master sequence and pose -- happens auto if new struct isnt pushed
 			reject_archives()
@@ -241,8 +242,8 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 
 		debug.write("ROSAIC: End of iter sequence = " + str(sequence) + "\n")
 		#Outptu values for this iteration values
-		log.write("%.6f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, struct_accept))
-		print "%.6f, %.4f, %s, %s, %s, %s, %.4f, %d\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, struct_accept)
+		log.write("%.6f, %.4f, %s, %s, %s, %s, %.4f, %d, %.6f\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, struct_accept, hard_cover))
+		print "%.6f, %.4f, %s, %s, %s, %s, %.4f, %d, %.6f\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, struct_accept, hard_cover)
 
 	#Dump the final structure and return the sequence
 	log.write("------END OF DATA------\n")
@@ -258,7 +259,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	return pose.sequence()
 
 def is_accept_struct(RMSD, energy, native_energy):
-	accept_energy = ((energy < native_energy) or (random.random() < math.exp(-(energy - native_energy)/energy_temp)))
+	accept_energy = ((energy < native_energy) or (random.random() < math.exp(-(energy - native_energy/energy_temp))))
 	accept_RMSD = ((RMSD < RMSD_cutoff) or (random.random() < math.exp(-(RMSD - RMSD_cutoff)/RMSD_temp)))
 	return (accept_energy and accept_RMSD)
 

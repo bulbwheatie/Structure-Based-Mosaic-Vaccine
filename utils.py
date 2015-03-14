@@ -187,7 +187,8 @@ def random_mutation(sequence):
         if (sequence[i] != "-"):
             pose_position +=1
 
-    return (position, pose_position, amino_acid)
+    #Pose position is zero indexed
+    return (position, pose_position + 1, amino_acid)
 
 def num_epitopes_in_mosaic(mosaic, pop, eq_tolerance = 1, min_epitope_freq = 1):
     """ Returns the number of distinct population epitopes (with min_epitope_freq) that occur in the mosaic (with

@@ -154,8 +154,8 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	high_pose = Pose()
 	high_pose.assign(pose)
 	high_seq = sequence
-	high_energy = scorefxn(pose)
-	high_RMSD = 0
+	high_energy = energy = scorefxn(pose)
+	high_RMSD = RMSD = 0
 
 	#Write some initial stats 
 	log = open(logFile, 'w')
@@ -187,7 +187,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 
 		debug.write("ROSAIC: Mutated sequence = " + str(sequence) + "\n")
 
-		#The structure has been rejected too many times, terminate
+		#check for convergence based on structure
 		if (pose == -1 or sequence == -1):
 			log.write("------END OF DATA------\n")
 			log.write("Best coverage = " + str(high_cover) + "\n")
@@ -201,6 +201,13 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 			log.close()
 			debug.close()
 			return 			
+
+		#If no mutation was found, reject the current iteration and move on 
+		if (mutation_type == "NONE"):
+			reject_archives()
+			log.write("%.6f, %.4f, %s, %s, %s, %s, %.4f, %d, %.6f\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, 0, hard_cover))
+			print "%.6f, %.4f, %s, %s, %s, %s, %.4f, %d, %.6f\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, 0, hard_cover)
+			continue
 
 		#Make a mutation
 		# iter_pose = Pose() #Keep a pose (pre-mutation and optimization) for this iteration in case we need to revert
@@ -259,6 +266,12 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 		#Output values for this iteration 
 		log.write("%.6f, %.4f, %s, %s, %s, %s, %.4f, %d, %.6f\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, struct_accept, hard_cover))
 		print "%.6f, %.4f, %s, %s, %s, %s, %.4f, %d, %.6f\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, struct_accept, hard_cover)
+
+		#Check for convergence based on coverage
+		save_coverage(cover)
+		if (calc_convergence()):
+			print "Coverage has converged!"
+			break
 
 	#Dump the final structure and return the sequence
 	log.write("------END OF DATA------\n")

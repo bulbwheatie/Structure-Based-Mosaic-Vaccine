@@ -1,6 +1,7 @@
 from rosetta import *
 from utils import *
 from optimizeStructure import *
+import math
 
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 
@@ -12,6 +13,7 @@ sequence_master = ""
 sequence_master_archive = [0] * 5
 pose_archive = [0] * 5
 cover_archive = [0] * 5
+cover_calc = [i * .01 for i in xrange(15, 0, -1)] #Initialize to non convergent values
 intermediate_struct_counter = 0
 name_space = ""
 log = None
@@ -80,9 +82,11 @@ def make_mutation(pop, coverage_weight, mutation_length = 2):
 			(tmp_sequence, positions, mutations) = make_point_mutation(pose, sequence, cover, coverage_weight) 
 			mutation_type = "POINT"
 			if (tmp_sequence == -1):
-				#Make a random mutation
-				(sequence, positions, mutations) = make_random_mutation(pose, sequence)
-				mutation_type = "RANDOM"
+				#Don't Make a random mutation
+				#(sequence, positions, mutations) = make_random_mutation(pose, sequence)
+				mutation_type = "NONE"
+				positions = "-"
+				mutations = "-"
 			else:
 				sequence = tmp_sequence
 		else:
@@ -96,9 +100,11 @@ def make_mutation(pop, coverage_weight, mutation_length = 2):
 			(tmp_sequence, positions, mutations) = make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_length) 
 			mutation_type = "CHUNK"
 			if (tmp_sequence == -1):
-				#Make a random mutation
-				(sequence, positions, mutations) = make_random_mutation(pose, sequence)
-				mutation_type = "RANDOM"
+				#Don't Make a random mutation
+				#(sequence, positions, mutations) = make_random_mutation(pose, sequence)
+				mutation_type = "NONE"
+				positions = "-"
+				mutations = "-"
 			else:
 				sequence = tmp_sequence
 		else:
@@ -150,6 +156,10 @@ def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_le
 	log_positions = []
 	log_mutations = []
 	print str(mutations) + "\n"
+	# Keep a temporary pose in case not everything is successful
+	test_pose = Pose()
+	test_pose.assign(pose)
+
 	mutated_sequence = sequence
 	if (mutations is not None and mutations[0] != -1 and mutations[0][0] != -1):
 		i = 0
@@ -157,7 +167,7 @@ def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_le
 			log.write("CHUNK MUTATION: attempting" + str(mutations[i][0]) + "to" + mutations[i][1] + "\n")
 			(position, mutation_type) = calculate_mutation_for_pose(sequence, mutations[i][0], mutations[i][1], 0)
 			try:
-				mutate_residue(pose, position, mutations[i][1])
+				mutate_residue(test_pose, position, mutations[i][1])
 			except:
 				log.write("ERROR: Could not mutate structure \n")
 				log.close()
@@ -165,8 +175,8 @@ def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_le
 			mutated_sequence = update_seq_string(sequence, mutations[i][1], mutations[i][0])
 			log_positions.append(mutations[i][0])
 			log_mutations.append(mutations[i][1])
-			if (sequence[mutations[i][0]] == pose.sequence()[position-1]): #Pose position is 1 indexed, but strings are 0 indexed
-				log.write("CHUNK MUTATION: failed mutation " + sequence + " vs. " + pose.sequence() + "\n")	
+			if (sequence[mutations[i][0]] == test_pose.sequence()[position-1]): #Pose position is 1 indexed, but strings are 0 indexed
+				log.write("CHUNK MUTATION: failed mutation " + sequence + " vs. " + test_pose.sequence() + "\n")	
 				return (-1, -1, -1)
 			sequence = mutated_sequence
 			log.write("CHUNK MUTATION: sequence =" + sequence + "\n")	
@@ -175,8 +185,9 @@ def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_le
 		#Fail state
 		return (-1, -1, -1)
 
-	#Update sequence for this iteration
+	#Update sequence and pose for this iteration
 	mutated_sequence = sequence
+	pose.assign(test_pose)
 	return (mutated_sequence, log_positions, log_mutations)
 
 def make_random_mutation(pose, sequence):
@@ -222,6 +233,22 @@ def get_current_structure():
 	sequence = sequence_master_archive[0]
 	cover = cover_archive[0]
 	return (pose, sequence, cover)	
+
+def save_coverage(cover):
+	global cover_calc
+	cover_calc[1:] = cover_calc[0:14]
+	cover_calc[0] = cover
+
+def calc_convergence():
+	i = 1
+	diff = 0
+	while i < len(cover_calc):
+		diff += math.pow((((cover_calc[i-1] - cover_calc[i])/cover_calc[i-1]) * 100), 3)
+		i += 1
+
+	diff /= len(cover_calc)
+	print diff
+	return (diff < 1)
 
 def update_archives(pose, sequence, cover): 
 	"""

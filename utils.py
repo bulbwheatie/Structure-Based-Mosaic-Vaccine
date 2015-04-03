@@ -28,7 +28,7 @@ exponential_numerator = [float(2 ** i - 1) for i in xrange(epitope_length + 1)]
 def exponential_weight(num_matches):
     return exponential_numerator[num_matches] / exponential_denominator
 
-def choose_point_mutation(mosaic_seq, init_coverage, max_mutations_per_position = 2, position_mutation_probability = 0.5, allow_insertions_deletions = True, weight_func = exponential_weight):
+def choose_point_mutation(mosaic_seq, init_coverage, max_mutations_per_position = 2, position_mutation_probability = 0.5, allow_insertions_deletions = True, weight_func = exponential_weight, coverage_temperature = .01):
     """ Chooses a mutation by iterating though each position in the mosaic sequence and choosing, from the
     most frequently occuring 3 grams, what point mutations may increase coverage. """
     
@@ -72,8 +72,13 @@ def choose_point_mutation(mosaic_seq, init_coverage, max_mutations_per_position 
                 mutated_sequence = update_seq_string(mosaic_seq, mutation_choice, i)
                 curr_coverage = coverage(mutated_sequence, weight_func = weight_func)
                 print curr_coverage
-                if curr_coverage > init_coverage:
+				improvement_threshold = .005
+                if curr_coverage >= init_coverage:
                     top_choices.append((i, mutation_choice, curr_coverage))
+				else:
+					prob_accept = math.pow(math.e, (curr_coverage - init_coverage) / coverage_temperature)
+					if random.random() < prob_accept:
+						top_choices.append((i, mutation_choice, curr_coverage))
 
     if len(top_choices) == 0:
         return (-1, "-", init_coverage) # Flag that no mutations were found.

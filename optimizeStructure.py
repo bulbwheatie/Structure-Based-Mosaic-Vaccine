@@ -208,10 +208,25 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 		# (position, mutation, mutation_type) = make_mutation(pose, position, mutation, count) 
 		# print "Mutation " + mutation + " at " + str(position)
 		cover = coverage(sequence, weight_func = coverage_weight)
-		hard_cover = fisher_coverage(high_seq, pop_aligned)
+		if (iter %500 == 0):
+			hard_cover = fisher_coverage(high_seq, pop_aligned)
+		else:
+			hard_cover = -1
 
 		#Optimize the structure
-		energy = optimize_structure(pose)
+		try:
+			energy = optimize_structure(pose)
+		except:
+			debug.write("ERROR: Cannot optimize structure\n")
+			log.write("------END OF DATA------\n")
+			log.write("ERROR: Cannot optimize structure\n")
+			print sys.exc_info()[0]
+			debug.close()
+			log.close()
+			pose.dump_pdb(outfile)
+			raise
+
+
 		RMSD = CA_rmsd(pose, native_pose)
 		print "Coverage " + str(cover) + "; Energy = " \
 			+ str(energy) + "; RMSD =" + str(RMSD) + "\n"
@@ -241,7 +256,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 
 
 		debug.write("ROSAIC: End of iter sequence = " + str(sequence) + "\n")
-		#Outptu values for this iteration values
+		#Output values for this iteration 
 		log.write("%.6f, %.4f, %s, %s, %s, %s, %.4f, %d, %.6f\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, struct_accept, hard_cover))
 		print "%.6f, %.4f, %s, %s, %s, %s, %.4f, %d, %.6f\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, struct_accept, hard_cover)
 

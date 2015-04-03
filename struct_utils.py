@@ -119,7 +119,12 @@ def make_point_mutation(pose, sequence, cover, coverage_weight):
 	#Check the type and make the appropriate point mutation
 	if (mutation_type == "point" ):
 		print "Point\n"
-		mutate_residue(pose, pose_position, mutation)
+		try:
+			mutate_residue(pose, pose_position, mutation)
+		except:
+			log.write("ERROR: Could not mutate structure \n")
+			log.close()
+			raise
 		if (sequence[position] == pose.sequence()[pose_position - 1]):
 			return (-1, -1, -1)
 	elif (mutation_type == "insert"):
@@ -146,13 +151,17 @@ def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_le
 	log_mutations = []
 	print str(mutations) + "\n"
 	mutated_sequence = sequence
-	#WHY ARE YOU UNHAPPY??
 	if (mutations is not None and mutations[0] != -1 and mutations[0][0] != -1):
 		i = 0
 		while i < len(mutations):
 			log.write("CHUNK MUTATION: attempting" + str(mutations[i][0]) + "to" + mutations[i][1] + "\n")
 			(position, mutation_type) = calculate_mutation_for_pose(sequence, mutations[i][0], mutations[i][1], 0)
-			mutate_residue(pose, position, mutations[i][1])
+			try:
+				mutate_residue(pose, position, mutations[i][1])
+			except:
+				log.write("ERROR: Could not mutate structure \n")
+				log.close()
+				raise
 			mutated_sequence = update_seq_string(sequence, mutations[i][1], mutations[i][0])
 			log_positions.append(mutations[i][0])
 			log_mutations.append(mutations[i][1])
@@ -173,12 +182,21 @@ def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_le
 def make_random_mutation(pose, sequence):
 	(position,pose_position, mutation) = random_mutation(sequence)
 	#(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
-	mutate_residue(pose, pose_position, mutation)
+	try:
+		mutate_residue(pose, pose_position, mutation)
+	except:
+		log.write("ERROR: Could not mutate structure \n")
+		log.close()
+		raise
 	while(sequence[position] == (pose.sequence())[pose_position-1]):
 		(position, pose_position, mutation) = random_mutation(sequence)
 		#(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
-		mutate_residue(pose, pose_position, mutation)
-
+		try:
+			mutate_residue(pose, pose_position, mutation)
+		except:
+			log.write("ERROR: Could not mutate structure \n")
+			log.close()
+			raise
 	mutated_sequence = update_seq_string(sequence, mutation, position)
 	log.write("MUTATION: " + str(position) + "," + mutation + "\n")
 	return (mutated_sequence, position, mutation)

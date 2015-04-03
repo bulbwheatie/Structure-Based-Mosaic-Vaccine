@@ -195,8 +195,12 @@ def d_pose_random_mutation(testPose, pose):
 	return (position, mutation, random)
 
 def get_current_structure():
-	pose = Pose()
-	pose.assign(pose_archive[0])
+
+	if (pose_archive[0] != 0):
+		pose = Pose()
+		pose.assign(pose_archive[0])
+	else:
+		pose = pose_archive[0]
 	sequence = sequence_master_archive[0]
 	cover = cover_archive[0]
 	return (pose, sequence, cover)	

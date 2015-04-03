@@ -73,10 +73,10 @@ def choose_point_mutation(mosaic_seq, init_coverage, max_mutations_per_position 
                 curr_coverage = coverage(mutated_sequence, weight_func = weight_func)
                 print curr_coverage
                 improvement_threshold = .005
-                if curr_coverage >= init_coverage:
+                if curr_coverage >= init_coverage + improvement_threshold:
                     top_choices.append((i, mutation_choice, curr_coverage))
                 else:
-                    prob_accept = math.pow(math.e, (curr_coverage - init_coverage) / coverage_temperature)
+                    prob_accept = math.pow(math.e, (curr_coverage - init_coverage - improvement_threshold) / coverage_temperature)
                     if random.random() < prob_accept:
                         top_choices.append((i, mutation_choice, curr_coverage))
 
@@ -159,11 +159,12 @@ def choose_n_sub_mutation(mosaic_seq, init_coverage, pop, mut_length = 2, max_mu
             if mutation_choice != mosaic_seq[i:i + mut_length]: # Only test if mutation is different than original sequence
                 mutated_sequence = update_seq_string(mosaic_seq, mutation_choice, i)
                 curr_coverage = coverage(mutated_sequence, weight_func = weight_func)
+                improvement_threshold = 0.005
                 print curr_coverage
-                if curr_coverage > init_coverage:
+                if curr_coverage > init_coverage + improvement_threshold:
                     top_choices.append((i, mutation_choice, curr_coverage))
                 else:
-                    prob_accept = math.pow(math.e, (curr_coverage - init_coverage) / coverage_temperature)
+                    prob_accept = math.pow(math.e, (curr_coverage - init_coverage - improvement_threshold) / coverage_temperature)
                     if random.random() < prob_accept:
                         top_choices.append((i, mutation_choice, curr_coverage))
 

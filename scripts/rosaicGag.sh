@@ -19,6 +19,8 @@
 nameBase=$1 #i.e. gag_5_1.0
 iters=$2
 weight=$3
+mut_length=$4
+RMSD_cutoff=$5
 
 module load python/2.7
 echo loaded python...
@@ -28,6 +30,7 @@ outdir="output/$nameBase"
 mkdir ${outdir}
 time python optimizeStructure.py  --pdbFile="structs/gag.pdb" --nameBase=${nameBase} --iters=${iters} \
 --fastaFile="data/HIV-1_gag.fasta" --start_i=343 --end_i=414 --coverage_weight=${weight} \
+--mutation_length=${mut_length} --RMSD_cutoff=${RMSD_cutoff} \
 --sequence="SILDIRQGPKEPFRDYVDRFYKTLRAEQASQEVKNWMTETLLVQNANPDSKTILKALGPGATLEEMMTACQ"
 
 exit 0

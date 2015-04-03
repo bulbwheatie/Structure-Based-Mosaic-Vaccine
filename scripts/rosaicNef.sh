@@ -19,6 +19,8 @@
 nameBase=$1 #i.e. nef_5_1.0
 iters=$2
 weight=$3
+mut_length=$4
+RMSD_cutoff=$5
 
 module load python/2.7
 echo loaded python...
@@ -28,6 +30,7 @@ outdir="output/$nameBase"
 mkdir ${outdir}
 time python optimizeStructure.py  --pdbFile="structs/2NEF.pdb" --nameBase=${nameBase} --iters=${iters} \
 --fastaFile="data/HIV-1_nef.fasta" --start_i=111 --end_i=357 --coverage_weight=${weight} \
+--mutation_length=${mut_length} --RMSD_cutoff=${RMSD_cutoff} \
 --sequence="AWL--EA-QE-----E---E--E--VGFPVTPQVPLRPMTYKAAVDLSHFLKEKGGLEGLIHSQRRQDILDLWIYHTQGYFPDWQNYTPGPGIRYP-----------------------------------------------------------------LTFGWCYKLVPVEPEKLE-EANK---------------------------DDP-EREVLEWRFDSRLAFHHMARELHPEYF-KNA"
 
 exit 0

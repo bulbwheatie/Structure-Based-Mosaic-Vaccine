@@ -28,7 +28,7 @@ exponential_numerator = [float(2 ** i - 1) for i in xrange(epitope_length + 1)]
 def exponential_weight(num_matches):
     return exponential_numerator[num_matches] / exponential_denominator
 
-def choose_point_mutation(mosaic_seq, init_coverage, max_mutations_per_position = 2, position_mutation_probability = 0.5, allow_insertions_deletions = True, weight_func = exponential_weight, coverage_temperature = .01):
+def choose_point_mutation(mosaic_seq, init_coverage, max_mutations_per_position = 2, position_mutation_probability = 0.5, allow_insertions_deletions = True, weight_func = exponential_weight, coverage_temperature = .005):
     """ Chooses a mutation by iterating though each position in the mosaic sequence and choosing, from the
     most frequently occuring 3 grams, what point mutations may increase coverage. """
     
@@ -90,7 +90,7 @@ def choose_point_mutation(mosaic_seq, init_coverage, max_mutations_per_position 
         num_considered = len(top_choices)
         return top_choices[int(random.random() * num_considered)]
 
-def choose_n_sub_mutation(mosaic_seq, init_coverage, pop, mut_length = 2, max_mutations_per_position = 2, position_mutation_probability = 0.5, weight_func = exponential_weight, coverage_temperature = 0.01):
+def choose_n_sub_mutation(mosaic_seq, init_coverage, pop, mut_length = 2, max_mutations_per_position = 2, position_mutation_probability = 0.5, weight_func = exponential_weight, coverage_temperature = 0.005):
     """ Choose a substution mutation of length 'mut_length' that represents no insertion/deletions.
         Chooses the substitution based on the highest_frequency nmer starting at each position, ruling
         out substitutions that:

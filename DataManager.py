@@ -110,27 +110,31 @@ def write_v1v2_ins_bash():
 	return
 
 def write_all_bash():
-	bashFile = open("scripts/rosaicV1V2extra.sh", 'w+')
-	weight_func = ["\"squared\""]
-	iters= [200]
-	structs = ["V1V2"]
-	run_num = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+	bashFile = open("scripts/rosaicAll.sh", 'w+')
+	weight_func = ["\"squared\"", "\"exponential\""]
+	iters= [10000]
+	structs = ["V1V2", "Nef"]
+	run_num = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 	chunks = [6]
+	RMSD_cutoffs = [2, 4]
+	mutation_temp = [0.01, 0.0075, 0.005]
 
 	for struct in structs:
 		for iter in iters:
 			for wf in weight_func:
 				for chunk in chunks:
-					if (wf == "\"squared\""):
-						wfa = "sq"
-					else:
-						wfa = "exp"
-					for run in run_num:
-						command = "qsub scripts/{script} {name} {iters} {wf} {mut_length} \n"
-						command = command.format(script = "rosaic" + struct + ".sh", \
-							name = struct + "_" + str(iter) + "_" + wfa + "_" + str(chunk) + "_" + str(run) + "_ni", \
-							iters =iter, wf = wf, mut_length = chunk)
-						bashFile.write(command)
+					for RMSD_cutoff in RMSD_cutoffs:
+						if (wf == "\"squared\""):
+							wfa = "sq"
+						else:
+							wfa = "exp"
+						for run in run_num:
+							for mut_temp in mutation_temp:
+								command = "qsub scripts/{script} {name} {iters} {wf} {mut_length} {RMSD_cutoff} {mutation_temp}\n"
+								command = command.format(script = "rosaic" + struct + ".sh", \
+									name = struct + "_" + str(iter) + "_" + wfa + "_" + str(chunk) + "_" + str(run) + "_" + str(mut_temp) +"_ni", \
+									iters =iter, wf = wf, mut_length = chunk, RMSD_cutoff=RMSD_cutoff, mutation_temp=mut_temp)
+								bashFile.write(command)
 
 	bashFile.close()
 

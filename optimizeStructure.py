@@ -121,7 +121,7 @@ def baseline_optimization():
 	return energies
 
 
-def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight):
+def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_weight):
 	"""# Calling ROSAIC will perform N iterations of mutation + optimization
 	# INPUT: PDB file
 	#		 Outfile
@@ -136,6 +136,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	outfile = "output/" + nameBase + "/" + nameBase + ".pdb"
 	logFile = "output/" + nameBase + "/" + nameBase  + ".log"
 	debugFile = "output/" + nameBase + "/" + nameBase + ".debug"
+	iter = max_iter
 
 	pose = Pose() #Pose for mutation and manipulation
 	native_pose = Pose() #Keep a pose of the native structure
@@ -146,8 +147,10 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	scorefxn = create_score_function('standard')
 	dump_intermediate_structure(pose) #Dump zero'd pose
 	cover = coverage(sequence, weight_func = coverage_weight)
-	populate_archive(pose, sequence, cover)
 	print "Initial energy: " + str(scorefxn(pose))
+
+	#Initialize struct utils
+	initialize_struct_utils(sequence, nameBase, max_iter, pose, cover)
 
 	#Keep the struct with highest coverage
 	high_cover = cover
@@ -169,10 +172,12 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 	log.write("Initial seq = " + sequence + "\n")
 	log.write("-------START OF DATA------\n")
 	set_fLog(debug)
+	flag = 0
 
 	mc = MonteCarlo(pose, scorefxn, 100)
 
-	for i in range(0, iter):
+	i= 0
+	while (i < iter):
 		#Choose a mutation
 		# (position, mutation, count, cover) = mutationGenerator(get_master_sequence());
 		# if (position == -1):
@@ -240,6 +245,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 
 		#Accept or reject the mutated structure, if rejected, revert the structure
 		# (1) Check RMSD
+		
 		struct_accept = is_accept_struct(RMSD, scorefxn(pose), scorefxn(native_pose))
 		if (struct_accept):
 			#Accept the structure
@@ -253,7 +259,9 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 				high_pose.assign(pose)
 				high_energy = energy
 				high_RMSD = RMSD
-			update_archives(pose, sequence, cover) #Update the accepted pose and sequence
+
+			 #Update the accepted pose and sequence
+			update_archives(pose, sequence, cover)
 		else: 
 			debug.write("Rejected" + str(cover) + "," + str(energy) + "; RMSD =" + str(RMSD) + ",0\n")
 			#dump_intermediate_structure(pose) #Dump every accepted pose
@@ -268,10 +276,12 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, iter, sequence, coverage_weight
 		print "%.6f, %.4f, %s, %s, %s, %s, %.4f, %d, %.6f\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, struct_accept, hard_cover)
 
 		#Check for convergence based on coverage
-		save_coverage(cover)
-		if (calc_convergence()):
-			print "Coverage has converged!"
-			break
+		# If the structure has converged, give it
+		(flag, iter) = calc_convergence(i, iter)
+		if (not flag):
+			iter = max_iter 
+
+		i += 1
 
 	#Dump the final structure and return the sequence
 	log.write("------END OF DATA------\n")
@@ -358,11 +368,12 @@ def run_ROSAIC():
 	sequence = None
 	coverage_weight = None
 	template = None
+	mutation_temp = 0.01;
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "nameBase=", "iters=", "fastaFile=", "start_i=", \
 			"end_i=", "sequence=", "num_mutation_choices=", "coverage_weight=", \
-			"RMSD_cutoff=", "energy_temp=", "mutation_length=", "template="])
+			"RMSD_cutoff=", "energy_temp=", "mutation_length=", "template=", "mutation_temp="])
 	except getopt.error, msg:
 		print msg
 		print "for help use --help"
@@ -400,35 +411,24 @@ def run_ROSAIC():
 
 		elif o in ("--RMSD_cutoff"):
 			RMSD_cutoff = int(a)	 
+		elif o in ("--mutation_temp"):
+			mutation_temp = float(a)	
 
 	if (coverage_weight == None):
 		print "Invalid or no coverage weight specified. Defaulting to exponential_weight\n"
 		coverage_weight = exponential_weight
 
-	print "ARGS PARSED\n"
-	sys.stdout.flush()
-
 	# INITIALIZE EVERYTHING
 	rosetta.init()
-	print "ROSETTA INIT\n"
-	sys.stdout.flush()
 
 	pop_aligned = read_fasta_file(fastaFile, start_i, end_i, aligned = True)
-	print "POP ALIGNED\n"
-	sys.stdout.flush()
 
 	#pop_unaligned = read_fasta_file(fastaFile, start_i, end_i, aligned = False)
 	calc_pop_epitope_freq(pop_aligned)
-	print "CALC POP EPITOPE FREQ\n"
-	sys.stdout.flush()
 
 	calc_single_freq(pop_aligned)
-	print "CALC SINGLE EPITOPE FREQ\n"
-	sys.stdout.flush()
 
-	initialize_struct_utils(sequence, nameBase)
-	print "INIT STRUCT\n"
-	sys.stdout.flush()
+	set_mutation_temp(mutation_temp)
 	
 	#Use nameBase as the output dir for each struct
 	return ROSAIC(pdbFile, nameBase, d_mutation_selecter, iters, sequence, coverage_weight)

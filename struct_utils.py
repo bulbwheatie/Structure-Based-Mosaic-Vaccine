@@ -8,16 +8,20 @@ possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N"
 # Call zero_pose() to create native structure aligned for deleteion and insertion purposes
 
 
-#Keep a current [MASTER] aligned sequence (contains gaps) 
-sequence_master = ""
-sequence_master_archive = [0] * 5
-pose_archive = [0] * 5
-cover_archive = [0] * 5
-cover_calc = [i * .01 for i in xrange(15, 0, -1)] #Initialize to non convergent values
+#Keep a current [MASTER] 7aligned sequence (contains gaps) 
+sequence_archive = [0] 
+pose_archive = [0] 
+cover_archive = [0]#Initialize to non convergent values
+prev_top_ten_cover = [0] * 10
+same_top_ten_count = 0
+archive_idx = 0
+convergence_flag = False
 intermediate_struct_counter = 0
 name_space = ""
 log = None
-reject_count = 1
+reject_count = 0
+number_of_resets = 0
+mutation_temp = 0.005
 
 point_to_chunk_prob = 0.5
 
@@ -116,12 +120,16 @@ def make_mutation(pop, coverage_weight, mutation_length = 2):
 	return (pose, sequence, positions, mutations, mutation_type)
 
 def make_point_mutation(pose, sequence, cover, coverage_weight):
-	(position, mutation, cover) = choose_point_mutation(sequence, cover, allow_insertions_deletions = False, weight_func = coverage_weight)
+	(position, mutation, cover) = choose_point_mutation(sequence, cover, allow_insertions_deletions = False, weight_func = coverage_weight, coverage_temperature=mutation_temp)
 	log.write("POINT MUTATION: " + str(position) + " to " + mutation + "\n")
 	if (position == -1):
 		return (-1, -1, -1)
 	(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
 	print mutation + " at " + str(position) + "\n"
+	if ("-" in mutation and position > -1):
+		print "ERROR: - in mutation choice\n"
+		log.write("ERROR: - in mutation choice\n")
+		return (-1, -1, -1) 
 	#Check the type and make the appropriate point mutation
 	if (mutation_type == "point" ):
 		print "Point\n"
@@ -151,7 +159,7 @@ def make_point_mutation(pose, sequence, cover, coverage_weight):
 	return (mutated_sequence, position, mutation)
 
 def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_length):
-	mutations = choose_n_sub_mutation(sequence, cover, pop, mut_length = mutation_length, weight_func = coverage_weight)
+	mutations = choose_n_sub_mutation(sequence, cover, pop, mut_length = mutation_length, weight_func = coverage_weight, coverage_temperature=mutation_temp)
 	log.write("CHUNK MUTATION: " + str(mutations)  + "\n")
 	log_positions = []
 	log_mutations = []
@@ -164,6 +172,10 @@ def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_le
 	if (mutations is not None and mutations[0] != -1 and mutations[0][0] != -1):
 		i = 0
 		while i < len(mutations):
+			if ("-" in mutations[i] and positions[i] > -1):
+				print "ERROR: - in mutation choice\n"
+				log.write("ERROR: - in mutation choice\n")
+				continue
 			log.write("CHUNK MUTATION: attempting" + str(mutations[i][0]) + "to" + mutations[i][1] + "\n")
 			(position, mutation_type) = calculate_mutation_for_pose(sequence, mutations[i][0], mutations[i][1], 0)
 			try:
@@ -212,251 +224,80 @@ def make_random_mutation(pose, sequence):
 	log.write("MUTATION: " + str(position) + "," + mutation + "\n")
 	return (mutated_sequence, position, mutation)
 
-def d_pose_random_mutation(testPose, pose):
-	random = 0
-	while (testPose.sequence() == pose.sequence()):
-		random = 1
-		(position, pose_position, mutation) = random_mutation(sequence_master)
-		print "Random mutation " + str(position) + ", " + mutation
-		(pose_position, mutation_type) = calculate_mutation_for_pose(sequence_master, position, mutation, 0)
-		print "Random mutation " + str(pose_position) + ", " + mutation
-		mutate_residue(pose, pose_position + 1, mutation)
-	return (position, mutation, random)
 
 def get_current_structure():
-
-	if (pose_archive[0] != 0):
-		pose = Pose()
-		pose.assign(pose_archive[0])
-	else:
-		pose = pose_archive[0]
-	sequence = sequence_master_archive[0]
-	cover = cover_archive[0]
+	curr_idx = max(0, archive_idx - 1)
+	pose = Pose()
+	pose.assign(pose_archive[curr_idx])
+	sequence = sequence_archive[curr_idx]
+	cover = cover_archive[curr_idx]
 	return (pose, sequence, cover)	
 
-def save_coverage(cover):
-	global cover_calc
-	cover_calc[1:] = cover_calc[0:14]
-	cover_calc[0] = cover
-
-def calc_convergence():
-	i = 1
-	diff = 0
-	while i < len(cover_calc):
-		diff += math.pow((((cover_calc[i-1] - cover_calc[i])/cover_calc[i-1]) * 100), 3)
+#Returns the number of iterations 
+def calc_convergence(curr_iter, cap_iters):
+	"""
+	 New convergence measure: keep a sorted list of all the coverages. 
+	If at any time the spread between the 1st and 10th coverage is less than some amount,
+	set a warning flag. If after 10 iterations it doesn't get better, then quit. 
+	"""
+	global same_top_ten_count
+	global convergence_flag
+	cover_calc = sorted(cover_archive, reverse=True)
+	i = 0
+	while i < len(prev_top_ten_cover):
+		if (cover_calc[i] != same_top_ten_count[i]):
+			convergence_flag = False
+			return (iter, convergence_flag)
 		i += 1
 
-	diff /= len(cover_calc)
-	print diff
-	return (diff < 1)
+	if (convergence_flag is False):
+		return (iter + 20, convergence_flag)
+	else:
+		return (cap_iters, convergence_flag)
 
 def update_archives(pose, sequence, cover): 
 	"""
 		Update the archives for a newly accepted structure
 	"""
-	global sequence_master_archive
+	global sequence_archive
 	global pose_archive
 	global cover_archive
+	global archive_idx
 	global reject_count
-	
-	sequence_master_archive[1:] = sequence_master_archive[0:4]
-	sequence_master_archive[0] = sequence
+	global prev_top_ten_cover
 
-	pose_archive[1:] = pose_archive[0:4]
-	pose_archive[0] = Pose()
-	pose_archive[0].assign(pose)
+	prev_top_ten_cover = sorted(cover_archive, reverse=True)[0:10]
+	sequence_archive[archive_idx] = sequence
 
-	cover_archive[1:] = cover_archive[0:4]
-	cover_archive[0] = cover
+	pose_archive[archive_idx] = Pose()
+	pose_archive[archive_idx].assign(pose)
+
+	cover_archive[archive_idx] = cover
 
 	#Reset reject counter
 	reject_count = 0
+	archive_idx += 1
 	return 
 
 def reject_archives():
 
-	""" 
-		Revert back one in the archives
 	"""
-	global sequence_master_archive
-	global pose_archive
-	global cover_archive
+	structure saving -- create a list for all potential poses.
+	Save the pose from each iteration. Jump backwards when we reset and override structures
+	"""	
+	global archive_idx
 	global reject_count
+	global number_of_resets
 
 	reject_count += 1
 
 	#If three structures have been rejected, start going back in archive
 	if (reject_count > 3):
-		sequence_master_archive[0:4] = sequence_master_archive[1:]
-		sequence_master_archive[-1] = 0
-		pose_archive[0:4] = pose_archive[1:]
-		pose_archive[-1] = 0
-		cover_archive[0:4] = cover_archive[1:]
-		cover_archive[-1] = 0
+		archive_idx -= 5
+		archive_idx = max(0, archive_idx)
 		reject_count = 0
-
+		number_of_resets += 1
 	return
-
-def populate_archive(pose, sequence, cover):
-	global sequence_master_archive
-	global pose_archive
-	global cover_archive
-	i = 0
-	while i < len(sequence_master_archive):
-		sequence_master_archive[i] = sequence
-		pose_archive[i] = Pose()
-		pose_archive[i].assign(pose)
-		cover_archive[i] = cover
-		i += 1
-
-def d_make_mutation(pose, position, mutation, count):
-	"""# Function: make_mutation()
-	Determines the position and type of mutation
-	Attempts to make the mutation, mutating randomly if not
-	# Input: (1) Pose to mutate, (2) List of positions to mutate, (3) List of amino acids to mutate to
-	# Output: Pose of mutated structure (provided pose is also changed) or None if there is an error
-	# Notes: Input pose is changed if successful"""
-	global sequence_master
-	random = 0
-
-	#----Validate arguments----
-	if (pose is None):
-		print "**ERROAR (make_mutation): Pose is null"
-		return 
-
-	if ((position) > len(sequence_master)):
-		print "**ERROAR (make_mutation): Position does not exist in provided structure"
-		return 
-
-	#----Create a temporary pose
-	testPose = Pose()
-	testPose.assign(pose)
-
-	log.write("DEBUG -- " + mutation + " at " + str(position) + "\n")
-
-	#----Check what type of mutation is this (1) Insertion, (2) Deletion, (3) Point Mutation
-	(pose_position, mutation_type) = calculate_mutation_for_pose(sequence_master, position, mutation, count)
-
-	log.write("DEBUG -- " + mutation + " at " + str(position) + "\n")
-	log.write("DEBUG -- " + mutation_type + " at " + str(pose_position) + "\n")
-	if (mutation_type == "point" ):
-		print "Point\n"
-		mutate_residue(testPose, pose_position, mutation)
-		pass
-	elif (mutation_type == "insert"):
-		insert_residue(testPose, pose_position, mutation)
-		print "Insert\n"
-		pass
-	elif (mutation_type == "delete"):
-		delete_residue(testPose, pose_position)
-		print "Delete\n"
-
-	#----Ensure mutation is successful or make a point random 
-	if (testPose.sequence() == pose.sequence()):
-		print "Position " + str(pose_position) + " (" + str(position) + ")\n"
-		print testPose.sequence() + " vs " + pose.sequence()
-		print "Making random mutaiton\n"
-		(position, mutation, random) = pose_random_mutation(testPose, pose)
-		mutation_type = "random"
-		log.write("DEBUG -- " + mutation_type + " at " + str(position) + " (" + mutation + ")\n") 
-
-	#----If mutation is successful, update the master sequence
-	update_master_sequence(position, mutation)
-	print "Master sequence = " + sequence_master + "\n"
-	log.write("DEBUG -- Master sequence = " + sequence_master + "\n") 
-
-	#----Update the provided pose and return sequence position and mutation made
-	pose.assign(testPose)
-	print "Assigned pose\n"
-	return (position, mutation, mutation_type);
-
-def d_su_insert_residue(pose, position, mutation):
-	"""Performs an insertion into the pose right before the position
-	position = position in POSE
-	will insert after position specified
-	"""
-	position = position - 1
-	sequence = pose.sequence()
-	new_seq = sequence[:position] + mutation + sequence[position:]
-
-	#Make pose from sequence
-	new_pose = Pose()
-	make_pose_from_sequence(new_pose, new_seq, 'fa_standard')
-
-	#Iterate through residues, setting the angles according to original pose
-	# (skipping) the deleted position
-	new_idx = old_idx = 1
-	while new_idx < len(new_seq):
-		if new_idx == position:
-			new_pose.set_phi(new_idx, 180)
-			new_pose.set_psi(new_idx, 180)
-			new_pose.set_omega(new_idx, 0)
-			new_pose.residue(i).chi(pose.residue(i).chi())
-			new_idx += 1
-		else:
-			new_pose.set_phi(new_idx, pose.phi(old_idx))
-			new_pose.set_psi(new_idx, pose.psi(old_idx))
-			new_pose.set_omega(new_idx, pose.omega(old_idx))
-			new_idx += 1
-			old_idx += 1
-	pose.assign(new_pose)
-
-def d_su_delete_residue(pose, position):
-	""" Deletes the pose in the residue
-	position = position in POSE
-	"""
-	sequence = pose.sequence()
-
-	#Delete the position in the sequence
-	new_seq = sequence[:position] + sequence[position + 1:]
-
-	#Make pose from sequence
-	new_pose = Pose()
-	make_pose_from_sequence(new_pose, new_seq, 'fa_standard')
-
-	#Iterate through residues, setting the angles according to original pose
-	# (skipping) the deleted position
-	i = 1
-	while i < len(sequence):
-		if i == position:
-			pass
-		new_pose.set_phi(i, pose.phi(i))
-		new_pose.set_psi(i, pose.psi(i))
-		new_pose.set_omega(i, pose.omega(i))
-		new_pose.residue(i).chi(pose.residue(i).chi())
-		i += 1
-	pose.assign(new_pose)
-
-def d_zero_pose(pose):
-	new_pose = Pose()
-	make_pose_from_sequence(new_pose, pose.sequence(), 'fa_standard')
-
-	#Iterate through residues, setting the angles according to original pose
-	# (skipping) the deleted position
-	i = 1
-	while i < len(pose.sequence()):
-		new_pose.set_phi(i, pose.phi(i))
-		new_pose.set_psi(i, pose.psi(i))
-		new_pose.set_omega(i, pose.omega(i))
-		new_pose.residue(i).chi(pose.residue(i).chi())
-		i += 1
-
-	#Repack the sidechains
-	scorefxn = create_score_function('standard')
-	packerTask = standard_packer_task(new_pose)
-	packerTask.restrict_to_repacking()
-	packerTask.or_include_current(True)
-	packMover = PackRotamersMover(scorefxn, packerTask)
-	packMover.apply(new_pose)
-
-	pose.assign(new_pose)
-
-def d_update_master_sequence(position, mutation):
-	global sequence_master
-	sequence_master = sequence_master[:position] + mutation + sequence_master[position+1:]
-
-def get_master_sequence():
-	return sequence_master
 
 def dump_intermediate_structure(pose):
 	""" Dump intermediate struct 
@@ -466,16 +307,30 @@ def dump_intermediate_structure(pose):
 	pose.dump_pdb(midpointFile)
 	intermediate_struct_counter += 1
 
-def initialize_struct_utils(sequence, name_base):
-	global sequence_master
+def initialize_struct_utils(sequence, name_base, max_iters, pose, cover):
 	global name_space
-	sequence_master  = sequence
+	global sequence_archive
+	global pose_archive
+	global cover_archive
+
 	name_space = name_base
+	sequence_archive = [0] * max_iters
+	pose_archive = [0] * max_iters
+	cover_archive = [0] *max_iters
+
+	sequence_archive[0] = sequence
+	cover_archive[0] = cover
+	pose_archive[0] = Pose()
+	pose_archive[0].assign(pose)
 
 
 def set_fLog(logFile):
 	global log
 	log =logFile
+
+def set_mutation_temp(temp):
+	global mutation_temp
+	mutation_temp = temp
 
 if __name__ == "__main__":
 	#print calculate_mutation_for_pose("AB---CD", 5, "-")

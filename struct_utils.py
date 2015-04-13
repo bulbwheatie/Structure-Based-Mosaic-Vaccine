@@ -120,6 +120,10 @@ def make_mutation(pop, coverage_weight, mutation_length = 2):
 	return (pose, sequence, positions, mutations, mutation_type)
 
 def make_point_mutation(pose, sequence, cover, coverage_weight):
+	"""
+	Make a point mutation by calling utils and then using the PyRosetta method
+	If the mutation fails for any reason, return an error code of (-1, -1, -1)
+	"""
 	(position, mutation, cover) = choose_point_mutation(sequence, cover, allow_insertions_deletions = False, weight_func = coverage_weight, coverage_temperature=mutation_temp)
 	log.write("POINT MUTATION: " + str(position) + " to " + mutation + "\n")
 	if (position == -1):
@@ -159,6 +163,11 @@ def make_point_mutation(pose, sequence, cover, coverage_weight):
 	return (mutated_sequence, position, mutation)
 
 def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_length):
+	"""
+	Make a chunk mutation by calling utils and then making
+	each mutation as a point mutation. If any of the mutations fail
+	revert the entire structure to before the chunk mutation
+	"""
 	mutations = choose_n_sub_mutation(sequence, cover, pop, mut_length = mutation_length, weight_func = coverage_weight, coverage_temperature=mutation_temp)
 	log.write("CHUNK MUTATION: " + str(mutations)  + "\n")
 	log_positions = []
@@ -202,7 +211,11 @@ def make_chunk_mutation(pose, sequence, cover, pop, coverage_weight, mutation_le
 	pose.assign(test_pose)
 	return (mutated_sequence, log_positions, log_mutations)
 
-def make_random_mutation(pose, sequence):
+def d_make_random_mutation(pose, sequence):
+	"""
+	Makes a random mutation
+	Attempts random mutation until the structure successfully accepts one
+	"""
 	(position,pose_position, mutation) = random_mutation(sequence)
 	#(pose_position, mutation_type) = calculate_mutation_for_pose(sequence, position, mutation, 0)
 	try:
@@ -226,6 +239,9 @@ def make_random_mutation(pose, sequence):
 
 
 def get_current_structure():
+	"""
+	Retrieve the current pose and sequence or this iteration
+	"""
 	curr_idx = max(0, archive_idx - 1)
 	pose = Pose()
 	pose.assign(pose_archive[curr_idx])
@@ -236,28 +252,32 @@ def get_current_structure():
 #Returns the number of iterations 
 def calc_convergence(curr_iter, cap_iters):
 	"""
-	 New convergence measure: keep a sorted list of all the coverages. 
-	If at any time the spread between the 1st and 10th coverage is less than some amount,
-	set a warning flag. If after 10 iterations it doesn't get better, then quit. 
+	New convergence measure: keep a sorted list of all the coverages. 
+	If at any time the spread, the top ten coverage values of this iteration 
+	equals the top ten of the previous iteration set a warning flag
+	and update the iteration cap to terminate after 20 iterations.
+	If after 20 iterations this doesn't change, then quit. 
 	"""
 	global same_top_ten_count
 	global convergence_flag
 	cover_calc = sorted(cover_archive, reverse=True)
 	i = 0
 	while i < len(prev_top_ten_cover):
-		if (cover_calc[i] != same_top_ten_count[i]):
+		if (cover_calc[i] != prev_top_ten_cover[i]):
 			convergence_flag = False
-			return (iter, convergence_flag)
+			return (cap_iters, convergence_flag)
 		i += 1
 
 	if (convergence_flag is False):
-		return (iter + 20, convergence_flag)
+		return (curr_iter + 20, convergence_flag)
 	else:
 		return (cap_iters, convergence_flag)
 
 def update_archives(pose, sequence, cover): 
 	"""
-		Update the archives for a newly accepted structure
+		Update the archives for a newly accepted structure. 
+		Store all the poses, sequences and coverage for each iteration.
+		Store the top ten coverage values for the previous 10 iterations prior to updating
 	"""
 	global sequence_archive
 	global pose_archive
@@ -300,7 +320,7 @@ def reject_archives():
 	return
 
 def dump_intermediate_structure(pose):
-	""" Dump intermediate struct 
+	""" Dump intermediate struct to file
 	"""
 	global intermediate_struct_counter
 	midpointFile = "output/" + name_space + "/" + str(intermediate_struct_counter) + ".pdb"
@@ -308,6 +328,9 @@ def dump_intermediate_structure(pose):
 	intermediate_struct_counter += 1
 
 def initialize_struct_utils(sequence, name_base, max_iters, pose, cover):
+	"""
+	Initialize various global values that are used by this file
+	"""
 	global name_space
 	global sequence_archive
 	global pose_archive

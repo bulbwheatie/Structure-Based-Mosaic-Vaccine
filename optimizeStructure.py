@@ -136,7 +136,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 	outfile = "output/" + nameBase + "/" + nameBase + ".pdb"
 	logFile = "output/" + nameBase + "/" + nameBase  + ".log"
 	debugFile = "output/" + nameBase + "/" + nameBase + ".debug"
-	iter = max_iter
+	iter_cap = max_iter
 
 	pose = Pose() #Pose for mutation and manipulation
 	native_pose = Pose() #Keep a pose of the native structure
@@ -164,7 +164,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 	log = open(logFile, 'w')
 	debug = open(debugFile, 'w')
 	log.write("Name base = " + nameBase + "\n")
-	log.write("Iters = " + str(iter) + "\n")
+	log.write("Iters = " + str(iter_cap) + "\n")
 	log.write("Soft coverage = " + str(cover) + "\n")
 	log.write("Energy = " + str(scorefxn(pose)) + "\n")
 	log.write("Hard Covereage = " + str(fisher_coverage(sequence, pop_aligned)) + "\n")
@@ -177,14 +177,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 	mc = MonteCarlo(pose, scorefxn, 100)
 
 	i= 0
-	while (i < iter):
-		#Choose a mutation
-		# (position, mutation, count, cover) = mutationGenerator(get_master_sequence());
-		# if (position == -1):
-		# 	debug.write("Mutations issues\n")
-		# 	pose.dump_pdb(outfile)
-		# 	debug.close()
-		# 	return pose.sequence()
+	while (i < iter_cap):
 		debug.write("ROSAIC: Initial sequence = " + str(get_current_structure)[1] + "\n")
 
 		#Get mutations, positions, mutation types
@@ -214,13 +207,9 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 			print "%.6f, %.4f, %s, %s, %s, %s, %.4f, %d, %.6f\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, 0, hard_cover)
 			continue
 
-		#Make a mutation
-		# iter_pose = Pose() #Keep a pose (pre-mutation and optimization) for this iteration in case we need to revert
-		# iter_pose.assign(pose)
-		# (position, mutation, mutation_type) = make_mutation(pose, position, mutation, count) 
-		# print "Mutation " + mutation + " at " + str(position)
+		#Calculate the coverage
 		cover = coverage(sequence, weight_func = coverage_weight)
-		if (iter %500 == 0):
+		if (iter_cap %500 == 0):
 			hard_cover = fisher_coverage(high_seq, pop_aligned)
 		else:
 			hard_cover = -1
@@ -243,9 +232,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 		print "Coverage " + str(cover) + "; Energy = " \
 			+ str(energy) + "; RMSD =" + str(RMSD) + "\n"
 
-		#Accept or reject the mutated structure, if rejected, revert the structure
-		# (1) Check RMSD
-		
+		#Accept or reject the mutated structure, if rejected, revert the structure and sequence		
 		struct_accept = is_accept_struct(RMSD, scorefxn(pose), scorefxn(native_pose))
 		if (struct_accept):
 			#Accept the structure
@@ -276,10 +263,13 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 		print "%.6f, %.4f, %s, %s, %s, %s, %.4f, %d, %.6f\n"%(cover, energy, str(positions), mutation_type, str(mutations), str(sequence), RMSD, struct_accept, hard_cover)
 
 		#Check for convergence based on coverage
-		# If the structure has converged, give it
-		(flag, iter) = calc_convergence(i, iter)
+		#Update the iteration cap based on the convergence status
+		(iter_cap, flag) = calc_convergence(i, iter_cap)
+		print "Iter = " + str(iter_cap)
+		print "\nFlag = " + str(flag)
 		if (not flag):
-			iter = max_iter 
+			print "Not coverged; max iters = " + str(max_iter)
+			iter_cap = max_iter 
 
 		i += 1
 
@@ -297,6 +287,10 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 	return pose.sequence()
 
 def is_accept_struct(RMSD, energy, native_energy):
+	"""
+	Calculate acceptance for the iteration using the energy and RMSD 
+	according to the Metropolis Criteria
+	"""
 	accept_energy = ((energy < native_energy) or (random.random() < math.exp(-(energy - native_energy/energy_temp))))
 	accept_RMSD = ((RMSD < RMSD_cutoff) or (random.random() < math.exp(-(RMSD - RMSD_cutoff)/RMSD_temp)))
 	return (accept_energy and accept_RMSD)

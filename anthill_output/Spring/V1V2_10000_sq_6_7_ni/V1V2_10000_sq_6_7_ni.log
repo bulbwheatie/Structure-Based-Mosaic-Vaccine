@@ -1,0 +1,47 @@
+Name base = V1V2_10000_sq_6_7_ni
+Iters = 10000
+Soft coverage = 1.31203964383
+Energy = -128.717377515
+Hard Covereage = 0.0368019545157
+Num epitopes = 65
+Initial seq = VKLTPLCVTLQCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA
+-------START OF DATA------
+1.316622, -126.6762, [63], CHUNK, ['I'], VKLTPLCVTLQCTNVTNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.0000, 1, 0.036802
+1.309639, 284.0701, 60, POINT, P, VKLTPLCVTLQCTNVTNNITD-------------------------------------DMPGEIKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.0915, 0, 0.041324
+1.319264, -124.0928, [10, 13, 14, 15], CHUNK, ['N', 'D', 'A', 'N'], VKLTPLCVTLNCTDANNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA, 0.0000, 1, 0.041324
+1.345913, -125.7436, [159, 160], CHUNK, ['T', 'T'], VKLTPLCVTLNCTDANNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------TTEYRLI---NCNTSAI-T---QA, 0.0538, 1, 0.069531
+1.350213, -96.9067, [174], CHUNK, ['I'], VKLTPLCVTLNCTDANNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------TTEYRLI---NCNTSII-T---QA, 0.4620, 1, 0.069531
+1.338647, -93.4472, [169, 174], CHUNK, ['S', 'V'], VKLTPLCVTLNCTDANNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------TTEYRLI---SCNTSVI-T---QA, 0.4496, 1, 0.063494
+1.334999, -89.4143, [174], CHUNK, ['I'], VKLTPLCVTLNCTDANNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------TTEYRLI---SCNTSII-T---QA, 0.5633, 1, 0.063494
+1.347700, -90.5437, [161], CHUNK, ['S'], VKLTPLCVTLNCTDANNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------TTSYRLI---SCNTSII-T---QA, 0.9061, 1, 0.063494
+1.352471, -90.6736, [104], CHUNK, ['P'], VKLTPLCVTLNCTDANNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVPINENQGNRSNNS------------------------------------------TTSYRLI---SCNTSII-T---QA, 0.9061, 1, 0.063494
+1.354970, -64.2162, [12, 13, 14], CHUNK, ['S', 'N', 'F'], VKLTPLCVTLNCSNFNNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVPINENQGNRSNNS------------------------------------------TTSYRLI---SCNTSII-T---QA, 1.5442, 1, 0.067431
+1.356408, -70.2507, [94], CHUNK, ['A'], VKLTPLCVTLNCSNFNNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YRLDVVPINENQGNRSNNS------------------------------------------TTSYRLI---SCNTSII-T---QA, 1.3482, 1, 0.058380
+1.359256, -75.0849, 161, POINT, T, VKLTPLCVTLNCSNFNNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YRLDVVPINENQGNRSNNS------------------------------------------TTTYRLI---SCNTSII-T---QA, 0.8699, 1, 0.059236
+1.394403, -81.1552, 109, POINT, T, VKLTPLCVTLNCSNFNNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---SCNTSII-T---QA, 1.3081, 1, 0.055219
+1.410949, -77.5933, [169], CHUNK, ['N'], VKLTPLCVTLNCSNFNNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KK-QKV-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---NCNTSII-T---QA, 1.3081, 1, 0.055219
+1.410210, -78.0590, [87, 89, 91], CHUNK, ['V', 'R', 'E'], VKLTPLCVTLNCSNFNNNITD-------------------------------------DMRGEIKN----CSFNM-T-TE--LRD-KV-RKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---NCNTSII-T---QA, 1.1774, 1, 0.055318
+1.427848, -69.6906, [74], CHUNK, ['I'], VKLTPLCVTLNCSNFNNNITD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KV-RKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---NCNTSII-T---QA, 1.1780, 1, 0.055318
+1.438250, -72.8371, [174], CHUNK, ['T'], VKLTPLCVTLNCSNFNNNITD-------------------------------------DMRGEIKN----CSFNI-T-TE--LRD-KV-RKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---NCNTSTI-T---QA, 1.4876, 1, 0.065352
+1.469525, 11.3492, [79, 82], CHUNK, ['N', 'I'], VKLTPLCVTLNCSNFNNNITD-------------------------------------DMRGEIKN----CSFNI-T-TN--IRD-KV-RKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---NCNTSTI-T---QA, 2.0946, 0, 0.070285
+1.439890, -73.5673, 71, POINT, T, VKLTPLCVTLNCSNFNNNITD-------------------------------------DMRGEIKN----CTFNI-T-TE--LRD-KV-RKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---NCNTSTI-T---QA, 1.5181, 1, 0.070285
+1.438565, -76.8614, [79], CHUNK, ['V'], VKLTPLCVTLNCSNFNNNITD-------------------------------------DMRGEIKN----CTFNI-T-TV--LRD-KV-RKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---NCNTSTI-T---QA, 1.7763, 1, 0.054279
+1.446261, -60.3972, [87, 89], CHUNK, ['I', 'K'], VKLTPLCVTLNCSNFNNNITD-------------------------------------DMRGEIKN----CTFNI-T-TV--LRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---NCNTSTI-T---QA, 1.5982, 1, 0.054279
+1.464148, -62.7724, 60, POINT, N, VKLTPLCVTLNCSNFNNNITD-------------------------------------DMNGEIKN----CTFNI-T-TV--LRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---NCNTSTI-T---QA, 1.6067, 1, 0.055732
+1.451694, -65.0463, [63], CHUNK, ['M'], VKLTPLCVTLNCSNFNNNITD-------------------------------------DMNGEMKN----CTFNI-T-TV--LRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---NCNTSTI-T---QA, 1.6805, 1, 0.055732
+1.458303, 33.9144, 82, POINT, I, VKLTPLCVTLNCSNFNNNITD-------------------------------------DMNGEMKN----CTFNI-T-TV--IRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---NCNTSTI-T---QA, 1.6731, 0, 0.055732
+1.455236, -66.0754, [4], CHUNK, ['T'], VKLTTLCVTLNCSNFNNNITD-------------------------------------DMNGEMKN----CTFNI-T-TV--LRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------TTTYRLI---NCNTSTI-T---QA, 1.6984, 1, 0.055732
+1.458783, -67.7003, 159, POINT, N, VKLTTLCVTLNCSNFNNNITD-------------------------------------DMNGEMKN----CTFNI-T-TV--LRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------NTTYRLI---NCNTSTI-T---QA, 1.5658, 1, 0.055732
+1.457559, -24.1869, 61, POINT, E, VKLTTLCVTLNCSNFNNNITD-------------------------------------DMNEEMKN----CTFNI-T-TV--LRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------NTTYRLI---NCNTSTI-T---QA, 1.5658, 1, 0.055732
+1.477611, -61.1063, [59, 60, 61, 62, 63], CHUNK, ['E', 'T', 'G', 'S', 'I'], VKLTTLCVTLNCSNFNNNITD-------------------------------------DETGSIKN----CTFNI-T-TV--LRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------NTTYRLI---NCNTSTI-T---QA, 1.5658, 1, 0.055732
+1.469097, -60.8730, 7, POINT, I, VKLTTLCITLNCSNFNNNITD-------------------------------------DETGSIKN----CTFNI-T-TV--LRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------NTTYRLI---NCNTSTI-T---QA, 1.5658, 1, 0.015286
+1.458357, -66.4107, 19, POINT, S, VKLTTLCITLNCSNFNNNISD-------------------------------------DETGSIKN----CTFNI-T-TV--LRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------NTTYRLI---NCNTSTI-T---QA, 1.2303, 1, 0.015286
+1.459743, -69.1629, 17, POINT, T, VKLTTLCITLNCSNFNNTISD-------------------------------------DETGSIKN----CTFNI-T-TV--LRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------NTTYRLI---NCNTSTI-T---QA, 1.3321, 1, 0.015286
+1.468255, -68.8359, [15, 16, 17, 18, 20], CHUNK, ['S', 'T', 'N', 'Y', 'N'], VKLTTLCITLNCSNFSTNYSN-------------------------------------DETGSIKN----CTFNI-T-TV--LRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------NTTYRLI---NCNTSTI-T---QA, 1.3955, 1, 0.015286
+------END OF DATA------
+Best coverage = 1.47761054062
+Best sequence = VKLTTLCVTLNCSNFNNNITD-------------------------------------DETGSIKN----CTFNI-T-TV--LRD-KI-KKE-YALF-YRLDVVPINENTGNRSNNS------------------------------------------NTTYRLI---NCNTSTI-T---QA
+Best energy = -61.1062644364
+Best RMSD = 1.56577384472
+Hard Covereage = 0.0152856268389
+Num epitopes = 59

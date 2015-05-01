@@ -8,13 +8,13 @@ Functions to be called once at the very beginning of the program:
 
 epitope_length = 9
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
-population_epitope_freq_aligned = {} # ALIGNED epitope string : frequency in population
+population_epitope_freq_aligned = {} # mosaic position index: ALIGNED epitope string : frequency in population
 population_epitope_freq_unaligned = {} # UNALIGNED epitope string : frequency in population
 population_num_epitopes = 0.0 # Total number of epitopes (non-distinct) in all the population sequences
 population_top_single_freq = {} # ALIGNED position : (amino acid, frequency) Stores the amino acid frequences at each position
 population_top_nmer_freq = {} # ALIGNED n(length of nmer) : position : amino acid : frequency (dict of dicts of nmer frequences)
 hard_epitope_coverage = {} # UNALIGNED epitope : coverage (according to Fisher)
-soft_epitope_coverage = {} # UNALIGNED epitope : coverage (according to us usign a particular weight function)
+soft_epitope_coverage = {} # mosaic position index: UNALIGNED epitope : coverage (according to us usign a particular weight function)
 num_population_sequences = None
 
 
@@ -216,14 +216,17 @@ def calc_pop_epitope_freq(pop_seqs):
     global population_epitope_freq_aligned
     global population_epitope_freq_unaligned
     global population_num_epitopes
+
+    for temp_i in xrange(len(pop_seqs[0]) - epitope_length + 1):
+        population_epitope_freq_aligned[temp_i] = {}
     
     for seq in pop_seqs:
         # Aligned
         for start_i in xrange(len(seq) - epitope_length + 1):
             curr_epitope = seq[start_i:start_i + epitope_length]
-            if curr_epitope not in population_epitope_freq_aligned:
-                population_epitope_freq_aligned[curr_epitope] = 0.0
-            population_epitope_freq_aligned[curr_epitope] += 1.0
+            if curr_epitope not in population_epitope_freq_aligned[start_i]:
+                population_epitope_freq_aligned[start_i][curr_epitope] = 0.0
+            population_epitope_freq_aligned[start_i][curr_epitope] += 1.0
         # Unaligned
         unaligned_seq = seq.replace("-", "")
         for start_i in xrange(len(unaligned_seq) - epitope_length + 1):
@@ -244,27 +247,33 @@ def coverage(mosaic_seq, threshold = 0.0, weight_func = exponential_weight):
     """
     global population_num_epitopes
     global soft_epitope_coverage
-    
-    mosaic_seq = mosaic_seq.replace("-", "")
+
+    if len(soft_epitope_coverage) == 0:
+        for temp_i in xrange(len(mosaic_seq) - epitope_length + 1):
+            soft_epitope_coverage[temp_i] = {}
+            
+    #mosaic_seq = mosaic_seq.replace("-", "")
     total_coverage_score = 0.0
     for mosaic_start_i in xrange(len(mosaic_seq) - epitope_length + 1):
         curr_mosaic_epi = mosaic_seq[mosaic_start_i:mosaic_start_i + epitope_length]
-        if curr_mosaic_epi in soft_epitope_coverage:
+        if '-' in curr_mosaic_epi:
+            continue
+        if curr_mosaic_epi in soft_epitope_coverage[mosaic_start_i]:
             # We've cached the result; let's pull it out to reduce computation time
-            total_coverage_score += soft_epitope_coverage[curr_mosaic_epi]
+            total_coverage_score += soft_epitope_coverage[mosaic_start_i][curr_mosaic_epi]
         else:
             # First time we're seeing this epitope, so let's calculate and then cache
-            for key in population_epitope_freq_unaligned:
-                if population_epitope_freq_unaligned[key] >= threshold:
+            for key in population_epitope_freq_aligned[mosaic_start_i]:
+                if population_epitope_freq_aligned[mosaic_start_i][key] >= threshold:
                     epitope_coverage_score = 0
                     for aa_i in xrange(epitope_length):
                         if mosaic_seq[mosaic_start_i + aa_i] == key[aa_i]:
                             epitope_coverage_score += 1
-                    epitope_coverage_score = weight_func(epitope_coverage_score) # / epitope_length
-                    if curr_mosaic_epi not in soft_epitope_coverage:
-                        soft_epitope_coverage[curr_mosaic_epi] = 0.0
-                    soft_epitope_coverage[curr_mosaic_epi] += epitope_coverage_score * population_epitope_freq_unaligned[key]
-            total_coverage_score += soft_epitope_coverage[curr_mosaic_epi]
+                    epitope_coverage_score = weight_func(epitope_coverage_score)
+                    if curr_mosaic_epi not in soft_epitope_coverage[mosaic_start_i]:
+                        soft_epitope_coverage[mosaic_start_i][curr_mosaic_epi] = 0.0
+                    soft_epitope_coverage[mosaic_start_i][curr_mosaic_epi] += epitope_coverage_score * population_epitope_freq_aligned[mosaic_start_i][key]
+            total_coverage_score += soft_epitope_coverage[mosaic_start_i][curr_mosaic_epi]
     total_coverage_score /= population_num_epitopes
     return total_coverage_score
 
@@ -313,6 +322,20 @@ def update_seq_string(mosaic_seq, mutation_choice, pos):
         mutated_sequence += mosaic_seq[pos + len(mutation_choice):]
     return mutated_sequence
 
+def prune_population_seqs(mosaic_seq, pop_seqs):
+    """ Removes all gaps in the population sequence where the mosaic sequence has gaps. """
+    i_to_remove = []
+    for i in xrange(len(mosaic_seq) - 1, -1, -1):
+        if mosaic_seq[i] == '-':
+            i_to_remove.append(i)
+
+    for pop_i in xrange(len(pop_seqs)):
+        for ii in i_to_remove:
+            if ii != len(pop_seqs[pop_i]) - 1:
+                pop_seqs[pop_i] = pop_seqs[pop_i][:ii] + pop_seqs[pop_i][(ii + 1):]
+            else:
+                pop_seqs[pop_i] = pop_seqs[pop_i][:ii]
+                
 def read_fasta_file(fasta_file, start_i, end_i, aligned = True):
     """ Reads the population sequences that come in FASTA file format.
     start_i and end_i denote the starting and ending indices for the mosaic beginning/end points with respect
@@ -434,7 +457,7 @@ if __name__ == "__main__":
     init_coverage = coverage(v1v2_seq, weight_func = exponential_weight)
     print "Init coverage: ", init_coverage
     print choose_point_mutation(v1v2_seq, init_coverage, allow_insertions_deletions = True)
-    choose_n_sub_mutation(v1v2_seq, init_coverage, pop_env, mut_length = 2, max_mutations_per_position = 1)"""
+    choose_n_sub_mutation(v1v2_seq, init_coverage, pop_env, mut_length = 2, max_mutations_per_position = 1)
 
     print "gag loop diagnostics"
     gag_start_i = 343
@@ -449,7 +472,7 @@ if __name__ == "__main__":
     #    print choose_n_sub_mutation(gag_seq, init_coverage, pop_gag, mut_length = 2, max_mutations_per_position = 3)
     print init_coverage
     print choose_point_mutation(gag_seq, init_coverage)
-    print fisher_coverage(gag_seq, pop_gag)
+    print fisher_coverage(gag_seq, pop_gag)"""
 
     print
     print "Nef sequence diagnostics"
@@ -458,13 +481,13 @@ if __name__ == "__main__":
     nef_start_i = 111
     nef_end_i = 357
     pop_nef_aligned = read_fasta_file('./data/HIV-1_nef.fasta', nef_start_i, nef_end_i, aligned = True)
+    prune_population_seqs(nef_seq, pop_nef_aligned)
+    nef_seq = nef_seq.replace("-","")
     with open('popnef.fasta', 'w') as f:
         for seq in pop_nef_aligned:
             f.write(seq + '\n')
     pop_nef_unaligned = read_fasta_file('./data/HIV-1_nef.fasta', nef_start_i, nef_end_i, aligned = False)
-    calc_pop_epitope_freq(pop_nef_unaligned)
+    calc_pop_epitope_freq(pop_nef_aligned)
     calc_single_freq(pop_nef_aligned)
     print coverage(nef_seq, weight_func=squared_weight)    
-    output_seq = 'SILKEGPGPAEPLRQILGLGLEEEEEEEAEEEEEEEELEALLVKGAPGLSKTLLKALGEGATLEEALGGHQ'
-
     

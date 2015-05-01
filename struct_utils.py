@@ -1,3 +1,17 @@
+"""
+struct_utils.py 
+------------------
+MUST CALL rosetta.init()
+MUST CALL initialize_struct_utils()
+MUST CALL set_fLog()
+...prior to calling functions in this file 
+------------------
+
+This file contains functions for performing mutations and actions related to 
+structure. It maintains the connection between structure and aligned sequences
+and translates output from utils.py into structural changes. 
+"""
+
 from rosetta import *
 from utils import *
 from optimizeStructure import *
@@ -262,15 +276,20 @@ def calc_convergence(curr_iter, cap_iters):
 	global convergence_flag
 	cover_calc = sorted(cover_archive, reverse=True)
 	i = 0
-	while i < len(prev_top_ten_cover):
-		if (cover_calc[i] != prev_top_ten_cover[i]):
+	#while i < len(prev_top_ten_cover):
+	while (i < len(prev_top_ten_cover)):
+		print str(cover_calc[i]) + "\n"
+		print str(prev_top_ten_cover[i]) + "\n"
+		if (abs(cover_calc[i] - prev_top_ten_cover[i]) > 0.0001):
 			convergence_flag = False
 			return (cap_iters, convergence_flag)
 		i += 1
 
 	if (convergence_flag is False):
-		return (curr_iter + 20, convergence_flag)
+		convergence_flag = True
+		return (curr_iter + 50, convergence_flag)
 	else:
+		convergence_flag = True
 		return (cap_iters, convergence_flag)
 
 def update_archives(pose, sequence, cover): 

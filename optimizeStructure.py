@@ -1,8 +1,12 @@
+"""
 # optimize_structure.py 
 # --------------------
 # MUST CALL rosetta.init() prior to using any of these functions
+MUST CALL 
 #---------------------
-# This file performs PyRosetta related mutations and optimizations for a protein structure 
+# This file serves as the driver for the ROSAIC program
+It performs PyRosetta argument processing, program control and Pyrosetta optimization 
+"""
 
 from rosetta import *
 import random 
@@ -194,6 +198,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 			log.write("Best RMSD = " + str(high_RMSD) + "\n")
 			log.write("Hard Covereage = " + str(fisher_coverage(high_seq, pop_aligned)) + "\n")
 			log.write("Num epitopes = " + str(num_epitopes_in_mosaic(high_seq, pop_aligned))+ "\n")
+			log.write("Iters = " + str(i) + "\n")
 			high_pose.dump_pdb(outfile)
 			debug.write("Structure Rejection\n")
 			log.close()
@@ -281,6 +286,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 	log.write("Best RMSD = " + str(high_RMSD) + "\n")
 	log.write("Hard Covereage = " + str(fisher_coverage(high_seq, pop_aligned)) + "\n")
 	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(high_seq, pop_aligned))+ "\n")
+	log.write("Iters = " + str(i) + "\n")
 	high_pose.dump_pdb(outfile)
 	log.close()
 	debug.close()
@@ -291,7 +297,7 @@ def is_accept_struct(RMSD, energy, native_energy):
 	Calculate acceptance for the iteration using the energy and RMSD 
 	according to the Metropolis Criteria
 	"""
-	accept_energy = ((energy < native_energy) or (random.random() < math.exp(-(energy - native_energy/energy_temp))))
+	accept_energy = ((energy < native_energy) or (random.random() < math.exp(-(energy - native_energy)/energy_temp)))
 	accept_RMSD = ((RMSD < RMSD_cutoff) or (random.random() < math.exp(-(RMSD - RMSD_cutoff)/RMSD_temp)))
 	return (accept_energy and accept_RMSD)
 

@@ -363,9 +363,18 @@ def read_fasta_file(fasta_file, start_i, end_i, aligned = True):
 
     return sequences
 
+def find_ins_del_positions(seqs):
+    gap_counts = [0.0] * len(seqs[0])
+    for seq in seqs:
+        for aa_i in xrange(len(seq)):
+            if seq[aa_i] == '-':
+                gap_counts[aa_i] += 1.0
 
-
-
+    possible_mutation_sites = [i for i in xrange(len(seqs[0])) if (gap_counts[i] > 200 and gap_counts[i] < len(seqs) - 200)]
+    possible_gap_counts = [gap_counts[i] for i in possible_mutation_sites]
+    print zip(possible_mutation_sites, possible_gap_counts)
+    print len(seqs), gap_counts
+    return possible_mutation_sites
 
 
 
@@ -447,19 +456,41 @@ def deprecated_frac_pop_seq_covered(mosaic, pop, tolerance = False, coverage_thr
 
 # Tester function
 if __name__ == "__main__":
-    """print "v1v2 loop diagnostics"
+    # Find sites for ins/del
+    v1v2_seq = 'VKLTPLCVTLQCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA'
     v1v2_start_i = 171
     v1v2_end_i = 354
     pop_env = read_fasta_file('./data/HIV-1_env.fasta', v1v2_start_i, v1v2_end_i, aligned=True)
+    insdel_sites = find_ins_del_positions(pop_env)
+    for site in insdel_sites:
+        print site, v1v2_seq[site]
+
+    nef_start_i = 111
+    nef_end_i = 357
+    pop_nef_aligned = read_fasta_file('./data/HIV-1_nef.fasta', nef_start_i, nef_end_i, aligned = True)
+    #find_ins_del_positions(pop_nef_aligned)
+
+    print "v1v2 loop diagnostics"
+    consensus = 'VKLTPLCVTLNCTDVNNTNTTMEKGEIKNCSFNITTEIRDKVQKEYALFYKLDVVPIDNNNNSNNSSSNTSYRLINCNTSVITQA'
+    prune_population_seqs(v1v2_seq, pop_env)
     calc_pop_epitope_freq(pop_env)
     calc_single_freq(pop_env)
-    v1v2_seq = 'VKLTPLCVTLQCTNVTNNITD-------------------------------------DMRGELKN----CSFNM-T-TE--LRD-KK-QKV-YSLF-YRLDVVQINENQGNRSNNS------------------------------------------NKEYRLI---NCNTSAI-T---QA'
-    init_coverage = coverage(v1v2_seq, weight_func = exponential_weight)
-    print "Init coverage: ", init_coverage
-    print choose_point_mutation(v1v2_seq, init_coverage, allow_insertions_deletions = True)
-    choose_n_sub_mutation(v1v2_seq, init_coverage, pop_env, mut_length = 2, max_mutations_per_position = 1)
 
-    print "gag loop diagnostics"
+    v1v2_seq = v1v2_seq.replace("-","")
+    with open('temp_popv1v2.fasta', 'w') as f:
+        for seq in pop_env:
+            f.write(seq + '\n')
+
+    init_coverage = coverage(v1v2_seq, weight_func = squared_weight)
+    consensus_coverage = coverage(consensus, weight_func = squared_weight)
+    init_hard = fisher_coverage(v1v2_seq, pop_env)
+    consensus_hard = fisher_coverage(consensus, pop_env)
+
+    print "Init coverage: ", init_coverage, consensus_coverage, init_hard, consensus_hard
+    #print choose_point_mutation(v1v2_seq, init_coverage, allow_insertions_deletions = True)
+    #choose_n_sub_mutation(v1v2_seq, init_coverage, pop_env, mut_length = 2, max_mutations_per_position = 1)
+
+    """print "gag loop diagnostics"
     gag_start_i = 343
     gag_end_i = 414
     pop_gag = read_fasta_file('./data/HIV-1_gag.fasta', gag_start_i, gag_end_i, aligned=True)
@@ -478,9 +509,8 @@ if __name__ == "__main__":
     print "Nef sequence diagnostics"
     #nef_seq = 'AWLEAQEEEEVGFPVTPQVPLRPMTYKAAVDLSHFLKEKGGLEGLIHSQRRQDILDLWIYHTQGYFPDWQNYTPGPGIRYPLTFGWCYKLVPVEPEKLEEANKDDPEREVLEWRFDSRLAFHHMARELHPEYFKNA'
     nef_seq = 'AWL--EA-QE-----E---E--E--VGFPVTPQVPLRPMTYKAAVDLSHFLKEKGGLEGLIHSQRRQDILDLWIYHTQGYFPDWQNYTPGPGIRYP-----------------------------------------------------------------LTFGWCYKLVPVEPEKLE-EANK---------------------------DDP-EREVLEWRFDSRLAFHHMARELHPEYF-KNA'
-    nef_start_i = 111
-    nef_end_i = 357
-    pop_nef_aligned = read_fasta_file('./data/HIV-1_nef.fasta', nef_start_i, nef_end_i, aligned = True)
+    consensus = 'AWLEAQEEEEVGFPVRPQVPLRPMTYKGAFDLSHFLKEKGGLEGLIYSQKRQDILDLWVYHTQGYFPDWQNYTPGPGIRYPLTFGWCFKLVPVDPEEVEEANEDDPEREVLMWKFDSRLAFRHMARELHPEYYKLK'
+
     prune_population_seqs(nef_seq, pop_nef_aligned)
     nef_seq = nef_seq.replace("-","")
     with open('popnef.fasta', 'w') as f:
@@ -491,3 +521,8 @@ if __name__ == "__main__":
     calc_single_freq(pop_nef_aligned)
     print coverage(nef_seq, weight_func=squared_weight)    
     
+    init_coverage = coverage(nef_seq, weight_func = squared_weight)
+    consensus_coverage = coverage(consensus, weight_func = squared_weight)
+    init_hard = fisher_coverage(nef_seq, pop_nef_aligned)
+    consensus_hard = fisher_coverage(consensus, pop_nef_aligned)
+    print init_coverage, consensus_coverage, init_hard, consensus_hard

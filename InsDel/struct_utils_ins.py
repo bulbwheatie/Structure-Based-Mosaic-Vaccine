@@ -1,6 +1,7 @@
 from rosetta import *
 from utils import *
 from optimizeStructure_ins import *
+from PDBparser import *
 
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 
@@ -241,7 +242,7 @@ def reject_archives():
 	reject_count += 1
 
 	#If three structures have been rejected, start going back in archive
-	if (reject_count > 3):
+	if (reject_count > 2):
 		sequence_master_archive[0:4] = sequence_master_archive[1:]
 		sequence_master_archive[-1] = 0
 		pose_archive[0:4] = pose_archive[1:]

@@ -16,6 +16,7 @@ from rosetta import *
 from utils import *
 from optimizeStructure import *
 import math
+import sys
 
 possible_mutations = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 
@@ -36,6 +37,9 @@ log = None
 reject_count = 0
 number_of_resets = 0
 mutation_temp = 0.005
+preset_idx = 0
+preset_attempt = 1
+consensus_sequence = ""
 
 point_to_chunk_prob = 0.5
 
@@ -68,7 +72,7 @@ def calculate_mutation_for_pose(sequence_master, position, amino_acid, count):
 
 	return (pose_position + 1, mutation_type)
 
-def make_mutation(pop, coverage_weight, mutation_length = 2):
+def make_mutation(pop, coverage_weight, mutation_length = 2, follow_consensus = False):
 	"""
 		(1) Gets the current sequence
 		(2) Randomly chooses either a point or chunk mutation 
@@ -90,6 +94,12 @@ def make_mutation(pop, coverage_weight, mutation_length = 2):
 
 	pose = Pose()
 	pose.assign(tmp_pose)
+
+	if (follow_consensus):
+		#TODO: Make a mutation according to the consensus sequence
+		(pose, position, mutation) = mutate_preset_sequence(pose)
+		return (pose, pose.sequence(), position, mutation, "PRESET")
+
 
 	if (random.random() > point_to_chunk_prob):
 		#Make a chunk mutation first
@@ -256,6 +266,10 @@ def get_current_structure():
 	"""
 	Retrieve the current pose and sequence or this iteration
 	"""
+	if (number_of_resets > 20):
+		print "Max number of resets hit\n"
+		return (0, 0, 0)
+
 	curr_idx = max(0, archive_idx - 1)
 	pose = Pose()
 	pose.assign(pose_archive[curr_idx])
@@ -289,7 +303,6 @@ def calc_convergence(curr_iter, cap_iters):
 		convergence_flag = True
 		return (curr_iter + 50, convergence_flag)
 	else:
-		convergence_flag = True
 		return (cap_iters, convergence_flag)
 
 def update_archives(pose, sequence, cover): 
@@ -329,9 +342,10 @@ def reject_archives():
 	global number_of_resets
 
 	reject_count += 1
+	prev_top_ten_cover = sorted(cover_archive, reverse=True)[0:10]
 
-	#If three structures have been rejected, start going back in archive
-	if (reject_count > 3):
+	#If five structures have been rejected, start going back in archive
+	if (reject_count > 5):
 		archive_idx -= 5
 		archive_idx = max(0, archive_idx)
 		reject_count = 0
@@ -365,6 +379,9 @@ def initialize_struct_utils(sequence, name_base, max_iters, pose, cover):
 	pose_archive[0] = Pose()
 	pose_archive[0].assign(pose)
 
+def set_consensus_sequence(sequence):
+	global consensus_sequence
+	consensus_sequence = sequence
 
 def set_fLog(logFile):
 	global log
@@ -373,6 +390,33 @@ def set_fLog(logFile):
 def set_mutation_temp(temp):
 	global mutation_temp
 	mutation_temp = temp
+
+def mutate_preset_sequence(pose):
+	"""
+	Attempts to mutate the structure into the given sequence 
+	"""
+	global preset_idx
+	global preset_attempt
+	target_aa = "null"
+
+	#Check if consensus sequence differs from struct sequence at this position
+	if (not consensus_sequence[preset_idx] == pose.sequence()[preset_idx]):
+
+		#Attempt to mutate each position in the structure to match the given sequence
+		target_aa = consensus_sequence[preset_idx]
+		mutate_residue(pose, preset_idx + 1, target_aa);
+
+	preset_idx += 1
+
+	if (preset_idx == len(consensus_sequence) and not preset_attempt == 2):
+		preset_idx = 0
+		preset_attempt = 2
+
+	if (preset_idx == len(consensus_sequence) and preset_attempt == 2):
+		return (-1, -1, -1)
+
+	return (pose, preset_idx, target_aa)
+
 
 if __name__ == "__main__":
 	#print calculate_mutation_for_pose("AB---CD", 5, "-")

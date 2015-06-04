@@ -125,7 +125,7 @@ def baseline_optimization():
 	return energies
 
 
-def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_weight):
+def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_weight, follow_consensus = False):
 	"""# Calling ROSAIC will perform N iterations of mutation + optimization
 	# INPUT: PDB file
 	#		 Outfile
@@ -172,7 +172,6 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 	log.write("Soft coverage = " + str(cover) + "\n")
 	log.write("Energy = " + str(scorefxn(pose)) + "\n")
 	log.write("Hard Covereage = " + str(fisher_coverage(sequence, pop_aligned)) + "\n")
-	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(sequence, pop_aligned))+ "\n")
 	log.write("Initial seq = " + sequence + "\n")
 	log.write("-------START OF DATA------\n")
 	set_fLog(debug)
@@ -185,7 +184,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 		debug.write("ROSAIC: Initial sequence = " + str(get_current_structure)[1] + "\n")
 
 		#Get mutations, positions, mutation types
-		(pose, sequence, positions, mutations, mutation_type) = make_mutation(pop_aligned, coverage_weight, mutation_length = mutation_length)
+		(pose, sequence, positions, mutations, mutation_type) = make_mutation(pop_aligned, coverage_weight, mutation_length = mutation_length, follow_consensus = follow_consensus)
 
 		debug.write("ROSAIC: Mutated sequence = " + str(sequence) + "\n")
 
@@ -197,10 +196,10 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 			log.write("Best energy = " + str(high_energy) + "\n")
 			log.write("Best RMSD = " + str(high_RMSD) + "\n")
 			log.write("Hard Covereage = " + str(fisher_coverage(high_seq, pop_aligned)) + "\n")
-			log.write("Num epitopes = " + str(num_epitopes_in_mosaic(high_seq, pop_aligned))+ "\n")
 			log.write("Iters = " + str(i) + "\n")
 			high_pose.dump_pdb(outfile)
 			debug.write("Structure Rejection\n")
+			log.write("Structure Rejection\n")
 			log.close()
 			debug.close()
 			return 			
@@ -214,10 +213,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 
 		#Calculate the coverage
 		cover = coverage(sequence, weight_func = coverage_weight)
-		if (iter_cap %500 == 0):
-			hard_cover = fisher_coverage(high_seq, pop_aligned)
-		else:
-			hard_cover = -1
+		hard_cover = fisher_coverage(high_seq, pop_aligned)
 
 		#Optimize the structure
 		try:
@@ -273,7 +269,7 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 		print "Iter = " + str(iter_cap)
 		print "\nFlag = " + str(flag)
 		if (not flag):
-			print "Not coverged; max iters = " + str(max_iter)
+			print "Not converged; max iters = " + str(max_iter)
 			iter_cap = max_iter 
 
 		i += 1
@@ -285,8 +281,8 @@ def ROSAIC(pdbFile, nameBase, mutationGenerator, max_iter, sequence, coverage_we
 	log.write("Best energy = " + str(high_energy) + "\n")
 	log.write("Best RMSD = " + str(high_RMSD) + "\n")
 	log.write("Hard Covereage = " + str(fisher_coverage(high_seq, pop_aligned)) + "\n")
-	log.write("Num epitopes = " + str(num_epitopes_in_mosaic(high_seq, pop_aligned))+ "\n")
 	log.write("Iters = " + str(i) + "\n")
+	log.write("Iter cap exit")
 	high_pose.dump_pdb(outfile)
 	log.close()
 	debug.close()
@@ -369,11 +365,13 @@ def run_ROSAIC():
 	coverage_weight = None
 	template = None
 	mutation_temp = 0.01;
+	consensus_sequence = None;
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "rh", ["pdbFile=", "nameBase=", "iters=", "fastaFile=", "start_i=", \
 			"end_i=", "sequence=", "num_mutation_choices=", "coverage_weight=", \
-			"RMSD_cutoff=", "energy_temp=", "mutation_length=", "template=", "mutation_temp="])
+			"RMSD_cutoff=", "energy_temp=", "mutation_length=", "template=", "mutation_temp=", \
+			"consensus_sequence="])
 	except getopt.error, msg:
 		print msg
 		print "for help use --help"
@@ -401,7 +399,9 @@ def run_ROSAIC():
 		elif o in ("--sequence"):
 			sequence = a	
 		elif o in ("--template"):
-			template = a			
+			template = a	
+		elif o in ("--consensus_sequence"):
+			consensus_sequence = a			
 		elif o in ("--coverage_weight"):
 			coverage_weight = a
 			if (coverage_weight == "exponential"):
@@ -422,6 +422,8 @@ def run_ROSAIC():
 	rosetta.init()
 
 	pop_aligned = read_fasta_file(fastaFile, start_i, end_i, aligned = True)
+	prune_population_seqs(sequence, pop_aligned)
+	sequence = sequence.replace("-", "")
 
 	#pop_unaligned = read_fasta_file(fastaFile, start_i, end_i, aligned = False)
 	calc_pop_epitope_freq(pop_aligned)
@@ -429,6 +431,11 @@ def run_ROSAIC():
 	calc_single_freq(pop_aligned)
 
 	set_mutation_temp(mutation_temp)
+
+	#Controlled mutations based on a specified sequence
+	if (consensus_sequence is not None):
+		set_consensus_sequence(consensus_sequence)
+		return ROSAIC(pdbFile, nameBase, d_mutation_selecter, iters, sequence, coverage_weight, follow_consensus = True)
 	
 	#Use nameBase as the output dir for each struct
 	return ROSAIC(pdbFile, nameBase, d_mutation_selecter, iters, sequence, coverage_weight)

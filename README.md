@@ -29,7 +29,15 @@ utils.py :: (library) helper functions to choose mutations and calculate coverag
 
 ```
 
-Sample usage :
+Quick start:
+
+The following script will run a simple Rosaic run from an anthill environment that has access to the grigoryanlab PyRosetta installation.
+The scripts directory includes a number of command templates that take in command line arguements. 
+```sh
+./scripts/rosaicSample.sh
+```
+
+Sample usage (manual/detailed use):
 
 ```sh
 source [path_to_PyRosetta/SetPyRosettaEnvironment.sh]

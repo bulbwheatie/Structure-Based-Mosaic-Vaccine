@@ -17,6 +17,7 @@ graphing_scripts/ :: scripts to parse and graph data in anthill_output
 logos/ :: sequence logos to show variation at each position for gag, nef and V1V2 proteins in HIV. 
 scripts/ :: bash scripts to run Rosaic on the cluster (useful for sample commands)
 structures/ ::pdb files of starting structures. 
+output/ :: running Rosaic will write results to this directory. 
 
 DataManager.py :: generates script files to run test sets with various combinations of parameters
 PDBparser.py :: (library) file to help with insertions/deletion and PDB file processing

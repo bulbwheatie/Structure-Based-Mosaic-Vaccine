@@ -53,3 +53,8 @@ This command will run 10 iterations of Rosaic on the provided gag sequence and s
 Rosaic will output logs containing [soft coverage, energy, position of mutation, mutation type, mutation amino acids, sequence, RMSD, whether the structure was accepted (1 yes, 0 no), hard coverage] as a comma separated value for each iteration. Only some of the logs output hard coverage for each iteration as this signficantly slows down the program. 
 
 Additional example runs can be taken from the bash scripts in the scripts/ directory. 
+
+Bulk Runs:
+
+There are a couple scripts to help generate large sets of tests to run on anthill.
+The scripts rosaicAll.sh contains a list of qsub commands that will submit a bunch of anthill jobs. The DataManager.py file can be used to generate this master script. You can modify the function in the write_all_bach() function's for loops and parameter lists to change the combination of parameters in rosaicAll.sh. Running DataManager's main function will generate the bash script. 
